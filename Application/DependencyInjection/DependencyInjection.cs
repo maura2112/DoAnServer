@@ -13,6 +13,8 @@ using Infrastructure.Repositories;
 using Application.DTOs;
 using FluentValidation.AspNetCore;
 using FluentValidation;
+using Application.Repositories;
+using Application.IServices;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -30,8 +32,13 @@ public static class DependencyInjection
         });
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining(typeof(ProductDTOValidator));
+        //Product
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductService, ProductService>();
+        //Media
+        services.AddScoped<IMediaFileRepository, MediaFileRepository>();
+        services.AddScoped<IMediaService, MediaService>();
+
         services.AddIdentityCore<AppUser>(opt =>
         {
             opt.Lockout.AllowedForNewUsers = true; // Default true

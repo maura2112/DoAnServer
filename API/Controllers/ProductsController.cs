@@ -9,9 +9,7 @@ using System.Linq.Expressions;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductsController : ApiControllerBase
     {
         private readonly IProductService _productService;
         public ProductsController(IProductService productService)

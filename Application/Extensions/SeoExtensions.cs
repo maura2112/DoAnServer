@@ -19,7 +19,7 @@ namespace Application.Extensions
             {
                 EntityId = entity.Id,
                 EntityName= entity.GetEntityName(),
-                Slug = GenerateSlug(seoName),
+                Slug = alias+"/"+ GenerateSlug(seoName),
                 IsActive = true
             };
             return url;

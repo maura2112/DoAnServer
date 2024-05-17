@@ -35,8 +35,7 @@ namespace Application.Services
             product.DateCreated = DateTime.Now;
             product.DateUpdated = DateTime.Now;
             await _productRepository.AddAsync(product);
-            
-            var urlRecord = product.CreateUrlRecordAsync("san-pham"+product.Title);
+            var urlRecord = product.CreateUrlRecordAsync("san-pham" , product.Title);
             await _urlRepository.AddAsync(urlRecord);
             return product.Id;
         }

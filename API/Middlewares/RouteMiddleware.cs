@@ -16,12 +16,7 @@ namespace API.Middlewares
         {
             if (httpContext.Request.Method == "GET")
             {
-                var secFetchDest = httpContext.Request.Headers["Sec-Fetch-Dest"];
-                if (secFetchDest == "document")
-                {
-                    var path = httpContext.Request.Path.ToString().ToLower().TrimStart('/').TrimEnd('/');
-                    
-                }
+                var path = httpContext.Request.Path.ToString().ToLower().TrimStart('/').TrimEnd('/');
             }
 
             await next(httpContext);

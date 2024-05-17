@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240517065529_Mediaid")]
+    partial class Mediaid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,7 +260,10 @@ namespace Infrastructure.Migrations
                     b.Property<int>("MaxBudget")
                         .HasColumnType("int");
 
-                    b.Property<long?>("MediaFileId")
+                    b.Property<int?>("MediaFileId")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("MediaFileId1")
                         .HasColumnType("bigint");
 
                     b.Property<int>("MinBudget")
@@ -278,7 +284,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("MediaFileId");
+                    b.HasIndex("MediaFileId1");
 
                     b.HasIndex("StatusId");
 
@@ -524,7 +530,7 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Domain.Entities.MediaFile", "MediaFile")
                         .WithMany()
-                        .HasForeignKey("MediaFileId");
+                        .HasForeignKey("MediaFileId1");
 
                     b.HasOne("Domain.Entities.ProjectStatus", "ProjectStatus")
                         .WithMany("Projects")

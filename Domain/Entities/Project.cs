@@ -1,6 +1,7 @@
 ﻿using Domain.Common;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,10 +19,13 @@ namespace Domain.Entities
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public int StatusId { get; set; }
-        public int? MediaId { get; set; }
+
+        [ForeignKey("MediaFile")]
+        public long? MediaFileId { get; set; }
+
         public virtual Category? Category { get; set; } = null!;
-        public virtual ProjectStatus? ProjectStatus { get; set; } = null!;
         public virtual MediaFile? MediaFile { get; set; } = null!;
+        public virtual ProjectStatus? ProjectStatus { get; set; } = null!;
         public virtual ICollection<Bid> Bids { get; set; }
         public virtual ICollection<UserProject> UserProjects { get; set; }
 

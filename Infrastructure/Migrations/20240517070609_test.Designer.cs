@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240517070609_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,9 +260,6 @@ namespace Infrastructure.Migrations
                     b.Property<int>("MaxBudget")
                         .HasColumnType("int");
 
-                    b.Property<long?>("MediaFileId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("MinBudget")
                         .HasColumnType("int");
 
@@ -277,8 +277,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("MediaFileId");
 
                     b.HasIndex("StatusId");
 
@@ -522,10 +520,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.MediaFile", "MediaFile")
-                        .WithMany()
-                        .HasForeignKey("MediaFileId");
-
                     b.HasOne("Domain.Entities.ProjectStatus", "ProjectStatus")
                         .WithMany("Projects")
                         .HasForeignKey("StatusId")
@@ -533,8 +527,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-
-                    b.Navigation("MediaFile");
 
                     b.Navigation("ProjectStatus");
                 });

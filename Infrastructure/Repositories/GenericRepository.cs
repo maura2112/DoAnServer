@@ -20,7 +20,10 @@ namespace Infrastructure.Repositories
         protected DbSet<T> _dbSet = context.Set<T>();
 
         public async Task AddAsync(T entity)
-            => await _dbSet.AddAsync(entity);
+        {
+            await _dbSet.AddAsync(entity);
+            await context.SaveChangesAsync();
+        }
 
         public async Task AddRangeAsync(IEnumerable<T> entities)
             => await _dbSet.AddRangeAsync(entities);
@@ -52,6 +55,13 @@ namespace Infrastructure.Repositories
             return result;
         }
 
+        public async Task<List<T>> GetAll()
+        {
+            var items = await _dbSet
+                        .AsNoTracking()
+                        .ToListAsync();
+            return items;
+        }
         public async Task<Pagination<T>> GetAsync(
             Expression<Func<T, bool>> filter,
             int pageIndex ,
@@ -110,7 +120,9 @@ namespace Infrastructure.Repositories
                             .FirstOrDefaultAsync(filter)
                             ?? throw new ArgumentNullException(ErrorMessage.NotFoundMessage);
 
-        
+
+
+
         #endregion
     }
 }

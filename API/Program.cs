@@ -4,6 +4,7 @@ using FluentValidation;
 using Infrastructure.Data;
 using FluentValidation.AspNetCore;
 using Application.DTOs;
+using API.Middlewares;
 
 namespace API
 {
@@ -20,7 +21,7 @@ namespace API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddInfrastructureServices(builder.Configuration);
-            
+            builder.Services.AddTransient<RouteMiddleware>();
             builder.Services.AddAutoMapper(typeof(MapProfile));
             builder.Services.AddDbContext<ApplicationDbContext>(opt => builder.Configuration.GetConnectionString("DefaultConnection"));
             var app = builder.Build();
@@ -30,7 +31,7 @@ namespace API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<RouteMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

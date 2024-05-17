@@ -31,5 +31,17 @@ namespace API.Controllers
             }
             return Ok(await _productService.GetWithFilter(filter, ProductSearch.PageIndex, ProductSearch.PageSize));
         }
+
+        [HttpPost]
+        [Route(Common.Url.Product.Add)]
+        public async Task<IActionResult> AddAsync([FromQuery] ProductDTO DTOs, CancellationToken token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            await _productService.Add(DTOs);
+            return NoContent();
+        }
     }
 }

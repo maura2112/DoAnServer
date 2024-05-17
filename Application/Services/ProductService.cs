@@ -1,6 +1,8 @@
 ﻿using Application.DTOs;
 using Application.DTOs;
+using Application.Extensions;
 using Application.Interfaces.IServices;
+using Application.IServices;
 using AutoMapper;
 using Azure.Core;
 using Domain.Common;
@@ -19,10 +21,12 @@ namespace Application.Services
     {
         private readonly IMapper _mapper ;
         private readonly IProductRepository _productRepository;
-        public ProductService(IMapper mapper, IProductRepository productRepository)
+        private readonly IUrlRepository _urlRepository;
+        public ProductService(IMapper mapper, IProductRepository productRepository, IUrlRepository urlRepository)
         {
             _mapper = mapper;
             _productRepository = productRepository;
+            _urlRepository = urlRepository;
         }
 
         public async Task<int> Add(ProductDTO request)
@@ -31,6 +35,9 @@ namespace Application.Services
             product.DateCreated = DateTime.Now;
             product.DateUpdated = DateTime.Now;
             await _productRepository.AddAsync(product);
+            
+            var urlRecord = product.CreateUrlRecordAsync("san-pham"+product.Title);
+            await _urlRepository.AddAsync(urlRecord);
             return product.Id;
         }
 

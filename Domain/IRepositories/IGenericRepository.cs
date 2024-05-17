@@ -24,6 +24,8 @@ namespace Domain.IRepositories
            int pageSize);
         public Task<Pagination<T>> ToPagination(int pageIndex, int pageSize);
 
+        public Task<List<T>> GetAll();
+
         public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter);
         public void Update(T entity);
         public void UpdateRange(IEnumerable<T> entities);

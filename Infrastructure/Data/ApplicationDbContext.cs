@@ -49,5 +49,6 @@ namespace Infrastructure.Data
         public virtual DbSet<MediaFile> MediaFiles { get; set; }
         public virtual DbSet<AppUser> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<UrlRecord> UrlRecords { get; set; }
     }
 }

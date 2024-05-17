@@ -39,6 +39,10 @@ public static class DependencyInjection
         services.AddScoped<IMediaFileRepository, MediaFileRepository>();
         services.AddScoped<IMediaService, MediaService>();
 
+        //Url
+        services.AddScoped<IUrlRepository, UrlRepository>();
+        services.AddScoped<IUrlService, UrlService>();
+
         services.AddIdentityCore<AppUser>(opt =>
         {
             opt.Lockout.AllowedForNewUsers = true; // Default true

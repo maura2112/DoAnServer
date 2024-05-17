@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class AppUser : IdentityUser<int>
+    public class AppUser : IdentityUser<int>    
     {
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+
+        public virtual ICollection<Bid> Bids { get; set; }
+        public virtual ICollection<UserProject> UserProjects { get; set; }
     }
 }

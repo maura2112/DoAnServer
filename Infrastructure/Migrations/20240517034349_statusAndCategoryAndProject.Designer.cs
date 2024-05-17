@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240517034349_statusAndCategoryAndProject")]
+    partial class statusAndCategoryAndProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,46 +99,6 @@ namespace Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Bid", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Budget")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Duration")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Proposal")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Bids", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -355,29 +318,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UrlRecords", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserProject", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserProjects", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -481,23 +421,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Bid", b =>
-                {
-                    b.HasOne("Domain.Entities.Project", "Project")
-                        .WithMany("Bids")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithMany("Bids")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Domain.Entities.MediaFile", b =>
                 {
                     b.HasOne("Domain.Entities.MediaFolder", "MediaFolder")
@@ -526,25 +449,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("ProjectStatus");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserProject", b =>
-                {
-                    b.HasOne("Domain.Entities.Project", "Project")
-                        .WithMany("UserProjects")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithMany("UserProjects")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -598,13 +502,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.AppUser", b =>
-                {
-                    b.Navigation("Bids");
-
-                    b.Navigation("UserProjects");
-                });
-
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
                     b.Navigation("Projects");
@@ -613,13 +510,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.MediaFolder", b =>
                 {
                     b.Navigation("MediaFiles");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Project", b =>
-                {
-                    b.Navigation("Bids");
-
-                    b.Navigation("UserProjects");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProjectStatus", b =>

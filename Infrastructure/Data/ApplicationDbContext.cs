@@ -50,5 +50,11 @@ namespace Infrastructure.Data
         public virtual DbSet<AppUser> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<UrlRecord> UrlRecords { get; set; }
+        public virtual DbSet<Project> Projects { get; set; }
+        public virtual DbSet<ProjectStatus> ProjectStatus { get; set; }
+        public virtual DbSet<Category> Category { get; set; }
+        public virtual DbSet<Bid> Bids { get; set; }
+        public virtual DbSet<UserProject> UserProjects { get; set; }
+
     }
 }

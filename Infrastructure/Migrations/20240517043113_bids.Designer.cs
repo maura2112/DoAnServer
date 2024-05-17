@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240517043113_bids")]
+    partial class bids
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -355,29 +358,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UrlRecords", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserProject", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserProjects", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -528,25 +508,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProjectStatus");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserProject", b =>
-                {
-                    b.HasOne("Domain.Entities.Project", "Project")
-                        .WithMany("UserProjects")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithMany("UserProjects")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Domain.Entities.Role", null)
@@ -601,8 +562,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Bids");
-
-                    b.Navigation("UserProjects");
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -618,8 +577,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Project", b =>
                 {
                     b.Navigation("Bids");
-
-                    b.Navigation("UserProjects");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProjectStatus", b =>

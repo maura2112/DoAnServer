@@ -64,7 +64,7 @@ namespace API.Controllers
             var user = await _userManager.FindByEmailAsync(userDto.Email);
             if (user == null)
             {
-                return Ok(new
+                return BadRequest(new
                 {
                     success = false,
                     message= "Email hoặc mật khẩu sai!"
@@ -72,7 +72,7 @@ namespace API.Controllers
             }
             if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordHash, userDto.Password))
             {
-                return Ok(new
+                return BadRequest(new
                 {
                     success = false,
                     message = "Email hoặc mật khẩu sai!"

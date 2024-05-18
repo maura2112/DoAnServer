@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -18,7 +19,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Bid.GetBiddingListByUserId)]
-        public async Task<IActionResult> GetListByUserId([FromQuery] BidSearchDTO bids)
+        public async Task<IActionResult> GetListByUserId( BidSearchDTO bids)
         {
             if (!ModelState.IsValid)
             {
@@ -34,7 +35,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Bid.GetBiddingListByProjectId)]
-        public async Task<IActionResult> GetListByProjectId([FromQuery] BidListDTO bids)
+        public async Task<IActionResult> GetListByProjectId( BidListDTO bids)
         {
             if (!ModelState.IsValid)
             {
@@ -50,7 +51,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Bid.Bidding)]
-        public async Task<IActionResult> AddAsync([FromQuery] BidDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> AddAsync( BidDTO DTOs, CancellationToken token)
         {
             if (!ModelState.IsValid)
             {

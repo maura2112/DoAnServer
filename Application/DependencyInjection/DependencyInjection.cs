@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IMediaService, MediaService>();
 
         services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
+        //JWT token
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         //Url

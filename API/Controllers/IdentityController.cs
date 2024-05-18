@@ -97,5 +97,16 @@ namespace API.Controllers
             };
             return Ok(loginRespone);
         }
+        [HttpPost]
+        [Route(Common.Url.User.Identity.Logout)]
+        public async Task<ActionResult> Logout()
+        {
+
+            return Ok(new
+            {
+                success= true,
+                message ="Bạn đã đăng xuất thành công!"
+            });
+        }
     }   
 }

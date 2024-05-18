@@ -15,6 +15,7 @@ using FluentValidation.AspNetCore;
 using FluentValidation;
 using Application.Repositories;
 using Application.IServices;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -39,12 +40,17 @@ public static class DependencyInjection
         services.AddScoped<IMediaFileRepository, MediaFileRepository>();
         services.AddScoped<IMediaService, MediaService>();
 
+        services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
         //Url
         services.AddScoped<IUrlRepository, UrlRepository>();
         services.AddScoped<IUrlService, UrlService>();
 
         services.AddIdentityCore<AppUser>(opt =>
         {
+            opt.User.RequireUniqueEmail = true;
+            opt.User.AllowedUserNameCharacters = null;
             opt.Lockout.AllowedForNewUsers = true; // Default true
             opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Default 5
             opt.Lockout.MaxFailedAccessAttempts = 3; // Default 5

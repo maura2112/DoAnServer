@@ -92,6 +92,9 @@ namespace API.Controllers
             var refreshToken = _jwtTokenService.GenerateRefreshToken();
             var loginRespone = new LoginRespone()
             {
+                Roles = roles.ToList(),
+                LastName = user.LastName,
+                FirstName = user.FirstName,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };

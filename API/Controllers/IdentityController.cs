@@ -104,7 +104,7 @@ namespace API.Controllers
 
             return Ok(new
             {
-                success= false,
+                success= true,
                 message ="Bạn đã đăng xuất thành công!"
             });
         }

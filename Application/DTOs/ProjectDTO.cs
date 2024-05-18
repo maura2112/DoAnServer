@@ -20,10 +20,9 @@ namespace Application.DTOs
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public int StatusId { get; set; }
-
         public long? MediaFileId { get; set; }
-
-
+        
+        List<ProjectStatus> ListStatus { get; set; }
         //public virtual Category? Category { get; set; } = null!;
         //public virtual MediaFile? MediaFile { get; set; } = null!;
         //public virtual ProjectStatus? ProjectStatus { get; set; } = null!;

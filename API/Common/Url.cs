@@ -16,7 +16,11 @@
             public const string GetAll = "GetAll";
             public const string Add = "AddProduct";
         }
-
+        public static class Category
+        {
+            public const string GetAll = "GetAll";
+            public const string Add = "AddCategory";
+        }
         public static class Project
         {
             public const string GetAll = "GetAll";

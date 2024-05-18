@@ -12,9 +12,11 @@ namespace API.Controllers
     public class BidController : ApiControllerBase
     {
         private readonly IBidService _bidService;
-        public BidController(IBidService bidService)
+        private readonly ICurrentUserService _currentUserService;
+        public BidController(IBidService bidService, ICurrentUserService currentUserService)
         {
             _bidService = bidService;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -53,10 +55,12 @@ namespace API.Controllers
         [Route(Common.Url.Bid.Bidding)]
         public async Task<IActionResult> AddAsync( BidDTO DTOs, CancellationToken token)
         {
+            var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
+            DTOs.UserId = userId;
             await _bidService.Add(DTOs);
             return NoContent();
         }

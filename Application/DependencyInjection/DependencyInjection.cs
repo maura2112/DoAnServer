@@ -35,6 +35,10 @@ public static class DependencyInjection
         //Product
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductService, ProductService>();
+
+        //Cate
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ICategoryService, CategoryService>();
         //Media
         services.AddScoped<IMediaFileRepository, MediaFileRepository>();
         services.AddScoped<IMediaService, MediaService>();

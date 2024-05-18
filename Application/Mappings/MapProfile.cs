@@ -19,5 +19,6 @@ public class MapProfile : Profile
 
         CreateMap<Bid, BidDTO>().ReverseMap();
         CreateMap<Pagination<Bid>, Pagination<BidDTO>>().ReverseMap();
+        CreateMap<Category, CategoryDTO>().ReverseMap();
     }
 }

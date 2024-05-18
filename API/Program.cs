@@ -5,6 +5,8 @@ using Infrastructure.Data;
 using FluentValidation.AspNetCore;
 using Application.DTOs;
 using API.Middlewares;
+using Application.IServices;
+using Application.Services;
 
 namespace API
 {
@@ -20,6 +22,8 @@ namespace API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddTransient<RouteMiddleware>();
             builder.Services.AddAutoMapper(typeof(MapProfile));

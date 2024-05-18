@@ -50,6 +50,8 @@ namespace Infrastructure.Repositories
             {
                 TotalItemsCount = itemCount,
                 Items = items,
+                PageIndex = pageIndex,
+                PageSize = pageSize
             };
 
             return result;

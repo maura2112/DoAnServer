@@ -1,7 +1,5 @@
 ﻿using Application.DTOs;
 using Application.DTOs;
-using Application.Interfaces;
-using Application.Interfaces.IServices;
 using Application.IServices;
 using AutoMapper;
 using Domain.Common;

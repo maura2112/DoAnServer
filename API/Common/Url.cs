@@ -16,5 +16,13 @@
             public const string GetAll = "GetAll";
             public const string Add = "AddProduct";
         }
+
+        public static class Project
+        {
+            public const string GetAll = "GetAll";
+            public const string GetByCategory = "GetByCategory";
+            public const string GetProjectDetails = "GetProjectDetailsById";
+            public const string Add = "AddProject";
+        }
     }
 }

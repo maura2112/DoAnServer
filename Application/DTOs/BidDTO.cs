@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities
+namespace Application.DTOs
 {
-    public class Bid 
+    public class BidDTO : BaseEntity
     {
         public long Id { get; set; }
         public int ProjectId { get; set; }
@@ -20,8 +20,5 @@ namespace Domain.Entities
 
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedTime { get; set; }
-
-        public virtual Project? Project { get; set; } = null!;
-        public virtual AppUser? AppUser { get; set; } = null!;
     }
 }

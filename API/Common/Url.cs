@@ -24,5 +24,14 @@
             public const string GetProjectDetails = "GetProjectDetailsById";
             public const string Add = "AddProject";
         }
+
+        public static class Bid
+        {
+            public const string GetBiddingListByUserId = "GetBiddingListByUserId";
+            public const string GetBiddingListByProjectId = "GetBiddingListByProjectId";
+
+            public const string Bidding = "Bidding";
+            //public const string GetDetailBidById = "GetDetailBidById";
+        }
     }
 }

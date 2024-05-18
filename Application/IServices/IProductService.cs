@@ -1,5 +1,4 @@
-﻿
-using Application.DTOs;
+﻿using Application.DTOs;
 using Domain.Common;
 using Domain.Entities;
 using System;
@@ -9,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.IServices
+namespace Application.IServices
 {
     public interface IProductService
     {

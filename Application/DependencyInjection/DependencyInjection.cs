@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Ardalis.GuardClauses;
 using Infrastructure.Data;
 using Domain.Entities;
-using Application.Interfaces.IServices;
 using Application.Services;
 using Domain.IRepositories;
 using Infrastructure.Repositories;
@@ -46,6 +45,10 @@ public static class DependencyInjection
         //Url
         services.AddScoped<IUrlRepository, UrlRepository>();
         services.AddScoped<IUrlService, UrlService>();
+
+        //Project
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IProjectService, ProjectService>();
 
         services.AddIdentityCore<AppUser>(opt =>
         {

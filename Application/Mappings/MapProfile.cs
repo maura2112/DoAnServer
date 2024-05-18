@@ -13,5 +13,8 @@ public class MapProfile : Profile
     {
         CreateMap<Product, ProductDTO>().ReverseMap();
         CreateMap<Pagination<Product>, Pagination<ProductDTO>>().ReverseMap();
+
+        CreateMap<Project, ProjectDTO>().ReverseMap();
+        CreateMap<Pagination<Project>, Pagination<ProjectDTO>>().ReverseMap();
     }
 }

@@ -2,13 +2,14 @@
 using Application.IServices;
 
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
 namespace API.Controllers
 {
-
+ 
     public class ProjectsController : ApiControllerBase
     {
         private readonly IProjectService _projectService;
@@ -26,7 +27,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Project.GetByCategory)]
-        public async Task<IActionResult> GetByCate([FromQuery] ProjectSearchDTO projects)
+        public async Task<IActionResult> GetByCate(ProjectSearchDTO projects)
         {
             if (!ModelState.IsValid)
             {
@@ -53,7 +54,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Project.Add)]
-        public async Task<IActionResult> AddAsync([FromQuery] ProjectDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> AddAsync( ProjectDTO DTOs, CancellationToken token)
         {
             if (!ModelState.IsValid)
             {

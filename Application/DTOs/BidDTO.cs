@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class BidDTO : BaseEntity
+    public class BidDTO 
     {
         public long Id { get; set; }
         public int ProjectId { get; set; }
@@ -17,6 +17,8 @@ namespace Application.DTOs
         public string Duration { get; set; }
 
         public int Budget { get; set; }
+
+        public int StatusId { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedTime { get; set; }

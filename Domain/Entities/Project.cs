@@ -15,6 +15,7 @@ namespace Domain.Entities
         public int MinBudget { get; set; }
         public int MaxBudget { get; set; }
         public string Duration { get; set; }
+        public string Proposal { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }

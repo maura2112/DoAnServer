@@ -21,7 +21,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Bid.GetBiddingListByUserId)]
-        public async Task<IActionResult> GetListByUserId( BidSearchDTO bids)
+        public async Task<IActionResult> GetListByUserId([FromQuery] BidSearchDTO bids)
         {
             if (!ModelState.IsValid)
             {
@@ -37,7 +37,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Bid.GetBiddingListByProjectId)]
-        public async Task<IActionResult> GetListByProjectId( BidListDTO bids)
+        public async Task<IActionResult> GetListByProjectId([FromQuery] BidListDTO bids)
         {
             if (!ModelState.IsValid)
             {

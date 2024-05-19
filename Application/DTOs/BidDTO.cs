@@ -1,4 +1,5 @@
 ﻿using Domain.Common;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,10 @@ namespace Application.DTOs
     {
         public long Id { get; set; }
         public int ProjectId { get; set; }
+
         public int? UserId { get; set; }
+
+        public string UserName { get; set; }
         public string Proposal { get; set; }
 
         public string Duration { get; set; }
@@ -22,5 +26,7 @@ namespace Application.DTOs
 
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedTime { get; set; }
+
+        public virtual ProjectDTO? Project { get; set; } = null!;
     }
 }

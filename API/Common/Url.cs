@@ -26,6 +26,7 @@
             public const string GetAll = "GetAll";
             public const string GetByCategory = "GetByCategory";
             public const string GetProjectDetails = "GetProjectDetailsById";
+            public const string GetProjectsByUserId = "GetProjectsByUserId";
             public const string Add = "AddProject";
         }
 

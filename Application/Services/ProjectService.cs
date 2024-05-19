@@ -22,13 +22,14 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IProjectRepository _projectRepository;
         private readonly IUrlRepository _urlRepository;
-        private readonly UserManager<AppUser> _userManager;
-        public ProjectService(UserManager<AppUser> userManager, IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository)
+        private readonly IAppUserRepository _appUserRepository;
+
+        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository)
         {
             _mapper = mapper;
-            _userManager = userManager;
             _projectRepository = projectRepository;
             _urlRepository = urlRepository;
+            _appUserRepository = appUserRepository;
         }
 
         public async Task<int> Add(ProjectDTO request)
@@ -53,33 +54,53 @@ namespace Application.Services
         {
             var projects = await _projectRepository.ToPagination(pageIndex, pageSize);
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
-            var items = projectDTOs.Items.Select( async x =>
+            var updatedItems = new List<ProjectDTO>();
+
+            foreach (var x in projectDTOs.Items)
             {
                 var model = _mapper.Map<ProjectDTO>(x);
-                var user = await _userManager.FindByIdAsync(x.CreatedBy.ToString());
-                model.UserName = user.LastName + user.FirstName;
-                return model;
-            }).ToList();
-            var results = await Task.WhenAll(items);
-            projectDTOs.Items = results.ToList();
+                var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
+                model.AppUser = _mapper.Map<AppUserDTO>(user);
+                updatedItems.Add(model);
+            }
+            projectDTOs.Items = updatedItems;
             return projectDTOs;
         }
+
+
+
 
         public async Task<ProjectDTO> GetDetailProjectById(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
             var projectDTO = _mapper.Map<ProjectDTO>(project);
+
+            var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
+            projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
+
             return projectDTO;
         }
 
-        
+
+
 
         public async Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
         {
             var projects = await _projectRepository.GetAsync(filter, pageIndex, pageSize);
-
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
+            var updatedItems = new List<ProjectDTO>();
+
+            foreach (var x in projectDTOs.Items)
+            {
+                var model = _mapper.Map<ProjectDTO>(x);
+                var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
+                model.AppUser = _mapper.Map<AppUserDTO>(user);
+                updatedItems.Add(model);
+            }
+
+            projectDTOs.Items = updatedItems;
             return projectDTOs;
         }
+
     }
 }

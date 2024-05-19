@@ -17,7 +17,6 @@ namespace Application.DTOs
         public int MaxBudget { get; set; }
         public string Duration { get; set; }
         public int? CreatedBy { get; set; }
-        public string? UserName { get; set; }
         public string Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
@@ -25,6 +24,8 @@ namespace Application.DTOs
         public long? MediaFileId { get; set; }
         
         List<ProjectStatus> ListStatus { get; set; }
+
+        public virtual AppUserDTO? AppUser { get; set; } = null!;
         //public virtual Category? Category { get; set; } = null!;
         //public virtual MediaFile? MediaFile { get; set; } = null!;
         //public virtual ProjectStatus? ProjectStatus { get; set; } = null!;

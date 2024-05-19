@@ -59,6 +59,10 @@ public static class DependencyInjection
         services.AddScoped<IBidRepository, BidRepository>();
         services.AddScoped<IBidService, BidService>();
 
+        //AppUser
+        services.AddScoped<IAppUserRepository, AppUserRepository>();
+
+
         services.AddIdentityCore<AppUser>(opt =>
         {
             opt.User.RequireUniqueEmail = true;

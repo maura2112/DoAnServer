@@ -27,7 +27,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Project.GetByCategory)]
-        public async Task<IActionResult> GetByCate(ProjectSearchDTO projects)
+        public async Task<IActionResult> GetByCate([FromQuery] ProjectSearchDTO projects)
         {
             if (!ModelState.IsValid)
             {
@@ -40,7 +40,23 @@ namespace API.Controllers
             }
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }
-        
+
+        [HttpGet]
+        [Route(Common.Url.Project.GetProjectsByUserId)]
+        public async Task<IActionResult> GetListByUserId([FromQuery] ProjectListDTO projects)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            Expression<Func<Project, bool>> filter = null;
+            if (projects != null)
+            {
+                filter = item => item.CreatedBy == projects.UserId;
+            }
+            return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
+        }
+
         [HttpGet]
         [Route(Common.Url.Project.GetProjectDetails)]
         public async Task<IActionResult> GetDetailProject(int id)

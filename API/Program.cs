@@ -28,6 +28,15 @@ namespace API
             builder.Services.AddTransient<RouteMiddleware>();
             builder.Services.AddAutoMapper(typeof(MapProfile));
             builder.Services.AddDbContext<ApplicationDbContext>(opt => builder.Configuration.GetConnectionString("DefaultConnection"));
+
+            builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins("http://localhost:3000")
+                                       .AllowAnyHeader()
+                                       .AllowAnyMethod()
+                                       .AllowCredentials();
+
+            }));
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -35,12 +44,13 @@ namespace API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
             app.UseMiddleware<RouteMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
-
+            app.UseCors();
             app.MapControllers();
 
             app.Run();

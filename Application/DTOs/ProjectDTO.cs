@@ -17,6 +17,8 @@ namespace Application.DTOs
         public int MaxBudget { get; set; }
         public string Duration { get; set; }
         public int? CreatedBy { get; set; }
+        public string? UserName { get; set; }
+        public string Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public int StatusId { get; set; }

@@ -6,6 +6,7 @@ using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,11 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IProjectRepository _projectRepository;
         private readonly IUrlRepository _urlRepository;
-        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository)
+        private readonly UserManager<AppUser> _userManager;
+        public ProjectService(UserManager<AppUser> userManager, IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository)
         {
             _mapper = mapper;
+            _userManager = userManager;
             _projectRepository = projectRepository;
             _urlRepository = urlRepository;
         }
@@ -50,6 +53,15 @@ namespace Application.Services
         {
             var projects = await _projectRepository.ToPagination(pageIndex, pageSize);
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
+            var items = projectDTOs.Items.Select( async x =>
+            {
+                var model = _mapper.Map<ProjectDTO>(x);
+                var user = await _userManager.FindByIdAsync(x.CreatedBy.ToString());
+                model.UserName = user.LastName + user.FirstName;
+                return model;
+            }).ToList();
+            var results = await Task.WhenAll(items);
+            projectDTOs.Items = results.ToList();
             return projectDTOs;
         }
 

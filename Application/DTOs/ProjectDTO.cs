@@ -26,6 +26,7 @@ namespace Application.DTOs
         List<ProjectStatus> ListStatus { get; set; }
 
         public virtual AppUserDTO? AppUser { get; set; } = null!;
+        public virtual CategoryDTO? Category { get; set; } = null!;
         //public virtual Category? Category { get; set; } = null!;
         //public virtual MediaFile? MediaFile { get; set; } = null!;
         //public virtual ProjectStatus? ProjectStatus { get; set; } = null!;

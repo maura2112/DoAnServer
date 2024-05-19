@@ -15,7 +15,6 @@ namespace Application.DTOs
 
         public int? UserId { get; set; }
 
-        public string UserName { get; set; }
         public string Proposal { get; set; }
 
         public string Duration { get; set; }
@@ -28,5 +27,6 @@ namespace Application.DTOs
         public DateTime? UpdatedTime { get; set; }
 
         public virtual ProjectDTO? Project { get; set; } = null!;
+        public virtual AppUserDTO? AppUser { get; set; } = null!;
     }
 }

@@ -23,13 +23,15 @@ namespace Application.Services
         private readonly IProjectRepository _projectRepository;
         private readonly IUrlRepository _urlRepository;
         private readonly IAppUserRepository _appUserRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository)
+        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository)
         {
             _mapper = mapper;
             _projectRepository = projectRepository;
             _urlRepository = urlRepository;
             _appUserRepository = appUserRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<int> Add(ProjectDTO request)
@@ -59,8 +61,13 @@ namespace Application.Services
             foreach (var x in projectDTOs.Items)
             {
                 var model = _mapper.Map<ProjectDTO>(x);
+
                 var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
                 model.AppUser = _mapper.Map<AppUserDTO>(user);
+
+                var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
+                model.Category = _mapper.Map<CategoryDTO>(category);
+
                 updatedItems.Add(model);
             }
             projectDTOs.Items = updatedItems;
@@ -78,6 +85,9 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
 
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+
             return projectDTO;
         }
 
@@ -93,8 +103,13 @@ namespace Application.Services
             foreach (var x in projectDTOs.Items)
             {
                 var model = _mapper.Map<ProjectDTO>(x);
+
                 var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
                 model.AppUser = _mapper.Map<AppUserDTO>(user);
+
+                var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
+                model.Category = _mapper.Map<CategoryDTO>(category);
+
                 updatedItems.Add(model);
             }
 

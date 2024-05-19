@@ -21,16 +21,19 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IBidRepository _bidRepository;
         private readonly IUrlRepository _urlRepository;
-        private readonly UserManager<AppUser> _userManager;
         private readonly IProjectRepository _projectRepository;
+        private readonly IAppUserRepository _appUserRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public BidService(IMapper mapper, IBidRepository bidRepository, IUrlRepository urlRepository, UserManager<AppUser> userManager, IProjectRepository projectRepository)
+        public BidService(IMapper mapper, IBidRepository bidRepository, IUrlRepository urlRepository,  IProjectRepository projectRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository)
         {
             _mapper = mapper;
             _bidRepository = bidRepository;
             _urlRepository = urlRepository;
-            _userManager = userManager;
+
             _projectRepository = projectRepository;
+            _appUserRepository = appUserRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<int> Add(BidDTO request)
@@ -71,14 +74,16 @@ namespace Application.Services
             {
                 var bidDTO = _mapper.Map<BidDTO>(bid);
 
-                var user = await _userManager.FindByIdAsync(bid.UserId.ToString());
-                bidDTO.UserName = user.LastName + " " + user.FirstName;
+
+                var user = await _appUserRepository.GetByIdAsync(bid.UserId);
+                bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
 
                 var project = await _projectRepository.GetByIdAsync(bid.ProjectId);
                 bidDTO.Project = _mapper.Map<ProjectDTO>(project);
 
-                var projectCreator = await _userManager.FindByIdAsync(project.CreatedBy.ToString());
-                bidDTO.Project.UserName = projectCreator.LastName + " " + projectCreator.FirstName;
+                var category = await _categoryRepository.GetByIdAsync(bid.Project.CategoryId);
+                bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
+
 
                 updatedItems.Add(bidDTO);
             }

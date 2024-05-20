@@ -55,12 +55,12 @@ namespace API.Controllers
         [Route(Common.Url.Bid.Bidding)]
         public async Task<IActionResult> AddAsync( BidDTO DTOs, CancellationToken token)
         {
-            var userId = _currentUserService.UserId;
+            //var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            DTOs.UserId = userId;
+            //DTOs.UserId = userId;
             await _bidService.Add(DTOs);
             return NoContent();
         }

@@ -16,6 +16,7 @@ namespace Domain.Entities
         public int MaxBudget { get; set; }
         public string Duration { get; set; }
         public string Description { get; set; }
+        [ForeignKey("AppUser")]
         public int? CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }

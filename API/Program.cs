@@ -44,7 +44,8 @@ namespace API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseSwagger();
+            app.UseSwaggerUI();
             app.UseMiddleware<RouteMiddleware>();
             app.UseHttpsRedirection();
 

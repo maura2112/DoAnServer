@@ -13,9 +13,11 @@ namespace API.Controllers
     public class ProjectsController : ApiControllerBase
     {
         private readonly IProjectService _projectService;
-        public ProjectsController(IProjectService projectService)
+        private readonly ICurrentUserService _currentUserService;
+        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService)
         {
             _projectService = projectService;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -45,6 +47,7 @@ namespace API.Controllers
         [Route(Common.Url.Project.GetProjectsByUserId)]
         public async Task<IActionResult> GetListByUserId([FromQuery] ProjectListDTO projects)
         {
+            var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);

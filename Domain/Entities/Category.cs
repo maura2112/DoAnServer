@@ -12,5 +12,7 @@ namespace Domain.Entities
         public string CategoryName { get; set; }
 
         public virtual ICollection<Project> Projects { get; set; }
+
+        public virtual ICollection<Skill> Skills { get; set; }
     }
 }

@@ -19,10 +19,10 @@ namespace Domain.Entities
         public virtual ICollection<UserProject> UserProjects { get; set; }
         public virtual ICollection<UserSkill> UserSkills { get; set; }
         public virtual Address? Address { get; set; } = null!;
-        public virtual Rating? Rating { get; set; } = null!;
+        //public virtual Rating? Rating { get; set; } = null!;
 
-        public virtual ICollection<AppUser> UserRatingTo { get; set; }
+        
 
-        public virtual ICollection<Portfolio> Portfolios { get; set; }
+
     }
 }

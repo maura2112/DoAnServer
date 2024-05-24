@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +14,11 @@ namespace Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<BidStage> builder)
         {
             builder.ToTable("BidStages");
-            builder.HasKey(c => c.Id);
+            builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
+            builder.Property(x => x.TotalOfStage).IsRequired();
+            builder.Property(x => x.IsAccepted).IsRequired();
             builder.Property(x => x.BidId).IsRequired();
-            builder.Property(x => x.ProjectId).IsRequired();
-            builder.Property(x => x.NumberStage).IsRequired();
-            builder.Property(x => x.Decription).IsRequired();
-            builder.Property(x => x.StartDate).IsRequired();
-            builder.Property(x => x.EndDate).IsRequired();
-
-            //relationShip
-            builder.HasOne(x => x.Bid).WithMany(x => x.BidStages).HasForeignKey(x => x.BidId);
-        }
+        }  
     }
 }

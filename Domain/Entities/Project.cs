@@ -14,7 +14,7 @@ namespace Domain.Entities
         public int CategoryId { get; set; }
         public int MinBudget { get; set; }
         public int MaxBudget { get; set; }
-        public string Duration { get; set; }
+        public int Duration { get; set; }
         public string Description { get; set; }
         [ForeignKey("AppUser")]
         public int? CreatedBy { get; set; }

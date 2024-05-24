@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240524031806_add-bid-satge")]
+    partial class addbidsatge
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,32 +188,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("BidId");
 
                     b.ToTable("BidStages", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Bookmark", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SavedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Bookmarks", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -595,25 +572,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Bid");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Bookmark", b =>
-                {
-                    b.HasOne("Domain.Entities.Project", "Project")
-                        .WithMany("Bookmarks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithMany("Bookmarks")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Domain.Entities.MediaFile", b =>
                 {
                     b.HasOne("Domain.Entities.MediaFolder", "MediaFolder")
@@ -730,8 +688,6 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("Bids");
 
-                    b.Navigation("Bookmarks");
-
                     b.Navigation("UserProjects");
                 });
 
@@ -753,8 +709,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Project", b =>
                 {
                     b.Navigation("Bids");
-
-                    b.Navigation("Bookmarks");
 
                     b.Navigation("UserProjects");
                 });

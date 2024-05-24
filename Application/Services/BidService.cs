@@ -46,7 +46,7 @@ namespace Application.Services
             bid.Duration = request.Duration;
             bid.Budget = request.Budget;
             bid.CreatedDate = DateTime.Now;
-            bid.UpdatedTime = DateTime.Now;
+            bid.UpdatedDate = DateTime.Now;
 
             await _bidRepository.AddAsync(bid);
             //var urlRecord = bid.CreateUrlRecordAsync("du-an", bid.ProjectId.ToString());

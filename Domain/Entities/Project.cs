@@ -25,12 +25,12 @@ namespace Domain.Entities
         [ForeignKey("MediaFile")]
         public long? MediaFileId { get; set; }
 
-
         public virtual AppUser? AppUser { get; set; } = null!;
         public virtual Category? Category { get; set; } = null!;
         public virtual MediaFile? MediaFile { get; set; } = null!;
         public virtual ProjectStatus? ProjectStatus { get; set; } = null!;
         public virtual ICollection<Bid> Bids { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
         public virtual ICollection<UserProject> UserProjects { get; set; }
 
     }

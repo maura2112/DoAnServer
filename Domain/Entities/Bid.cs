@@ -19,7 +19,10 @@ namespace Domain.Entities
         public int Budget { get; set; }
 
         public DateTime CreatedDate { get; set; }
-        public DateTime? UpdatedTime { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime? AcceptedDate { get; set; }
+        public int? TotalOfStage { get; set; }
+        public virtual ICollection<BidStage>? BidStages { get; set; }
 
         public virtual Project? Project { get; set; } = null!;
         public virtual AppUser? AppUser { get; set; } = null!;

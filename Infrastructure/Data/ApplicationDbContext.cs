@@ -55,6 +55,7 @@ namespace Infrastructure.Data
         public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<Bid> Bids { get; set; }
         public virtual DbSet<UserProject> UserProjects { get; set; }
+        public virtual DbSet<BidStage> BidStages { get; set; }
 
     }
 }

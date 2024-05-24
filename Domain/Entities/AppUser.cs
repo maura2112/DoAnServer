@@ -12,7 +12,10 @@ namespace Domain.Entities
         public string LastName { get; set; }
         public string FirstName { get; set; }
 
+        public DateTime CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
         public virtual ICollection<Bid> Bids { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
         public virtual ICollection<UserProject> UserProjects { get; set; }
     }
 }

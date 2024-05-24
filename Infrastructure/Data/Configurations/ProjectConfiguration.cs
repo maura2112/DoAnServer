@@ -24,7 +24,6 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x=>x.MaxBudget).IsRequired();
             builder.Property(x=>x.Duration).IsRequired();
             builder.Property(x=>x.CreatedDate).IsRequired();
-            builder.Property(x => x.CategoryId).IsRequired();
             //Relationship
             builder.HasOne(x => x.ProjectStatus).WithMany(x => x.Projects).HasForeignKey(x => x.StatusId);
             builder.HasOne(x => x.Category).WithMany(x => x.Projects).HasForeignKey(x => x.CategoryId);

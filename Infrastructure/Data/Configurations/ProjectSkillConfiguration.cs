@@ -19,8 +19,8 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x => x.ProjectId).IsRequired();
             builder.Property(x => x.SkillId).IsRequired();
             //Relationship
+            builder.HasOne(x => x.Project).WithMany(x => x.ProjectSkills).HasForeignKey(x=>x.ProjectId);
             builder.HasOne(x => x.Skill).WithMany(x => x.ProjectSkills).HasForeignKey(x => x.SkillId);
-            builder.HasOne(x => x.Project).WithMany(x => x.ProjectSkills).HasForeignKey(x => x.ProjectId);
         }
     }
 }

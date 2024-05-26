@@ -19,6 +19,15 @@ namespace Infrastructure.Data.Configurations
             builder.Property(t => t.SkillName)
                 .HasMaxLength(1000)
                 .IsRequired();
+
+            //relation
+            builder.HasOne(x => x.Category).WithMany(x => x.Skills).HasForeignKey(x => x.CategoryId);
+
+            builder.HasMany(s => s.ProjectSkills)
+            .WithOne(ps => ps.Skill)
+            .HasForeignKey(ps => ps.SkillId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

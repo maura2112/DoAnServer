@@ -474,7 +474,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("SkillName")
@@ -804,13 +804,13 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Project", "Project")
                         .WithMany("ProjectSkills")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Skill", "Skill")
                         .WithMany("ProjectSkills")
                         .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Project");
@@ -820,9 +820,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Skill", b =>
                 {
-                    b.HasOne("Domain.Entities.Category", null)
+                    b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany("Skills")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Stage", b =>

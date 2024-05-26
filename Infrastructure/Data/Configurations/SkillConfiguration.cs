@@ -19,9 +19,6 @@ namespace Infrastructure.Data.Configurations
             builder.Property(t => t.SkillName)
                 .HasMaxLength(1000)
                 .IsRequired();
-            builder.Property(x => x.CategoryId).IsRequired();
-            //Relationship
-            builder.HasOne(x => x.Category).WithMany(x => x.Skills).HasForeignKey(x => x.CategoryId);
         }
     }
 }

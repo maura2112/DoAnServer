@@ -11,9 +11,6 @@ namespace Domain.Entities
     {
         public string SkillName { get; set; }
 
-        public int CategoryId { get; set; }
-
-        public virtual Category? Category { get; set; } = null!;
 
         public virtual ICollection<ProjectSkill> ProjectSkills { get; set; }
 

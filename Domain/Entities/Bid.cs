@@ -14,7 +14,7 @@ namespace Domain.Entities
         public int? UserId { get; set; }
         public string Proposal { get; set; }
 
-        public string Duration { get; set; }
+        public int Duration { get; set; }
 
         public int Budget { get; set; }
 

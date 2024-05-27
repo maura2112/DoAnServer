@@ -11,8 +11,11 @@ namespace Application.DTOs
     {
         public string Email { get; set; }
         public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
         
         public string Name { get; set; }
+
+        public string? TaxCode { get; set; }
 
         public bool IsCompany { get; set; }
         public List<string> Roles { get; set; } = new();
@@ -26,6 +29,9 @@ namespace Application.DTOs
             RuleFor(v => v.Password).NotEmpty().WithMessage("Bắt buộc");
             RuleFor(v => v.Name).NotEmpty().WithMessage("Bắt buộc");
             RuleFor(v => v.Roles).NotEmpty().WithMessage("Bắt buộc");
+            RuleFor(v => v.Password)
+            .Equal(v => v.ConfirmPassword)
+            .WithMessage("Xác nhận mật khẩu không khớp");
         }
     }
 }

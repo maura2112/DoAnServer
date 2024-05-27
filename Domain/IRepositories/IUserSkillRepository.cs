@@ -9,5 +9,6 @@ namespace Domain.IRepositories
 {
     public interface IUserSkillRepository : IGenericRepository<UserSkill>
     {
+        public Task<int> AddUserSkill(List<Skill> skills, int uid);
     }
 }

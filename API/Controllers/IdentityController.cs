@@ -15,12 +15,14 @@ namespace API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IPasswordGeneratorService _passwordGeneratorService;
         private readonly IJwtTokenService _jwtTokenService;
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService)
+        private readonly ISkillService _skillService;
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService)
         {
             _mapper = mapper;
             _userManager = userManager;
             _jwtTokenService = jwtTokenService;
             _passwordGeneratorService = passwordGeneratorService;
+            _skillService = skillService;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -39,6 +41,8 @@ namespace API.Controllers
             {
                 UserName = user.Email,
                 Email = user.Email,
+                TaxCode = user.TaxCode,
+                IsCompany = user.IsCompany,
                 PasswordHash = _passwordGeneratorService.HashPassword(user.Password),
                 Name = user.Name,
             };
@@ -51,6 +55,10 @@ namespace API.Controllers
             else
             {
                 throw new Exception(string.Join(",", userResult.Errors.Select(x => x.Description)));
+            }
+            if (!user.IsCompany)
+            {
+                await _skillService.AddSkillForUser(user.Skill, userRegister.Id);
             }
             return Ok(new
             {

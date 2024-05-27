@@ -37,7 +37,7 @@ namespace Application.Services
         public async Task<int> Add(ProjectDTO request)
         {
             var project = _mapper.Map<Project>(request);
-            project.CategoryId = request.CategoryId;
+            //project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
@@ -85,8 +85,8 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
 
-            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
-            projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+            //var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            //projectDTO.Category = _mapper.Map<CategoryDTO>(category);
 
             return projectDTO;
         }

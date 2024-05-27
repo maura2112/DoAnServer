@@ -19,7 +19,7 @@ namespace Infrastructure.Data.Configurations
             builder.Property(t => t.Title)
                 .HasMaxLength(1000)
                 .IsRequired();
-            builder.Property(x=>x.CategoryId).IsRequired();
+            builder.Property(x => x.CategoryId).IsRequired();
             builder.Property(x=>x.MinBudget).IsRequired();
             builder.Property(x=>x.MaxBudget).IsRequired();
             builder.Property(x=>x.Duration).IsRequired();
@@ -27,6 +27,13 @@ namespace Infrastructure.Data.Configurations
             //Relationship
             builder.HasOne(x => x.ProjectStatus).WithMany(x => x.Projects).HasForeignKey(x => x.StatusId);
             builder.HasOne(x => x.Category).WithMany(x => x.Projects).HasForeignKey(x => x.CategoryId);
+
+            builder.HasMany(p => p.ProjectSkills)
+            .WithOne(ps => ps.Project)
+            .HasForeignKey(ps => ps.ProjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
         }
     }
 }

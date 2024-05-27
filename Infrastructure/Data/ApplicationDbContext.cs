@@ -57,6 +57,11 @@ namespace Infrastructure.Data
         public virtual DbSet<UserProject> UserProjects { get; set; }
         public virtual DbSet<BidStage> BidStages { get; set; }
         public virtual DbSet<Stage> Stages { get; set; }
+        public virtual DbSet<Skill> Skills { get; set; }
+        public virtual DbSet<UserSkill> UserSkills { get; set; }
+        public virtual DbSet<ProjectSkill> ProjectSkills { get; set; }
+        public virtual DbSet<Bookmark> Bookmarks { get; set; }
+        public virtual DbSet<Address> Addresses { get; set; }
 
     }
 }

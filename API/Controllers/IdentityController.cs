@@ -26,6 +26,10 @@ namespace API.Controllers
         [Route(Common.Url.User.Identity.Register)]
         public async Task<ActionResult> Register([FromBody] RegisterDTO user)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
             var existUser = await _userManager.FindByEmailAsync(user.Email);
             if (existUser != null)
             {
@@ -36,8 +40,7 @@ namespace API.Controllers
                 UserName = user.Email,
                 Email = user.Email,
                 PasswordHash = _passwordGeneratorService.HashPassword(user.Password),
-                LastName = user.LastName,
-                FirstName = user.FirstName,
+                Name = user.Name,
             };
             var userResult = await _userManager.CreateAsync(userRegister);
             if (userResult.Succeeded)
@@ -94,8 +97,7 @@ namespace API.Controllers
             {
                 UserId = user.Id,
                 Roles = roles.ToList(),
-                LastName = user.LastName,
-                FirstName = user.FirstName,
+                Name =  user.Name,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };

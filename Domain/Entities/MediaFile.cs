@@ -17,8 +17,12 @@ namespace Domain.Entities
         public int FolderId { get; set; }
         public long Size { get; set; }
 
+        public int UserId { get; set; }
+
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
+
+        public AppUser User { get; set; }
 
         public virtual MediaFolder? MediaFolder { get; set; } = null!;
     }

@@ -23,6 +23,7 @@ namespace Infrastructure.Data.Configurations
 
             //Relationship
             builder.HasOne(x => x.MediaFolder).WithMany(x => x.MediaFiles).HasForeignKey(x => x.FolderId);
+            builder.HasOne(x => x.User).WithMany(x => x.MediaFiles).HasForeignKey(x => x.UserId);
         }
     }
 }

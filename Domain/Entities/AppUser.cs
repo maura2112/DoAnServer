@@ -9,8 +9,8 @@ namespace Domain.Entities
 {
     public class AppUser : IdentityUser<int>    
     {
-        public string LastName { get; set; }
-        public string FirstName { get; set; }
+        
+        public string Name { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
@@ -18,7 +18,12 @@ namespace Domain.Entities
         public virtual ICollection<Bookmark> Bookmarks { get; set; }
         public virtual ICollection<UserProject> UserProjects { get; set; }
         public virtual ICollection<UserSkill> UserSkills { get; set; }
+        public virtual ICollection<MediaFile> MediaFiles  { get; set; }
         public virtual Address? Address { get; set; } = null!;
+        
+        public string? TaxCode { get; set; }
+        public bool IsCompany { get; set; }
+
         //public virtual Rating? Rating { get; set; } = null!;
 
         

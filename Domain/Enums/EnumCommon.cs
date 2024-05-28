@@ -15,10 +15,5 @@ namespace Domain.Enums
             FilesFolder =2,
             VideoFolder = 3,
         }
-
-        public enum Category
-        {
-            OtherType = 9999
-        }
     }
 }

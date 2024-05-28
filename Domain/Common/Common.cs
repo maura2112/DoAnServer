@@ -5,10 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.IRepositories
+namespace Domain.Common
 {
-    public interface ICategoryRepository : IGenericRepository<Category>
+    public class Common
     {
-        public Task<int> GetIdCatetegoryOther();
+        public class Category
+        {
+            public string OtherType = "Other";
+        }
     }
 }

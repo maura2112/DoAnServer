@@ -50,6 +50,7 @@ namespace Application.Services
         {
             var newSkills = new List<Skill>();
             var skills = new List<Skill>();
+            var categoryOrtherId = await _categoryRepository.GetIdCatetegoryOther();
             foreach (var skillName in skillNames)
             {
                 var skill  = await _skillRepository.GetByNameAsync(skillName.ToLower());
@@ -61,7 +62,7 @@ namespace Application.Services
                     skill = new Skill()
                     {
                         Id = 0,
-                        CategoryId = (int) EnumCommon.Category.OtherType,
+                        CategoryId = categoryOrtherId,
                         SkillName = skillName,
                         IsDeleted = false,
                     };

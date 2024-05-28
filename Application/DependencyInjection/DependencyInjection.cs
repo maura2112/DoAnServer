@@ -15,6 +15,8 @@ using FluentValidation;
 using Application.Repositories;
 using Application.IServices;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -73,7 +75,19 @@ public static class DependencyInjection
         services.AddScoped<IProjectSkillRepository, ProjectSkillRepository>();
         services.AddScoped<IProjectSkillService, ProjectSkillService>();
 
-
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        })
+        .AddCookie()
+        .AddGoogle(options =>
+        {
+            var gconfig = configuration.GetSection("Authentication:Google");
+            options.ClientId = gconfig["ClientId"];
+            options.ClientSecret = gconfig["ClientSecret"];
+            options.CallbackPath = new PathString("/dang-nhap-tu-google"); // Ensure this matches the Google Cloud Console settings
+        });
 
         services.AddIdentityCore<AppUser>(opt =>
         {

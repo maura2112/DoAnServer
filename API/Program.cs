@@ -1,4 +1,4 @@
-﻿
+
 using Application.Mappings;
 using FluentValidation;
 using Infrastructure.Data;
@@ -50,14 +50,13 @@ namespace API
                     }
                 });
             });
-            
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddTransient<RouteMiddleware>();
             builder.Services.AddAutoMapper(typeof(MapProfile));
             builder.Services.AddDbContext<ApplicationDbContext>(opt => builder.Configuration.GetConnectionString("DefaultConnection"));
-            
+
             builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
             {
                 policy.WithOrigins("http://localhost:3000")

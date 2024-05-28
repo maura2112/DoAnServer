@@ -69,6 +69,11 @@ public static class DependencyInjection
         //AppUser
         services.AddScoped<IAppUserRepository, AppUserRepository>();
 
+        //ProjectSkil
+        services.AddScoped<IProjectSkillRepository, ProjectSkillRepository>();
+        services.AddScoped<IProjectSkillService, ProjectSkillService>();
+
+
 
         services.AddIdentityCore<AppUser>(opt =>
         {

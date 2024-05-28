@@ -23,5 +23,14 @@ public class MapProfile : Profile
         CreateMap<Category, CategoryDTO>().ReverseMap();
 
         CreateMap<AppUser, AppUserDTO>().ReverseMap();
+
+        CreateMap<Skill, SkillDTO>().ReverseMap();
+        CreateMap<Pagination<Skill>, Pagination<SkillDTO>>().ReverseMap();
+
+        CreateMap<ProjectSkill, ProjectSkillDTO>().ReverseMap();
+        CreateMap<Pagination<ProjectSkill>, Pagination<ProjectSkillDTO>>().ReverseMap();
+        
+        CreateMap<UserSkill, UserSkillDTO>().ReverseMap();
+        CreateMap<Pagination<UserSkill>, Pagination<UserSkillDTO>>().ReverseMap();
     }
 }

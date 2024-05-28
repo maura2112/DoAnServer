@@ -24,20 +24,23 @@ namespace Application.Services
         private readonly IUrlRepository _urlRepository;
         private readonly IAppUserRepository _appUserRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IProjectSkillRepository _projectSkillRepository;
 
-        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository)
+        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository)
         {
             _mapper = mapper;
             _projectRepository = projectRepository;
             _urlRepository = urlRepository;
             _appUserRepository = appUserRepository;
             _categoryRepository = categoryRepository;
+            _projectSkillRepository = projectSkillRepository;
+            
         }
 
         public async Task<int> Add(ProjectDTO request)
         {
             var project = _mapper.Map<Project>(request);
-            //project.CategoryId = request.CategoryId;
+            project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
@@ -67,6 +70,9 @@ namespace Application.Services
 
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
                 model.Category = _mapper.Map<CategoryDTO>(category);
+
+                //var skill = await _projectSkillRepository.GetByIdAsync(x.Id);
+                //model.Skill = _mapper.Map<SkillDTO>(skill);
 
                 updatedItems.Add(model);
             }

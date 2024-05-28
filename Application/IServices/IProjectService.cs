@@ -1,6 +1,13 @@
 ﻿using Application.DTOs;
+using Application.Extensions;
+using Application.IServices;
+using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
+using Domain.IRepositories;
+using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -38,5 +38,17 @@
             public const string Bidding = "Bidding";
             //public const string GetDetailBidById = "GetDetailBidById";
         }
+
+        public static class ProjectSkill
+        {
+            public const string GetAll = "GetAll";
+            public const string GetById = "GetById";
+            public const string Add = "Add";
+        }
+
+        public static class Skill
+        {
+            public const string Add = "Add";
+        }
     }
 }

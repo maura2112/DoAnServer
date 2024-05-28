@@ -10,9 +10,10 @@ namespace Application.DTOs
 {
     public class SkillDTO : BaseEntity
     {
+        public int CategoryId { get; set; }
         public string SkillName { get; set; }
-        public virtual ICollection<ProjectSkillDTO> ProjectSkills { get; set; }
+        //public virtual ICollection<ProjectSkillDTO> ProjectSkills { get; set; }
 
-        public virtual ICollection<UserSkillDTO> UserSkills { get; set; }
+        //public virtual ICollection<UserSkillDTO> UserSkills { get; set; }
     }
 }

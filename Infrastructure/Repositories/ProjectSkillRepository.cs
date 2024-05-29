@@ -4,12 +4,37 @@ using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    public class ProjectSkillRepository(ApplicationDbContext context) : GenericRepository<ProjectSkill>(context), IProjectSkillRepository
+    public class ProjectSkillRepository : GenericRepository<ProjectSkill>, IProjectSkillRepository
     {
+        private readonly ApplicationDbContext _context;
+
+        public ProjectSkillRepository(ApplicationDbContext context) : base(context)
+        {
+            _context = context;
+        }
+
+        public async Task<int> AddProjectSkill(List<Skill> skills, int pId)
+        {
+            var listProjectSkills = new List<ProjectSkill>();
+            foreach (var skill in skills)
+            {
+                var projectSkill = new ProjectSkill()
+                {
+                    SkillId = skill.Id,
+                    ProjectId = pId,
+                };
+                listProjectSkills.Add(projectSkill);
+            }
+            await _context.ProjectSkills.AddRangeAsync(listProjectSkills);
+            return await _context.SaveChangesAsync();
+        }
+
+        
     }
 }

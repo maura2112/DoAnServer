@@ -45,15 +45,39 @@ namespace Application.Services
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
             // createdBy
+            project.CreatedBy = request.CreatedBy;
             project.CreatedDate = DateTime.Now;
             project.UpdatedDate = DateTime.Now;
             project.StatusId = 1;
+            project.IsDeleted = false;
+            project.Description = request.Description;
+
             //media file
             await _projectRepository.AddAsync(project);
             var urlRecord = project.CreateUrlRecordAsync("du-an", project.Title);
             await _urlRepository.AddAsync(urlRecord);
             return project.Id;
         }
+
+        //public async Task<int> CreateAsync(Project request)
+        //{
+        //    var project = new Project();
+        //    project.CategoryId = request.CategoryId;
+        //    project.MinBudget = request.MinBudget;
+        //    project.MaxBudget = request.MaxBudget;
+        //    project.Duration = request.Duration;
+        //    // createdBy
+        //    project.CreatedBy = request.CreatedBy;
+        //    project.CreatedDate = DateTime.Now;
+        //    project.UpdatedDate = DateTime.Now;
+        //    project.StatusId = 1;
+        //    project.IsDeleted = false;
+        //    project.Description = request.Description;
+        //    project.Title = request.Title;
+
+        //    await _projectRepository.AddAsync(project);
+        //    return project.Id;
+        //}
 
         public async Task<Pagination<ProjectDTO>> Get(int pageIndex, int pageSize)
         {

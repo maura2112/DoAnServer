@@ -14,6 +14,7 @@ namespace Application.IServices
     public interface ISkillService
     {
         Task<List<Skill>> AddSkillForUser(List<string> skillNames, int uid);
+        Task<List<Skill>> AddSkillForProject(List<string> skillNames, int pId);
 
         Task<Pagination<SkillDTO>> Get(int pageIndex, int pageSize);
 

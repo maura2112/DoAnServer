@@ -54,6 +54,13 @@ namespace Application.Services
             return (int) bid.Id;
         }
 
+        public async Task<int> Delete(int id)
+        {
+            var bid = await _bidRepository.FirstOrDefaultAsync(x => x.Id.ToString().Equals(id));
+            _bidRepository.Delete(bid);
+            return (int) bid.Id;
+        }
+
 
 
         //public async Task<Pagination<BidDTO>> GetWithFilter(Expression<Func<Bid, bool>> filter, int pageIndex, int pageSize)
@@ -92,5 +99,11 @@ namespace Application.Services
             return bidDTOs;
         }
 
+        public async Task<int> Update(BidDTO request)
+        {
+            var bid = await _bidRepository.FirstOrDefaultAsync(x => x.Id.ToString().Equals(request.Id));
+            _bidRepository.Update(bid);
+            return (int)bid.Id;
+        }
     }
 }

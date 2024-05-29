@@ -53,7 +53,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Bid.Bidding)]
-        public async Task<IActionResult> AddAsync( BidDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> Bidding( BidDTO DTOs, CancellationToken token)
         {
             //var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
@@ -62,6 +62,32 @@ namespace API.Controllers
             }
             //DTOs.UserId = userId;
             await _bidService.Add(DTOs);
+            return NoContent();
+        }
+        [HttpDelete]
+        [Route(Common.Url.Bid.Delete)]
+        public async Task<IActionResult> DeleteBidding(BidDTO DTOs, CancellationToken token)
+        {
+            //var userId = _currentUserService.UserId;
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            //DTOs.UserId = userId;
+            await _bidService.Delete((int)DTOs.Id);
+            return NoContent();
+        }
+        [HttpPut]
+        [Route(Common.Url.Bid.Update)]
+        public async Task<IActionResult> UpdateBidding(BidDTO DTOs, CancellationToken token)
+        {
+            //var userId = _currentUserService.UserId;
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            //DTOs.UserId = userId;
+            await _bidService.Update(DTOs);
             return NoContent();
         }
     }

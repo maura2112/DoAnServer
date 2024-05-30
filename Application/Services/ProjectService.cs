@@ -117,8 +117,16 @@ namespace Application.Services
                 //var skill = await _projectSkillRepository.GetByIdAsync(x.Id);
                 //model.Skill = _mapper.Map<SkillDTO>(skill);
 
+                var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
+                foreach (var skill in listSkills)
+                {
+                    model.Skill.Add(skill.SkillName);
+                }
+
+
                 updatedItems.Add(model);
             }
+
             projectDTOs.Items = updatedItems;
             return projectDTOs;
         }
@@ -134,8 +142,14 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
 
-            //var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
-            //projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+
+            var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            foreach (var skill in listSkills)
+            {
+                projectDTO.Skill.Add(skill.SkillName);
+            }
 
             return projectDTO;
         }
@@ -158,6 +172,12 @@ namespace Application.Services
 
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
                 model.Category = _mapper.Map<CategoryDTO>(category);
+
+                var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
+                foreach (var skill in listSkills)
+                {
+                    model.Skill.Add(skill.SkillName);
+                }
 
                 updatedItems.Add(model);
             }

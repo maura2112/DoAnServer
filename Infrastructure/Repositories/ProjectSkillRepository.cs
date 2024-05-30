@@ -42,8 +42,8 @@ namespace Infrastructure.Repositories
             var listSkills = new List<Skill>();
             foreach (var skill in listProjectSkills)
             {
-                var skillEnt = _context.Skills.Where(x => x.Id == skill.SkillId);
-                listSkills.Add((Skill)skillEnt);
+                var skillEnt = _context.Skills.FirstOrDefault(x => x.Id == skill.SkillId);
+                listSkills.Add(skillEnt);
             }
             return listSkills;
         }

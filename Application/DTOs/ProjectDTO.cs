@@ -29,6 +29,7 @@ namespace Application.DTOs
         public virtual CategoryDTO? Category { get; set; } = null!;
 
         public List<string> Skill { get; set; } = new();
+        //public List<SkillDTO> SkillList { get; set; } 
 
         //public virtual SkillDTO? Skill { get; set; } = null!;
 

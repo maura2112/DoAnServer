@@ -37,9 +37,10 @@ namespace Application.Services
             
         }
 
-        public async Task<int> Add(ProjectDTO request)
+        public async Task<ProjectDTO> Add(ProjectDTO request)
         {
             var project = _mapper.Map<Project>(request);
+
             project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
@@ -52,11 +53,29 @@ namespace Application.Services
             project.IsDeleted = false;
             project.Description = request.Description;
 
+            //
+            
+
             //media file
             await _projectRepository.AddAsync(project);
-            var urlRecord = project.CreateUrlRecordAsync("du-an", project.Title);
+            var urlRecord = project.CreateUrlRecordAsync("tao-du-an", project.Title);
             await _urlRepository.AddAsync(urlRecord);
-            return project.Id;
+
+            var projectDto = _mapper.Map<ProjectDTO>(project);
+            //smthing ưởng here
+            var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
+            projectDto.AppUser = _mapper.Map<AppUserDTO>(user);
+
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDto.Category = _mapper.Map<CategoryDTO>(category);
+
+            //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            //foreach (var skill in listSkills)
+            //{
+            //    projectDto.Skill.Add(skill.SkillName);
+            //}
+
+            return projectDto;
         }
 
         //public async Task<int> CreateAsync(Project request)

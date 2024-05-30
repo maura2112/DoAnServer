@@ -90,15 +90,15 @@ namespace API.Controllers
             //await _skillService.AddSkillForProject(DTOs.Skill, DTOs.Id);
             //return NoContent();
 
-            var projectResult = await _projectService.Add(DTOs);
-
-            await _skillService.AddSkillForProject(DTOs.Skill, DTOs.Id);
+            var project = await _projectService.Add(DTOs);
+            //nen tra ve 1 object
+            await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
 
             return Ok(new
             {
                 success = true,
                 message = "Bạn vừa tạo dự án thành công",
-                data = projectResult
+                data = project
             });
         }
 

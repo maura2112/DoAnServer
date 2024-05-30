@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.IRepositories;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,16 @@ namespace Infrastructure.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        
+        public async Task<List<Skill>> GetListProjectSkillByProjectId(int projectId)
+        {
+            var listProjectSkills = await _context.ProjectSkills.Where(x=>x.ProjectId == projectId).ToListAsync();
+            var listSkills = new List<Skill>();
+            foreach (var skill in listProjectSkills)
+            {
+                var skillEnt = _context.Skills.Where(x => x.Id == skill.SkillId);
+                listSkills.Add((Skill)skillEnt);
+            }
+            return listSkills;
+        }
     }
 }

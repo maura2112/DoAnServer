@@ -20,5 +20,8 @@ namespace Application.IServices
 
         Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize);
         Task<int> Add(SkillDTO request);
+
+        //Task<List<SkillDTO>> GetByProjectId(int pId);
+
     }
 }

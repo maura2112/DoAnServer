@@ -10,5 +10,7 @@ namespace Domain.IRepositories
     public interface IProjectSkillRepository : IGenericRepository<ProjectSkill>
     {
         public Task<int> AddProjectSkill(List<Skill> skills, int pId);
+
+        public Task<List<Skill>> GetListProjectSkillByProjectId(int projectId);
     }
 }

@@ -22,11 +22,16 @@ namespace Domain.Entities
         public virtual Address? Address { get; set; } = null!;
         
         public string? TaxCode { get; set; }
+
         public bool IsCompany { get; set; }
+
+        public string? Education { get; set; }
+        public string? Experience { get; set; }
+        public string? Qualifications { get; set; }
 
         //public virtual Rating? Rating { get; set; } = null!;
 
-        
+
 
 
     }

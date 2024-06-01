@@ -37,23 +37,66 @@ namespace Application.Services
             
         }
 
-        public async Task<int> Add(ProjectDTO request)
+        public async Task<ProjectDTO> Add(ProjectDTO request)
         {
             var project = _mapper.Map<Project>(request);
+
             project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
             // createdBy
+            project.CreatedBy = request.CreatedBy;
             project.CreatedDate = DateTime.Now;
             project.UpdatedDate = DateTime.Now;
             project.StatusId = 1;
+            project.IsDeleted = false;
+            project.Description = request.Description;
+
+            //
+            
+
             //media file
             await _projectRepository.AddAsync(project);
-            var urlRecord = project.CreateUrlRecordAsync("du-an", project.Title);
+            var urlRecord = project.CreateUrlRecordAsync("tao-du-an", project.Title);
             await _urlRepository.AddAsync(urlRecord);
-            return project.Id;
+
+            var projectDto = _mapper.Map<ProjectDTO>(project);
+            //smthing ưởng here
+            var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
+            projectDto.AppUser = _mapper.Map<AppUserDTO>(user);
+
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDto.Category = _mapper.Map<CategoryDTO>(category);
+
+            //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            //foreach (var skill in listSkills)
+            //{
+            //    projectDto.Skill.Add(skill.SkillName);
+            //}
+
+            return projectDto;
         }
+
+        //public async Task<int> CreateAsync(Project request)
+        //{
+        //    var project = new Project();
+        //    project.CategoryId = request.CategoryId;
+        //    project.MinBudget = request.MinBudget;
+        //    project.MaxBudget = request.MaxBudget;
+        //    project.Duration = request.Duration;
+        //    // createdBy
+        //    project.CreatedBy = request.CreatedBy;
+        //    project.CreatedDate = DateTime.Now;
+        //    project.UpdatedDate = DateTime.Now;
+        //    project.StatusId = 1;
+        //    project.IsDeleted = false;
+        //    project.Description = request.Description;
+        //    project.Title = request.Title;
+
+        //    await _projectRepository.AddAsync(project);
+        //    return project.Id;
+        //}
 
         public async Task<Pagination<ProjectDTO>> Get(int pageIndex, int pageSize)
         {
@@ -74,8 +117,16 @@ namespace Application.Services
                 //var skill = await _projectSkillRepository.GetByIdAsync(x.Id);
                 //model.Skill = _mapper.Map<SkillDTO>(skill);
 
+                var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
+                foreach (var skill in listSkills)
+                {
+                    model.Skill.Add(skill.SkillName);
+                }
+
+
                 updatedItems.Add(model);
             }
+
             projectDTOs.Items = updatedItems;
             return projectDTOs;
         }
@@ -91,8 +142,14 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
 
-            //var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
-            //projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+
+            var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            foreach (var skill in listSkills)
+            {
+                projectDTO.Skill.Add(skill.SkillName);
+            }
 
             return projectDTO;
         }
@@ -115,6 +172,12 @@ namespace Application.Services
 
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
                 model.Category = _mapper.Map<CategoryDTO>(category);
+
+                var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
+                foreach (var skill in listSkills)
+                {
+                    model.Skill.Add(skill.SkillName);
+                }
 
                 updatedItems.Add(model);
             }

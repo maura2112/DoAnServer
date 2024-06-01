@@ -38,6 +38,8 @@
 
             public const string Bidding = "Bidding";
             //public const string GetDetailBidById = "GetDetailBidById";
+            public const string Update = "UpdateBidding";
+            public const string Delete = "DeleteBidding";
         }
 
         public static class ProjectSkill

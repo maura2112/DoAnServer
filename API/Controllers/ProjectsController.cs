@@ -2,10 +2,13 @@
 using Application.IServices;
 
 using Domain.Entities;
+using Domain.IRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using static API.Common.Url;
 
 namespace API.Controllers
 {
@@ -14,10 +17,14 @@ namespace API.Controllers
     {
         private readonly IProjectService _projectService;
         private readonly ICurrentUserService _currentUserService;
-        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService)
+        private readonly ISkillService _skillService;
+        private readonly IProjectRepository _projectRepository;
+        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository)
         {
             _projectService = projectService;
             _currentUserService = currentUserService;
+            _skillService = skillService;
+            _projectRepository = projectRepository;
         }
 
         [HttpGet]
@@ -35,7 +42,7 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Project, bool>> filter = null;
+            Expression<Func<Domain.Entities.Project, bool>> filter = null;
             if (projects != null)
             {
                 filter = item => item.CategoryId == projects.CategoryId;
@@ -52,7 +59,7 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Project, bool>> filter = null;
+            Expression<Func<Domain.Entities.Project, bool>> filter = null;
             if (projects != null)
             {
                 filter = item => item.CreatedBy == projects.UserId;
@@ -79,8 +86,20 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            await _projectService.Add(DTOs);
-            return NoContent();
+            //await _projectService.Add(DTOs);
+            //await _skillService.AddSkillForProject(DTOs.Skill, DTOs.Id);
+            //return NoContent();
+
+            var project = await _projectService.Add(DTOs);
+            //nen tra ve 1 object
+            await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Bạn vừa tạo dự án thành công",
+                data = project
+            });
         }
 
     }

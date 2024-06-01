@@ -32,7 +32,6 @@ namespace Domain.Entities
         public virtual ICollection<Bid> Bids { get; set; }
         public virtual ICollection<Bookmark> Bookmarks { get; set; }
         public virtual ICollection<UserProject> UserProjects { get; set; }
-
         public virtual ICollection<ProjectSkill> ProjectSkills { get; set; }
 
     }

@@ -25,7 +25,9 @@ namespace Application.IServices
 
         Task<ProjectDTO> GetDetailProjectById(int id);
 
-        Task<int> Add(ProjectDTO request);
+        Task<ProjectDTO> Add(ProjectDTO request);
+
+        //Task<int> CreateAsync(Project request);
 
         //Task<Pagination<ProjectDTO>> GetProjectByCategory(int id, int pageIndex, int pageSize);
 

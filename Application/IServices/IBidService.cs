@@ -18,5 +18,8 @@ namespace Application.IServices
         //Task<BidDTO> GetDetailBidById(int id);
         Task<int> Add(BidDTO request);
 
+        Task<int> Update(BidDTO request);
+        Task<int> Delete(int id);
+
     }
 }

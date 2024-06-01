@@ -28,9 +28,12 @@ namespace Application.DTOs
         public virtual AppUserDTO? AppUser { get; set; } = null!;
         public virtual CategoryDTO? Category { get; set; } = null!;
 
+        public List<string> Skill { get; set; } = new();
+        //public List<SkillDTO> SkillList { get; set; } 
+
         //public virtual SkillDTO? Skill { get; set; } = null!;
 
-        
+
         //public virtual Category? Category { get; set; } = null!;
         //public virtual MediaFile? MediaFile { get; set; } = null!;
         //public virtual ProjectStatus? ProjectStatus { get; set; } = null!;

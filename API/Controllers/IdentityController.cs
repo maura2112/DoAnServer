@@ -3,9 +3,11 @@ using Application.DTOs.AuthenticationDTO;
 using Application.IServices;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static Domain.Exceptions.Constant;
 
 namespace API.Controllers
 {
@@ -15,14 +17,16 @@ namespace API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IPasswordGeneratorService _passwordGeneratorService;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly ISkillService _skillService;
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService)
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager)
         {
             _mapper = mapper;
             _userManager = userManager;
             _jwtTokenService = jwtTokenService;
             _passwordGeneratorService = passwordGeneratorService;
             _skillService = skillService;
+            _signInManager = signInManager;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -121,6 +125,25 @@ namespace API.Controllers
                 success= true,
                 message ="Bạn đã đăng xuất thành công!"
             });
+        }
+        [HttpGet]
+        [Route(Common.Url.User.Identity.External)]
+        public async Task<ActionResult> GetExternalLogin()
+        {
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            IList<AuthenticationScheme>  ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            return Ok(ExternalLogins.First().Name);
+        }
+        [HttpPost]
+        [Route(Common.Url.User.Identity.External)]
+        public IActionResult GetExternalLogin(string provider)
+        {
+            // Request a redirect to the external login provider.
+            var redirectUrl = Url.Action("Callback");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return new ChallengeResult(provider, properties);
         }
     }   
 }

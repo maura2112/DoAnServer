@@ -29,6 +29,9 @@
             public const string GetProjectDetails = "GetProjectDetailsById";
             public const string GetProjectsByUserId = "GetProjectsByUserId";
             public const string Add = "AddProject";
+            public const string Update = "UpdateProject";
+            public const string Delete = "DeleteProject";
+
         }
 
         public static class Bid

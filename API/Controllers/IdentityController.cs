@@ -39,7 +39,7 @@ namespace API.Controllers
             var existUser = await _userManager.FindByEmailAsync(user.Email);
             if (existUser != null)
             {
-                throw new Exception("This email đã được sử dụng");
+                return Conflict(new { message = "Email đã được sử dụng." });
             }
             var userRegister = new AppUser()
             {

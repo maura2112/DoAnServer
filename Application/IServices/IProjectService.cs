@@ -27,6 +27,10 @@ namespace Application.IServices
 
         Task<ProjectDTO> Add(ProjectDTO request);
 
+        Task<ProjectDTO> Update(ProjectDTO request);
+
+        Task<ProjectDTO> Delete(int id);
+
         //Task<int> CreateAsync(Project request);
 
         //Task<Pagination<ProjectDTO>> GetProjectByCategory(int id, int pageIndex, int pageSize);

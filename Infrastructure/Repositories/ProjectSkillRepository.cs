@@ -36,6 +36,13 @@ namespace Infrastructure.Repositories
             return await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteProjectSkill(int projectId)
+        {
+            var listProjectSkills = await _context.ProjectSkills.Where(skill => skill.ProjectId == projectId).ToListAsync();
+            _context.ProjectSkills.RemoveRange(listProjectSkills);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<Skill>> GetListProjectSkillByProjectId(int projectId)
         {
             var listProjectSkills = await _context.ProjectSkills.Where(x=>x.ProjectId == projectId).ToListAsync();

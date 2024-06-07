@@ -12,5 +12,7 @@ namespace Domain.IRepositories
         public Task<int> AddProjectSkill(List<Skill> skills, int pId);
 
         public Task<List<Skill>> GetListProjectSkillByProjectId(int projectId);
+
+        public Task DeleteProjectSkill(int projectId);
     }
 }

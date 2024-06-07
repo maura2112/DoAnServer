@@ -2,6 +2,7 @@
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
+using Azure.Core;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
@@ -34,7 +35,7 @@ namespace Application.Services
             _appUserRepository = appUserRepository;
             _categoryRepository = categoryRepository;
             _projectSkillRepository = projectSkillRepository;
-            
+
         }
 
         public async Task<ProjectDTO> Add(ProjectDTO request)
@@ -54,7 +55,7 @@ namespace Application.Services
             project.Description = request.Description;
 
             //
-            
+
 
             //media file
             await _projectRepository.AddAsync(project);
@@ -69,34 +70,28 @@ namespace Application.Services
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDto.Category = _mapper.Map<CategoryDTO>(category);
 
-            //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
-            //foreach (var skill in listSkills)
-            //{
-            //    projectDto.Skill.Add(skill.SkillName);
-            //}
+            var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            foreach (var skill in listSkills)
+            {
+                projectDto.Skill.Add(skill.SkillName);
+            }
 
             return projectDto;
         }
 
-        //public async Task<int> CreateAsync(Project request)
-        //{
-        //    var project = new Project();
-        //    project.CategoryId = request.CategoryId;
-        //    project.MinBudget = request.MinBudget;
-        //    project.MaxBudget = request.MaxBudget;
-        //    project.Duration = request.Duration;
-        //    // createdBy
-        //    project.CreatedBy = request.CreatedBy;
-        //    project.CreatedDate = DateTime.Now;
-        //    project.UpdatedDate = DateTime.Now;
-        //    project.StatusId = 1;
-        //    project.IsDeleted = false;
-        //    project.Description = request.Description;
-        //    project.Title = request.Title;
 
-        //    await _projectRepository.AddAsync(project);
-        //    return project.Id;
-        //}
+        public async Task<ProjectDTO> Delete(int id)
+        {
+            var project = await _projectRepository.GetByIdAsync(id);
+            if (project == null)
+            {
+                throw new Exception("Project not found");
+            }
+            project.IsDeleted = true;
+            var projectDto = _mapper.Map<ProjectDTO>(project);
+            await Update(projectDto);
+            return projectDto;
+        }
 
         public async Task<Pagination<ProjectDTO>> Get(int pageIndex, int pageSize)
         {
@@ -113,9 +108,6 @@ namespace Application.Services
 
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
                 model.Category = _mapper.Map<CategoryDTO>(category);
-
-                //var skill = await _projectSkillRepository.GetByIdAsync(x.Id);
-                //model.Skill = _mapper.Map<SkillDTO>(skill);
 
                 var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
                 foreach (var skill in listSkills)
@@ -186,5 +178,55 @@ namespace Application.Services
             return projectDTOs;
         }
 
+        public async Task<ProjectDTO> Update(ProjectDTO request)
+        {
+            var project = await _projectRepository.GetByIdAsync(request.Id);
+            if (project == null)
+            {
+                throw new Exception("Project not found");
+            }
+
+            // Update the project's properties
+            project.Title = request.Title;
+            project.CategoryId = request.CategoryId;
+            project.MinBudget = request.MinBudget;
+            project.MaxBudget = request.MaxBudget;
+            project.Duration = request.Duration;
+            project.UpdatedDate = DateTime.Now; // update the updated date
+            project.StatusId = request.StatusId;
+            project.CreatedBy = request.CreatedBy;
+            project.IsDeleted = request.IsDeleted;
+            project.Description = request.Description;
+            //mediafile
+
+            // Update the project in the repository
+            _projectRepository.Update(project);
+
+            // Handle URL record update
+            var urlRecord = project.CreateUrlRecordAsync("chinh-sua-du-an", project.Title);
+            await _urlRepository.AddAsync(urlRecord); // assuming there's a method for updating URLs
+
+            // Map the updated project back to a DTO
+            var projectDto = _mapper.Map<ProjectDTO>(project);
+
+            // Retrieve and map the user who created the project
+            var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
+            projectDto.AppUser = _mapper.Map<AppUserDTO>(user);
+
+            // Retrieve and map the category of the project
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDto.Category = _mapper.Map<CategoryDTO>(category);
+
+            await _projectSkillRepository.DeleteProjectSkill(project.Id);
+
+            // Retrieve and map the skills associated with the project
+            var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            foreach (var skill in listSkills)
+            {
+                projectDto.Skill.Add(skill.SkillName);
+            }
+
+            return projectDto;
+        }
     }
 }

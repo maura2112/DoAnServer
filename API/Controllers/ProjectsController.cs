@@ -12,7 +12,7 @@ using static API.Common.Url;
 
 namespace API.Controllers
 {
- 
+
     public class ProjectsController : ApiControllerBase
     {
         private readonly IProjectService _projectService;
@@ -80,7 +80,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Project.Add)]
-        public async Task<IActionResult> AddAsync( ProjectDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> AddAsync(ProjectDTO DTOs, CancellationToken token)
         {
             if (!ModelState.IsValid)
             {
@@ -99,6 +99,45 @@ namespace API.Controllers
                 success = true,
                 message = "Bạn vừa tạo dự án thành công",
                 data = project
+            });
+        }
+
+        [HttpPut]
+        [Route(Common.Url.Project.Update)]
+        public async Task<IActionResult> UpdateAsync(ProjectDTO DTOs, CancellationToken token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+
+            var project = await _projectService.Update(DTOs);
+
+            await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Bạn vừa cập nhật dự án thành công",
+                data = project
+            });
+        }
+
+        [HttpDelete]
+        [Route(Common.Url.Project.Delete)]
+        public async Task<IActionResult> DeleteAsync(int projectId, CancellationToken token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            await _projectService.Delete(projectId);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Bạn vừa xóa dự án thành công",
+                data = projectId
             });
         }
 

@@ -25,12 +25,16 @@
         public static class Project
         {
             public const string GetAll = "GetAll";
-            public const string GetByCategory = "GetByCategory";
+            //public const string GetByCategory = "GetByCategory";
             public const string GetProjectDetails = "GetProjectDetailsById";
             public const string GetProjectsByUserId = "GetProjectsByUserId";
             public const string Add = "AddProject";
             public const string Update = "UpdateProject";
             public const string Delete = "DeleteProject";
+            public const string Filter = "Filter";
+            public const string Search = "Search";
+
+
 
         }
 

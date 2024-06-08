@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using API.Utilities;
+using Application.DTOs;
 using Application.IServices;
 
 using Domain.Entities;
@@ -35,17 +36,62 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        [Route(Common.Url.Project.GetByCategory)]
-        public async Task<IActionResult> GetByCate([FromQuery] ProjectSearchDTO projects)
+        [Route(Common.Url.Project.Search)]
+        public async Task<IActionResult> Search([FromQuery] ProjectSearchDTO projects)
         {
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
             Expression<Func<Domain.Entities.Project, bool>> filter = null;
+            if (projects != null && !string.IsNullOrEmpty(projects.Keyword))
+            {
+                var keyword = projects.Keyword.ToLower();
+                filter = item => item.Title.ToLower().Contains(keyword);
+            }
+            return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Project.Filter)]
+        public async Task<IActionResult> Filter([FromQuery] ProjectFilter projects)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
             if (projects != null)
             {
-                filter = item => item.CategoryId == projects.CategoryId;
+                if (projects.CategoryId > 0)
+                {
+                    filter = filter.And(item => item.CategoryId == projects.CategoryId);
+                }
+
+                if (projects.CategoryId > 0)
+                {
+                    filter = filter.And(item => item.CategoryId == projects.CategoryId);
+                }
+
+                if (projects.SkillIds != null && projects.SkillIds.Any())
+                {
+                    filter = filter.And(item => item.ProjectSkills.Any(skill => projects.SkillIds.Contains(skill.SkillId)));
+                }
+
+                if (projects.Duration > 0)
+                {
+                    filter = filter.And(item => item.Duration <= projects.Duration);
+                }
+
+                if (projects.MinBudget > 0)
+                {
+                    filter = filter.And(item => item.MinBudget >= projects.MinBudget);
+                }
+
+                if (projects.MaxBudget > 0)
+                {
+                    filter = filter.And(item => item.MaxBudget <= projects.MaxBudget);
+                }
             }
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }

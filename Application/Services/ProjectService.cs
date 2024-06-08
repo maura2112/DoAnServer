@@ -59,8 +59,8 @@ namespace Application.Services
 
             //media file
             await _projectRepository.AddAsync(project);
-            var urlRecord = project.CreateUrlRecordAsync("tao-du-an", project.Title);
-            await _urlRepository.AddAsync(urlRecord);
+            //var urlRecord = project.CreateUrlRecordAsync("tao-du-an", project.Title);
+            //await _urlRepository.AddAsync(urlRecord);
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
             //smthing ưởng here

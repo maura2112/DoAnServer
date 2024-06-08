@@ -187,5 +187,24 @@ namespace API.Controllers
             });
         }
 
+        [HttpPut]
+        [Route(Common.Url.Project.UpdateStatus)]
+        public async Task<IActionResult> UpdateStatus(Application.DTOs.ProjectStatus DTOs, CancellationToken token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+
+            var project = await _projectService.UpdateStatus(DTOs.Id, DTOs.StatusId);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Bạn vừa thay đổi trạng thái dự án thành công",
+                data = project
+            });
+        }
+
     }
 }

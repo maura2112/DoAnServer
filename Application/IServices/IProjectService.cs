@@ -31,6 +31,8 @@ namespace Application.IServices
 
         Task<ProjectDTO> Delete(int id);
 
+        Task<ProjectDTO> UpdateStatus(int projectId, int statusId);
+
 
         //Task<int> CreateAsync(Project request);
 

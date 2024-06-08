@@ -36,6 +36,8 @@
             public const string Delete = "DeleteProject";
             public const string Filter = "Filter";
             public const string Search = "Search";
+            public const string UpdateStatus = "UpdateStatus";
+
 
 
 

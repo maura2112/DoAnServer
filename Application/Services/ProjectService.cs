@@ -9,6 +9,7 @@ using Domain.IRepositories;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -202,8 +203,8 @@ namespace Application.Services
             _projectRepository.Update(project);
 
             // Handle URL record update
-            var urlRecord = project.CreateUrlRecordAsync("chinh-sua-du-an", project.Title);
-            await _urlRepository.AddAsync(urlRecord); // assuming there's a method for updating URLs
+            //var urlRecord = project.CreateUrlRecordAsync("chinh-sua-du-an", project.Title);
+            //await _urlRepository.AddAsync(urlRecord); // assuming there's a method for updating URLs
 
             // Map the updated project back to a DTO
             var projectDto = _mapper.Map<ProjectDTO>(project);
@@ -224,6 +225,23 @@ namespace Application.Services
             {
                 projectDto.Skill.Add(skill.SkillName);
             }
+
+            return projectDto;
+        }
+
+        public async Task<ProjectDTO> UpdateStatus(int projectId, int statusId)
+        {
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+            {
+                throw new Exception("Project not found");
+            }
+            project.StatusId = statusId;
+
+            _projectRepository.Update(project);
+
+            var projectDto = _mapper.Map<ProjectDTO>(project);
+
 
             return projectDto;
         }

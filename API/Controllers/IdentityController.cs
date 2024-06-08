@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -25,7 +26,8 @@ namespace API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ISkillService _skillService;
         private readonly IEmailSender _emailSender;
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender)
+        private readonly RoleManager<Role> _roleManager;
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -34,6 +36,7 @@ namespace API.Controllers
             _skillService = skillService;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -61,6 +64,7 @@ namespace API.Controllers
             if (userResult.Succeeded)
             {
                 var currentUser = await _userManager.FindByIdAsync(userRegister.Id.ToString());
+                var roles = await _roleManager.Roles.ToListAsync();
                 await _userManager.AddToRolesAsync(currentUser, user.Roles);
             }
             else
@@ -172,9 +176,9 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.User.Identity.ResetPasswordInputCode)]
-        public async Task<ActionResult> ResetPasswordInputCode(string email , string code)
+        public async Task<ActionResult> ResetPasswordInputCode([FromBody]  ResetPasswordCodeDTO dto)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null || user.PasswordResetToken == null)
             {
                 return Conflict(new
@@ -183,7 +187,7 @@ namespace API.Controllers
                     message = "Email sai hoặc người dùng không tồn tại"
                 });
             }
-            if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, code) )
+            if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, dto.Code) )
             {
                 return Conflict(new
                 {

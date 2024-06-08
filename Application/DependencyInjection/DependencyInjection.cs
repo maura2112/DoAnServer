@@ -80,6 +80,7 @@ public static class DependencyInjection
         services.AddScoped<IProjectSkillService, ProjectSkillService>();
         services.AddScoped<SignInManager<AppUser>>();
         services.AddScoped<UserManager<AppUser>>();
+        services.AddScoped<RoleManager<Role>>();
 
         services.AddAuthentication(options =>
         {

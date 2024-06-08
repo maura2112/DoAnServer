@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Category : BaseEntity
+    public class Category 
+
     {
+        public int Id { get; set; }
         public string CategoryName { get; set; }
 
         public virtual ICollection<Project> Projects { get; set; }

@@ -29,6 +29,8 @@ namespace Domain.Entities
         public string? Experience { get; set; }
         public string? Qualifications { get; set; }
 
+        public string? Avatar { get; set; }
+
         //public virtual Rating? Rating { get; set; } = null!;
 
 

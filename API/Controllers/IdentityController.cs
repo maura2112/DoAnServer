@@ -108,8 +108,10 @@ namespace API.Controllers
             var loginRespone = new LoginRespone()
             {
                 UserId = user.Id,
-                Roles = roles.ToList(),
+                Role = roles.First(),
                 Name =  user.Name,
+                Avatar = user.Avatar,
+                EmailConfirmed = user.EmailConfirmed,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };

@@ -18,7 +18,6 @@ namespace Application.Extensions
             var url = new UrlRecord()
             {
                 EntityId = entity.Id,
-                EntityName= entity.GetEntityName(),
                 Slug = alias+"/"+ GenerateSlug(seoName),
                 IsActive = true
             };

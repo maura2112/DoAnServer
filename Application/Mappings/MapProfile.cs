@@ -32,5 +32,11 @@ public class MapProfile : Profile
         
         CreateMap<UserSkill, UserSkillDTO>().ReverseMap();
         CreateMap<Pagination<UserSkill>, Pagination<UserSkillDTO>>().ReverseMap();
+        
+        CreateMap<Address, AddressDTO>().ReverseMap();
+        CreateMap<Pagination<Address>, Pagination<AddressDTO>>().ReverseMap();
+
+        CreateMap<Domain.Entities.ProjectStatus, ProjectStatusDTO>().ReverseMap();
+        CreateMap<Pagination<Domain.Entities.ProjectStatus>, Pagination<ProjectStatusDTO>>().ReverseMap();
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using static API.Common.Url;
 
 namespace API.Controllers
 {
@@ -27,7 +28,7 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Bid, bool>> filter = null;
+            Expression<Func<Domain.Entities.Bid, bool>> filter = null;
             if (bids != null)
             {
                 filter = item => item.UserId == bids.UserId;
@@ -43,7 +44,7 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Bid, bool>> filter = null;
+            Expression<Func<Domain.Entities.Bid, bool>> filter = null;
             if (bids != null)
             {
                 filter = item => item.ProjectId == bids.ProjectId;
@@ -53,30 +54,30 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Bid.Bidding)]
-        public async Task<IActionResult> Bidding( BidDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> Bidding(BidDTO DTOs, CancellationToken token)
         {
-            //var userId = _currentUserService.UserId;
-            if (!ModelState.IsValid)
+            var bid = await _bidService.Add(DTOs);
+            return Ok(new
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-            }
-            //DTOs.UserId = userId;
-            await _bidService.Add(DTOs);
-            return NoContent();
+                success = true,
+                message = "Bạn vừa tạo đấu thầu thành công",
+                data = bid
+            });
         }
-        [HttpDelete]
-        [Route(Common.Url.Bid.Delete)]
-        public async Task<IActionResult> DeleteBidding(BidDTO DTOs, CancellationToken token)
-        {
-            //var userId = _currentUserService.UserId;
-            if (!ModelState.IsValid)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-            }
-            //DTOs.UserId = userId;
-            await _bidService.Delete((int)DTOs.Id);
-            return NoContent();
-        }
+
+        //[HttpDelete]
+        //[Route(Common.Url.Bid.Delete)]
+        //public async Task<IActionResult> DeleteBidding(BidDTO DTOs, CancellationToken token)
+        //{
+        //    //var userId = _currentUserService.UserId;
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+        //    }
+        //    //DTOs.UserId = userId;
+        //    await _bidService.Delete((int)DTOs.Id);
+        //    return NoContent();
+        //}
         [HttpPut]
         [Route(Common.Url.Bid.Update)]
         public async Task<IActionResult> UpdateBidding(BidDTO DTOs, CancellationToken token)
@@ -87,8 +88,42 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
             //DTOs.UserId = userId;
-            await _bidService.Update(DTOs);
-            return NoContent();
+            var bid = await _bidService.Update(DTOs);
+            return Ok(new
+            {
+                success = true,
+                message = "Bạn vừa cập nhật đấu thầu thành công",
+                data = bid
+            });
+        }
+        [HttpPut]
+        [Route(Common.Url.Bid.AcceptBidding)]
+        public async Task<IActionResult> AcceptBidding(BidAccepted DTOs, CancellationToken token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            if(DTOs.isAccepted == true)
+            {
+                var bid = await _bidService.AcceptBidding(DTOs.Id);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Chấp nhận đấu thầu",
+                    data = bid
+                });
+            }
+            else
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Từ chối đấu thầu",
+                });
+            }
+
+            
         }
     }
 }

@@ -15,23 +15,23 @@ namespace API.Controllers
             _currentUserService = currentUserService;
         }
 
-        [HttpGet]
-        [Route(Common.Url.ProjectSkill.GetAll)]
-        public async Task<IActionResult> Index(int pageIndex, int pageSize)
-        {
-            return Ok(await _projectSkillService.Get(pageIndex, pageSize));
-        }
+        //[HttpGet]
+        //[Route(Common.Url.ProjectSkill.GetAll)]
+        //public async Task<IActionResult> Index(int pageIndex, int pageSize)
+        //{
+        //    return Ok(await _projectSkillService.Get(pageIndex, pageSize));
+        //}
 
-        [HttpPost]
-        [Route(Common.Url.ProjectSkill.Add)]
-        public async Task<IActionResult> AddAsync(ProjectSkillDTO DTOs, CancellationToken token)
-        {
-            if (!ModelState.IsValid)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-            }
-            await _projectSkillService.Add(DTOs);
-            return NoContent();
-        }
+        //[HttpPost]
+        //[Route(Common.Url.ProjectSkill.Add)]
+        //public async Task<IActionResult> AddAsync(ProjectSkillDTO DTOs, CancellationToken token)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+        //    }
+        //    await _projectSkillService.Add(DTOs);
+        //    return NoContent();
+        //}
     }
 }

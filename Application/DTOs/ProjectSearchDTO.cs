@@ -22,7 +22,7 @@ namespace Application.DTOs
 
     }
 
-    public class ProjectStatus : BaseEntity
+    public class ProjectStatus 
     {
         public int Id { get; set; }
         public int StatusId { get; set; }

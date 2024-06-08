@@ -16,7 +16,7 @@ namespace Application.DTOs
 
         //public virtual ICollection<UserSkillDTO> UserSkills { get; set; }
     }
-    public class SkillListByCate : SearchDTO
+    public class SkillListByCate 
     {
         public int CategoryId { get; set; }
     }

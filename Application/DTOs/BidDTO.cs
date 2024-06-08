@@ -1,5 +1,6 @@
 ﻿using Domain.Common;
 using Domain.Entities;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,21 +13,41 @@ namespace Application.DTOs
     {
         public long Id { get; set; }
         public int ProjectId { get; set; }
-
         public int? UserId { get; set; }
-
         public string Proposal { get; set; }
 
         public int Duration { get; set; }
 
         public int Budget { get; set; }
 
-        public int StatusId { get; set; }
-
         public DateTime CreatedDate { get; set; }
-        public DateTime? UpdatedTime { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime? AcceptedDate { get; set; }
+
+        //public int? TotalOfStage { get; set; }
+        //public virtual ICollection<BidStage>? BidStages { get; set; }
 
         public virtual ProjectDTO? Project { get; set; } = null!;
         public virtual AppUserDTO? AppUser { get; set; } = null!;
     }
+
+    public class BidAccepted
+    {
+        public long Id { get; set; }
+        public bool isAccepted { get; set; }
+    }
+
+    public class BidDTOValidator : AbstractValidator<BidDTO>
+    {
+        public BidDTOValidator()
+        {
+            RuleFor(v => v.ProjectId)
+                .NotEmpty().WithMessage("Phải chọn 1 dự án để đấu thầu");
+            RuleFor(v => v.Budget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
+        }
+    }
 }
+    
+

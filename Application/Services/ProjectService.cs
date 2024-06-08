@@ -27,8 +27,12 @@ namespace Application.Services
         private readonly IAppUserRepository _appUserRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProjectSkillRepository _projectSkillRepository;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IAddressRepository _addressRepository;
+        private readonly IStatusRepository _statusRepository;
 
-        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository)
+
+        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IAddressRepository addressRepository, IStatusRepository statusRepository)
         {
             _mapper = mapper;
             _projectRepository = projectRepository;
@@ -36,11 +40,15 @@ namespace Application.Services
             _appUserRepository = appUserRepository;
             _categoryRepository = categoryRepository;
             _projectSkillRepository = projectSkillRepository;
-
+            _currentUserService = currentUserService;
+            _addressRepository = addressRepository;
+            _statusRepository = statusRepository;
         }
 
         public async Task<ProjectDTO> Add(ProjectDTO request)
         {
+            var userId = _currentUserService.UserId;
+
             var project = _mapper.Map<Project>(request);
 
             project.CategoryId = request.CategoryId;
@@ -48,7 +56,7 @@ namespace Application.Services
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
             // createdBy
-            project.CreatedBy = request.CreatedBy;
+            project.CreatedBy = userId;
             project.CreatedDate = DateTime.Now;
             project.UpdatedDate = DateTime.Now;
             project.StatusId = 1;
@@ -68,8 +76,14 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDto.AppUser = _mapper.Map<AppUserDTO>(user);
 
+            var address = await _addressRepository.GetAddressByUserId(userId);
+            projectDto.AppUser.Address = _mapper.Map<AddressDTO>(address);
+
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDto.Category = _mapper.Map<CategoryDTO>(category);
+
+            var status = await _statusRepository.GetByIdAsync(project.StatusId);
+            projectDto.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
             var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
             foreach (var skill in listSkills)
@@ -106,8 +120,14 @@ namespace Application.Services
                 var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
                 model.AppUser = _mapper.Map<AppUserDTO>(user);
 
+                var address = await _addressRepository.GetAddressByUserId((int)x.CreatedBy);
+                model.AppUser.Address = _mapper.Map<AddressDTO>(address);
+
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
                 model.Category = _mapper.Map<CategoryDTO>(category);
+
+                var status = await _statusRepository.GetByIdAsync(x.StatusId);
+                model.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
                 var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
                 foreach (var skill in listSkills)
@@ -134,8 +154,14 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
 
+            var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
+            projectDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
+
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+
+            var status = await _statusRepository.GetByIdAsync(project.StatusId);
+            projectDTO.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
             var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
             foreach (var skill in listSkills)
@@ -161,9 +187,14 @@ namespace Application.Services
 
                 var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
                 model.AppUser = _mapper.Map<AppUserDTO>(user);
+                var address = await _addressRepository.GetAddressByUserId((int)x.CreatedBy);
+                model.AppUser.Address = _mapper.Map<AddressDTO>(address);
 
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
                 model.Category = _mapper.Map<CategoryDTO>(category);
+
+                var status = await _statusRepository.GetByIdAsync(x.StatusId);
+                model.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
                 var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
                 foreach (var skill in listSkills)
@@ -193,9 +224,7 @@ namespace Application.Services
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
             project.UpdatedDate = DateTime.Now; // update the updated date
-            project.StatusId = request.StatusId;
-            project.CreatedBy = request.CreatedBy;
-            project.IsDeleted = request.IsDeleted;
+            //project.CreatedBy = request.CreatedBy;
             project.Description = request.Description;
             //mediafile
 
@@ -213,9 +242,15 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDto.AppUser = _mapper.Map<AppUserDTO>(user);
 
+            var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
+            projectDto.AppUser.Address = _mapper.Map<AddressDTO>(address);
+
             // Retrieve and map the category of the project
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDto.Category = _mapper.Map<CategoryDTO>(category);
+
+            var status = await _statusRepository.GetByIdAsync(project.StatusId);
+            projectDto.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
             await _projectSkillRepository.DeleteProjectSkill(project.Id);
 
@@ -225,7 +260,7 @@ namespace Application.Services
             {
                 projectDto.Skill.Add(skill.SkillName);
             }
-
+            
             return projectDto;
         }
 
@@ -238,10 +273,10 @@ namespace Application.Services
             }
             project.StatusId = statusId;
 
-            _projectRepository.Update(project);
+            
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
-
+            await Update(projectDto);
 
             return projectDto;
         }

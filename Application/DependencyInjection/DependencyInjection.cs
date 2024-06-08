@@ -75,12 +75,19 @@ public static class DependencyInjection
         //AppUser
         services.AddScoped<IAppUserRepository, AppUserRepository>();
 
+        //Address
+        services.AddScoped<IAddressRepository, AddressRepository>();
+
         //ProjectSkil
         services.AddScoped<IProjectSkillRepository, ProjectSkillRepository>();
         services.AddScoped<IProjectSkillService, ProjectSkillService>();
         services.AddScoped<SignInManager<AppUser>>();
         services.AddScoped<UserManager<AppUser>>();
         services.AddScoped<RoleManager<Role>>();
+
+        //Status
+        //services.AddScoped<ISkillService, SkillService>();
+        services.AddScoped<IStatusRepository, StatusRepository>();
 
         services.AddAuthentication(options =>
         {

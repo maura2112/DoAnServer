@@ -38,9 +38,6 @@
             public const string Search = "Search";
             public const string UpdateStatus = "UpdateStatus";
 
-
-
-
         }
 
         public static class Bid
@@ -52,6 +49,7 @@
             //public const string GetDetailBidById = "GetDetailBidById";
             public const string Update = "UpdateBidding";
             public const string Delete = "DeleteBidding";
+            public const string AcceptBidding = "AcceptBidding";
         }
 
         public static class ProjectSkill

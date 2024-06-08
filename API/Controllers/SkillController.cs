@@ -42,7 +42,7 @@ namespace API.Controllers
             {
                 filter = item => item.CategoryId == skills.CategoryId;
             }
-            return Ok(await _skillService.GetWithFilter(filter, skills.PageIndex, skills.PageSize));
+            return Ok(await _skillService.GetWithFilter(filter, 1, int.MaxValue));
         }
 
     }

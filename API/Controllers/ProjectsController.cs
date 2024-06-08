@@ -26,6 +26,7 @@ namespace API.Controllers
             _currentUserService = currentUserService;
             _skillService = skillService;
             _projectRepository = projectRepository;
+
         }
 
         [HttpGet]
@@ -100,7 +101,6 @@ namespace API.Controllers
         [Route(Common.Url.Project.GetProjectsByUserId)]
         public async Task<IActionResult> GetListByUserId([FromQuery] ProjectListDTO projects)
         {
-            var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
@@ -128,6 +128,7 @@ namespace API.Controllers
         [Route(Common.Url.Project.Add)]
         public async Task<IActionResult> AddAsync(ProjectDTO DTOs, CancellationToken token)
         {
+            
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);

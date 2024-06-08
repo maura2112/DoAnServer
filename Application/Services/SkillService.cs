@@ -118,9 +118,11 @@ namespace Application.Services
 
 
 
-        public Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize)
+        public async Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize)
         {
-            throw new NotImplementedException();
+            var skills = await _skillRepository.GetAsync(filter, pageIndex, pageSize);
+            var skillDTOs = _mapper.Map<Pagination<SkillDTO>>(skills);
+            return skillDTOs;
         }
     }
 }

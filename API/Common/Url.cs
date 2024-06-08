@@ -62,6 +62,8 @@
         public static class Skill
         {
             public const string Add = "Add";
+            public const string GetByCategoryId = "GetByCategoryId";
+
         }
     }
 }

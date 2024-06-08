@@ -75,7 +75,6 @@ namespace Application.Services
             {
                 projectDto.Skill.Add(skill.SkillName);
             }
-
             return projectDto;
         }
 

@@ -9,6 +9,7 @@ using Application.IServices;
 using Application.Services;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.Xml;
+using Infrastructure.Services;
 
 namespace API
 {
@@ -23,6 +24,8 @@ namespace API
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+            var mailsetting = builder.Configuration.GetSection("MailSettings");
+            builder.Services.Configure<MailSettings>(mailsetting);
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title ="dotnetClaimAuthorization" , Version = "v1" });

@@ -28,13 +28,8 @@ namespace Domain.Entities
         public string? Education { get; set; }
         public string? Experience { get; set; }
         public string? Qualifications { get; set; }
-
         public string? Avatar { get; set; }
-
-        //public virtual Rating? Rating { get; set; } = null!;
-
-
-
-
+        public string? PasswordResetToken { get; set; }
+        public DateTime? ResetTokenExpires { get; set; }
     }
 }

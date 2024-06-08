@@ -10,6 +10,9 @@
                 public const string Logout = "Logout";
                 public const string Register = "Register";
                 public const string External = "External";
+                public const string ResetPassword = "ResetPassword";
+                public const string ResetPasswordInputCode= "ResetPasswordInputCode";
+                public const string ResetNewPassword = "ResetNewPassword";
             }
         }
         public static class Product

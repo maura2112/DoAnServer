@@ -3,11 +3,16 @@ using Application.DTOs.AuthenticationDTO;
 using Application.IServices;
 using AutoMapper;
 using Domain.Entities;
+using MailKit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 using static Domain.Exceptions.Constant;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace API.Controllers
 {
@@ -19,7 +24,8 @@ namespace API.Controllers
         private readonly IJwtTokenService _jwtTokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ISkillService _skillService;
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager)
+        private readonly IEmailSender _emailSender;
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -27,6 +33,7 @@ namespace API.Controllers
             _passwordGeneratorService = passwordGeneratorService;
             _skillService = skillService;
             _signInManager = signInManager;
+            _emailSender = emailSender;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -128,6 +135,120 @@ namespace API.Controllers
                 message ="Bạn đã đăng xuất thành công!"
             });
         }
+
+        [HttpPost]
+        [Route(Common.Url.User.Identity.ResetPassword)]
+        public async Task<ActionResult> ResetPassword( string email)
+        {
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Email sai hoặc người dùng không tồn tại"
+                });
+            }
+            var resetCode = _passwordGeneratorService.Generate6DigitCode();
+            user.PasswordResetToken = _passwordGeneratorService.HashPassword(resetCode);
+            user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(3);
+            await _userManager.UpdateAsync(user);
+            await _emailSender.SendEmailAsync(email, "Mã xác nhận thiết lập lại mật khẩu ",
+                        $"<p>Dear {user.Name},</p>" +
+                        $"<p>Chúng tôi đã nhận được yêu cầu thiết lập lại mật khẩu. Hãy sữ dụng mã dưới đây:</p>" +
+                        $"<h3 style=\"background-color: #f9f9f9; padding: 10px; border: 1px solid #ccc; display: inline-block;\">{resetCode}</h3>" +
+                        $"<p>Mã sẽ hợp lệ trong vòng 3 phút.</p>" +
+                        $"<p>Nếu bạn không yêu cầu thiết lập lại mật khẩu, hãy bỏ qua email này.</p>" +
+                        $"<p>Cảm ơn,</p>" +
+                        $"<p>GoodJobs</p>");
+            return Ok(new
+            {
+                success = true,
+                message = "Hãy kiểm tra email để lấy mã xác nhận"
+            }); ;
+        }
+
+        [HttpPost]
+        [Route(Common.Url.User.Identity.ResetPasswordInputCode)]
+        public async Task<ActionResult> ResetPasswordInputCode(string email , string code)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || user.PasswordResetToken == null)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Email sai hoặc người dùng không tồn tại"
+                });
+            }
+            if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, code) )
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            if(user.ResetTokenExpires < DateTime.UtcNow)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            return Ok(new
+            {
+                success = true,
+                message = "Mã chính xác",
+                secureToken  = user.PasswordResetToken
+            }) ;
+        }
+
+        [HttpPost]
+        [Route(Common.Url.User.Identity.ResetNewPassword)]
+        public async Task<ActionResult> ResetNewPassword([FromBody] ResetPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null || user.PasswordResetToken == null)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Email sai hoặc người dùng không tồn tại"
+                });
+            }
+            if (!user.PasswordResetToken.Equals(dto.SecureToken))
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            if (user.ResetTokenExpires < DateTime.UtcNow)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            user.PasswordHash = _passwordGeneratorService.HashPassword(dto.NewPassword);
+             await _userManager.UpdateAsync(user);
+            return Ok(new
+            {
+                success = true,
+                message = "Reset mật khẩu thành công",
+            });
+        }
+
         [HttpGet]
         [Route(Common.Url.User.Identity.External)]
         public async Task<ActionResult> GetExternalLogin()
@@ -147,5 +268,6 @@ namespace API.Controllers
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
         }
+
     }   
 }

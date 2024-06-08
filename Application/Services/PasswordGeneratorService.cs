@@ -8,6 +8,12 @@ namespace Application.Services;
 
 public class PasswordGeneratorService : IPasswordGeneratorService
 {
+    public string Generate6DigitCode()
+    {
+        Random random = new Random();
+        return random.Next(100000, 1000000).ToString();
+    }
+
     public string HashPassword(string password)
     {
         byte[] salt;

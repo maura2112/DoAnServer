@@ -10,6 +10,8 @@ public interface IPasswordGeneratorService
     /// <returns>Hash password</returns>
     public string HashPassword(string password);
 
+    public string Generate6DigitCode();
+
     /// <summary>
     /// To verify a hashed password is correct or not
     /// </summary>

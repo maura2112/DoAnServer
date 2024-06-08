@@ -17,6 +17,8 @@ using Application.IServices;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Infrastructure.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -37,6 +39,8 @@ public static class DependencyInjection
         //Product
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductService, ProductService>();
+
+        services.AddSingleton<IEmailSender, SendMailService>();
 
         //Cate
         services.AddScoped<ICategoryRepository, CategoryRepository>();

@@ -10,5 +10,6 @@ namespace Application.DTOs
     public class CategoryDTO : BaseEntity
     {
         public string CategoryName { get; set; }
+        public string Image { get; set; }
     }
 }

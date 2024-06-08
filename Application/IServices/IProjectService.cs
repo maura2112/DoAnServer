@@ -31,6 +31,7 @@ namespace Application.IServices
 
         Task<ProjectDTO> Delete(int id);
 
+
         //Task<int> CreateAsync(Project request);
 
         //Task<Pagination<ProjectDTO>> GetProjectByCategory(int id, int pageIndex, int pageSize);

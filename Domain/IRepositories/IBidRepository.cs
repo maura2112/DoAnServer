@@ -9,5 +9,6 @@ namespace Domain.IRepositories
 {
     public interface IBidRepository : IGenericRepository<Bid>
     {
+        Task<bool> CheckBidding(int userId, int projectId);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Application.DTOs;
 using Application.IServices;
+using Application.Services;
 using Domain.Entities;
+using Domain.IRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +15,17 @@ namespace API.Controllers
     public class BidController : ApiControllerBase
     {
         private readonly IBidService _bidService;
+        private readonly IBidRepository _bidRepository;
+        private readonly IProjectRepository _projectRepository;
         private readonly ICurrentUserService _currentUserService;
-        public BidController(IBidService bidService, ICurrentUserService currentUserService)
+
+
+        public BidController(IBidService bidService, ICurrentUserService currentUserService, IBidRepository bidRepository, ICurrentUserService currentUser, IProjectRepository projectRepository)
         {
             _bidService = bidService;
-            _currentUserService = currentUserService;
+            _bidRepository = bidRepository;
+            _currentUserService = currentUser;
+            _projectRepository = projectRepository;
         }
 
         [HttpGet]
@@ -54,15 +62,33 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Bid.Bidding)]
-        public async Task<IActionResult> Bidding(BidDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> Bidding(BiddingDTO DTOs, CancellationToken token)
         {
-            var bid = await _bidService.Add(DTOs);
-            return Ok(new
+            var userId = _currentUserService.UserId;
+            var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.ProjectId);
+            if(fetchedProject == null)
             {
-                success = true,
-                message = "Bạn vừa tạo đấu thầu thành công",
-                data = bid
-            });
+                return NotFound(new {message = "Không tìm thấy dự án!"});
+            }
+            else
+            {
+                bool isBidding = await _bidRepository.CheckBidding(userId, DTOs.ProjectId);
+                if (isBidding)
+                {
+                    return BadRequest(new { message = "Bạn đã đấu thầu dự án này" });
+                }
+                else
+                {
+                    var bid = await _bidService.Add(DTOs);
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Bạn vừa tạo đấu thầu thành công",
+                        data = bid
+                    });
+                }
+            }
+            
         }
 
         //[HttpDelete]
@@ -80,21 +106,30 @@ namespace API.Controllers
         //}
         [HttpPut]
         [Route(Common.Url.Bid.Update)]
-        public async Task<IActionResult> UpdateBidding(BidDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> UpdateBidding(UpdateBidDTO DTOs, CancellationToken token)
         {
             //var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            //DTOs.UserId = userId;
-            var bid = await _bidService.Update(DTOs);
-            return Ok(new
+            var bidDTO = await _bidRepository.GetByIdAsync(DTOs.Id);
+            if(bidDTO == null)
             {
-                success = true,
-                message = "Bạn vừa cập nhật đấu thầu thành công",
-                data = bid
-            });
+                return NotFound(new {message="Không tìm thấy đấu thầu!"});
+            }
+            //DTOs.UserId = userId;
+            else
+            {
+                var bid = await _bidService.Update(DTOs);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bạn vừa cập nhật đấu thầu thành công",
+                    data = bid
+                });
+            }
+            
         }
         [HttpPut]
         [Route(Common.Url.Bid.AcceptBidding)]
@@ -104,7 +139,12 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            if(DTOs.isAccepted == true)
+            var bidDTO = await _bidRepository.GetByIdAsync(DTOs.Id);
+            if (bidDTO == null)
+            {
+                return NotFound();
+            }
+            else if (DTOs.isAccepted == true)
             {
                 var bid = await _bidService.AcceptBidding(DTOs.Id);
                 return Ok(new

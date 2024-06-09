@@ -36,8 +36,7 @@ namespace Infrastructure.Repositories
             => await _dbSet.CountAsync();
 
         public async Task<T> GetByIdAsync(object id)
-            => await _dbSet.FindAsync(id)
-            ?? throw new ArgumentNullException(ErrorMessage.NotFoundMessage);
+            => await _dbSet.FindAsync(id);
         
         public async Task<Pagination<T>> ToPagination(int pageIndex, int pageSize)
         {
@@ -91,7 +90,11 @@ namespace Infrastructure.Repositories
         #region Update & delete
 
         public void Update(T entity)
-            => _dbSet.Update(entity);
+        {
+            _dbSet.Update(entity);
+            context.SaveChanges();
+        }
+            
 
         public void UpdateRange(IEnumerable<T> entities)
             => _dbSet.UpdateRange(entities);

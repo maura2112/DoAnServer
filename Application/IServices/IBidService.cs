@@ -16,12 +16,14 @@ namespace Application.IServices
         Task<Pagination<BidDTO>> GetWithFilter(Expression<Func<Bid, bool>> filter, int pageIndex, int pageSize);
 
         //Task<BidDTO> GetDetailBidById(int id);
-        Task<BidDTO> Add(BidDTO request);
+        Task<BidDTO> Add(BiddingDTO request);
 
-        Task<BidDTO> Update(BidDTO request);
+        Task<BidDTO> Update(UpdateBidDTO request);
         Task<BidDTO> Delete(int id);
 
         Task<BidDTO> AcceptBidding(long id);
+
+
 
 
     }

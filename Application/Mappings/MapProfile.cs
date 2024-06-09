@@ -16,9 +16,22 @@ public class MapProfile : Profile
 
         CreateMap<Project, ProjectDTO>().ReverseMap();
         CreateMap<Pagination<Project>, Pagination<ProjectDTO>>().ReverseMap();
+        //add project
+        CreateMap<Project, AddProjectDTO>().ReverseMap();
+        CreateMap<ProjectDTO, AddProjectDTO>().ReverseMap();
+        //UpdateProject 
+        CreateMap<Project, UpdateProjectDTO>().ReverseMap();
+        CreateMap<ProjectDTO, UpdateProjectDTO>().ReverseMap();
+
 
         CreateMap<Bid, BidDTO>().ReverseMap();
         CreateMap<Pagination<Bid>, Pagination<BidDTO>>().ReverseMap();
+        //add bidding
+        CreateMap<Bid, BiddingDTO>().ReverseMap();
+        CreateMap<BidDTO, BiddingDTO>().ReverseMap();
+        //update bidding
+        CreateMap<Bid, UpdateBidDTO>().ReverseMap();
+        CreateMap<BidDTO, UpdateBidDTO>().ReverseMap();
 
         CreateMap<Category, CategoryDTO>().ReverseMap();
 

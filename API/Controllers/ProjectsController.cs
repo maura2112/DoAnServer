@@ -126,13 +126,14 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Project.Add)]
-        public async Task<IActionResult> AddAsync(ProjectDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> AddAsync(AddProjectDTO DTOs, CancellationToken token)
         {
             
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
+            
             //await _projectService.Add(DTOs);
             //await _skillService.AddSkillForProject(DTOs.Skill, DTOs.Id);
             //return NoContent();
@@ -151,23 +152,32 @@ namespace API.Controllers
 
         [HttpPut]
         [Route(Common.Url.Project.Update)]
-        public async Task<IActionResult> UpdateAsync(ProjectDTO DTOs, CancellationToken token)
+        public async Task<IActionResult> UpdateAsync(UpdateProjectDTO DTOs, CancellationToken token)
         {
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-
-            var project = await _projectService.Update(DTOs);
-
-            await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
-
-            return Ok(new
+            var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.Id);
+            if(fetchedProject == null)
             {
-                success = true,
-                message = "Bạn vừa cập nhật dự án thành công",
-                data = project
-            });
+                return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
+            }
+            else
+            {
+                var project = await _projectService.Update(DTOs);
+
+                await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bạn vừa cập nhật dự án thành công",
+                    data = project
+                });
+            }
+
+            
         }
 
         [HttpDelete]
@@ -178,14 +188,23 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            await _projectService.Delete(projectId);
-
-            return Ok(new
+            var fetchedProject = await _projectRepository.GetByIdAsync(projectId);
+            if (fetchedProject == null)
             {
-                success = true,
-                message = "Bạn vừa xóa dự án thành công",
-                data = projectId
-            });
+                return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
+            }
+
+            else
+            {
+                await _projectService.Delete(projectId);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bạn vừa xóa dự án thành công",
+                    data = projectId
+                });
+            }
         }
 
         [HttpPut]
@@ -197,14 +216,22 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
 
-            var project = await _projectService.UpdateStatus(DTOs.Id, DTOs.StatusId);
-
-            return Ok(new
+            var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.Id);
+            if (fetchedProject == null)
             {
-                success = true,
-                message = "Bạn vừa thay đổi trạng thái dự án thành công",
-                data = project
-            });
+                return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
+            }
+            else
+            {
+                var project = await _projectService.UpdateStatus(DTOs.Id, DTOs.StatusId);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bạn vừa thay đổi trạng thái dự án thành công",
+                    data = project
+                });
+            }
         }
 
     }

@@ -37,6 +37,22 @@ namespace Application.DTOs
         public bool isAccepted { get; set; }
     }
 
+    public class BiddingDTO
+    {
+        public int ProjectId { get; set; }
+        public string Proposal { get; set; }
+        public int Duration { get; set; }
+        public int Budget { get; set; }
+    }
+
+    public class UpdateBidDTO
+    {
+        public long Id { get; set; }
+        public string Proposal { get; set; }
+        public int Duration { get; set; }
+        public int Budget { get; set; }
+    }
+
     public class BidDTOValidator : AbstractValidator<BidDTO>
     {
         public BidDTOValidator()
@@ -48,6 +64,28 @@ namespace Application.DTOs
             RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
         }
     }
+
+    public class BiddingDTOValidator : AbstractValidator<BiddingDTO>
+    {
+        public BiddingDTOValidator()
+        {
+            RuleFor(v => v.ProjectId)
+                .NotEmpty().WithMessage("Phải chọn 1 dự án để đấu thầu");
+            RuleFor(v => v.Budget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
+        }
+    }
+    public class UpdateBidDTOValidator : AbstractValidator<UpdateBidDTO>
+    {
+        public UpdateBidDTOValidator()
+        {
+            RuleFor(v => v.Budget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
+        }
+    }
+
 }
     
 

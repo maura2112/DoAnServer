@@ -45,7 +45,7 @@ namespace Application.Services
             _statusRepository = statusRepository;
         }
 
-        public async Task<ProjectDTO> Add(ProjectDTO request)
+        public async Task<ProjectDTO> Add(AddProjectDTO request)
         {
             var userId = _currentUserService.UserId;
 
@@ -58,7 +58,6 @@ namespace Application.Services
             // createdBy
             project.CreatedBy = userId;
             project.CreatedDate = DateTime.Now;
-            project.UpdatedDate = DateTime.Now;
             project.StatusId = 1;
             project.IsDeleted = false;
             project.Description = request.Description;
@@ -97,13 +96,9 @@ namespace Application.Services
         public async Task<ProjectDTO> Delete(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
-            if (project == null)
-            {
-                throw new Exception("Project not found");
-            }
             project.IsDeleted = true;
             var projectDto = _mapper.Map<ProjectDTO>(project);
-            await Update(projectDto);
+            _projectRepository.Update(project);
             return projectDto;
         }
 
@@ -209,13 +204,9 @@ namespace Application.Services
             return projectDTOs;
         }
 
-        public async Task<ProjectDTO> Update(ProjectDTO request)
+        public async Task<ProjectDTO> Update(UpdateProjectDTO request)
         {
             var project = await _projectRepository.GetByIdAsync(request.Id);
-            if (project == null)
-            {
-                throw new Exception("Project not found");
-            }
 
             // Update the project's properties
             project.Title = request.Title;
@@ -276,7 +267,7 @@ namespace Application.Services
             
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
-            await Update(projectDto);
+            _projectRepository.Update(project);
 
             return projectDto;
         }

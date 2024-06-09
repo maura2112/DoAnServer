@@ -19,7 +19,9 @@ namespace Infrastructure.Data.Configurations
             builder.Property(t => t.StatusName)
                 .HasMaxLength(200)
                 .IsRequired();
-           
+            builder.Property(t => t.StatusColor)
+                .HasMaxLength(200);
+
         }
     }
 }

@@ -37,6 +37,33 @@ namespace Application.DTOs
         public virtual ProjectStatusDTO? ProjectStatus { get; set; } = null!;
     }
 
+    public class AddProjectDTO 
+    {
+        public string Title { get; set; }
+        public int CategoryId { get; set; }
+        public int MinBudget { get; set; }
+        public int MaxBudget { get; set; }
+        public int Duration { get; set; }
+        public string Description { get; set; }
+        //public long? MediaFileId { get; set; }
+        public List<string> Skill { get; set; } = new();
+
+    }
+
+    public class UpdateProjectDTO 
+    {
+        public int Id { get; set; } 
+        public string Title { get; set; }
+        public int CategoryId { get; set; }
+        public int MinBudget { get; set; }
+        public int MaxBudget { get; set; }
+        public int Duration { get; set; }
+        public string Description { get; set; }
+        //public long? MediaFileId { get; set; }
+        public List<string> Skill { get; set; } = new();
+
+    }
+
     public class ProjectDTOValidator : AbstractValidator<ProjectDTO>
     {
         public ProjectDTOValidator()
@@ -50,6 +77,38 @@ namespace Application.DTOs
             RuleFor(v => v.Description).NotEmpty().WithMessage("Không được để trống");
             RuleFor(v => v.MaxBudget).GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
             
+        }
+    }
+
+    public class AddProjectDTOValidator : AbstractValidator<AddProjectDTO>
+    {
+        public AddProjectDTOValidator()
+        {
+            RuleFor(v => v.Title).NotEmpty().WithMessage("Title không được để trống");
+            RuleFor(v => v.CategoryId).NotEmpty().WithMessage("Phải chọn 1 danh mục");
+            RuleFor(v => v.MinBudget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MaxBudget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Skill).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Description).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MaxBudget).GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
+
+        }
+    }
+
+    public class UpdateProjectDTOValidator : AbstractValidator<UpdateProjectDTO>
+    {
+        public UpdateProjectDTOValidator()
+        {
+            RuleFor(v => v.Title).NotEmpty().WithMessage("Title không được để trống");
+            RuleFor(v => v.CategoryId).NotEmpty().WithMessage("Phải chọn 1 danh mục");
+            RuleFor(v => v.MinBudget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MaxBudget).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Skill).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Description).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MaxBudget).GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
+
         }
     }
 }

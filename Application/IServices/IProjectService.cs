@@ -25,9 +25,9 @@ namespace Application.IServices
 
         Task<ProjectDTO> GetDetailProjectById(int id);
 
-        Task<ProjectDTO> Add(ProjectDTO request);
+        Task<ProjectDTO> Add(AddProjectDTO request);
 
-        Task<ProjectDTO> Update(ProjectDTO request);
+        Task<ProjectDTO> Update(UpdateProjectDTO request);
 
         Task<ProjectDTO> Delete(int id);
 

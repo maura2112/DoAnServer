@@ -13,7 +13,9 @@
                 public const string ResetPassword = "ResetPassword";
                 public const string ResetPasswordInputCode= "ResetPasswordInputCode";
                 public const string ResetNewPassword = "ResetNewPassword";
+                public const string Profile = "Profile";
             }
+            public const string Profile = "Profile";
         }
         public static class Product
         {

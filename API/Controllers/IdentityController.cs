@@ -59,6 +59,7 @@ namespace API.Controllers
                 IsCompany = user.IsCompany,
                 PasswordHash = _passwordGeneratorService.HashPassword(user.Password),
                 Name = user.Name,
+                CreatedDate = DateTime.UtcNow,
             };
             var userResult = await _userManager.CreateAsync(userRegister);
             if (userResult.Succeeded)

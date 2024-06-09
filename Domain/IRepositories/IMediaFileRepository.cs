@@ -11,6 +11,7 @@ namespace Domain.IRepositories
 {
     public interface IMediaFileRepository : IGenericRepository<MediaFile>
     {
+        Task<List<MediaFile>> GetByUserId(int UserId);
         Task<string> UploadAsync(IFormFile mediaFile);
     }
 }

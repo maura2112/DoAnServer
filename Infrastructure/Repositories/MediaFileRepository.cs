@@ -8,6 +8,7 @@ using Domain.IRepositories;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,10 @@ namespace Application.Repositories
         public MediaFileRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
+        }
+        public async Task<List<MediaFile>> GetByUserId(int UserId)
+        {
+            return await _context.MediaFiles.Where(x=>x.UserId == UserId).ToListAsync();
         }
         public async Task<string> UploadAsync(IFormFile fileMedia)
         {

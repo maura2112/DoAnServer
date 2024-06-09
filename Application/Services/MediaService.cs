@@ -22,11 +22,25 @@ namespace Application.Services
     {
         private readonly IMediaFileRepository _mediaRepository;
         private readonly ApplicationDbContext _context;
-        public MediaService(IMediaFileRepository mediaRepository, ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public MediaService(IMediaFileRepository mediaRepository, ApplicationDbContext context, IMapper mapper)
         {
             _mediaRepository = mediaRepository;
             _context = context;
+            _mapper = mapper;
         }
+
+        public async Task<List<MediaFileDTO>> GetByUserId(int uid)
+        {
+            var mediaDTOs = new List<MediaFileDTO>();
+            var medias = await _mediaRepository.GetByUserId(uid);
+            if (medias.Any())
+            {
+                mediaDTOs = _mapper.Map<List<MediaFileDTO>>(medias);
+            }
+            return mediaDTOs;
+        }
+
         public async Task<string> UploadAsync(IFormFile request, CancellationToken token)
         {
             try
@@ -46,8 +60,6 @@ namespace Application.Services
                 var mediaFile = new MediaFile
                 {
                     FileName = request.FileName,
-                    Extension = Path.GetExtension(request.FileName),
-                    Size = request.Length,
                     FolderId = FolderIdRequest,
                     CreateAt = DateTime.Now,
                     UpdateAt = DateTime.Now,

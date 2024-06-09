@@ -17,9 +17,6 @@ namespace Infrastructure.Data.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
             builder.Property(x => x.FileName).IsRequired();
-            builder.Property(x => x.FolderId).IsRequired();
-            builder.Property(x => x.Extension).IsRequired();
-            builder.Property(x => x.Size).IsRequired();
 
             //Relationship
             builder.HasOne(x => x.MediaFolder).WithMany(x => x.MediaFiles).HasForeignKey(x => x.FolderId);

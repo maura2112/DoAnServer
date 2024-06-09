@@ -20,6 +20,8 @@ namespace Domain.Entities
         public virtual ICollection<UserSkill> UserSkills { get; set; }
         public virtual ICollection<MediaFile> MediaFiles  { get; set; }
         public virtual Address? Address { get; set; } = null!;
+
+        public string? Description { get; set; }
         
         public string? TaxCode { get; set; }
 

@@ -24,6 +24,13 @@ public class MapProfile : Profile
 
         CreateMap<AppUser, AppUserDTO>().ReverseMap();
 
+        CreateMap<string, List<Experience>>().ReverseMap();
+        CreateMap<string, List<Education>>().ReverseMap();
+        CreateMap<string, List<Qualification>>().ReverseMap();
+
+        //Meida File
+        CreateMap<MediaFile, MediaFileDTO>().ReverseMap();
+
         CreateMap<Skill, SkillDTO>().ReverseMap();
         CreateMap<Pagination<Skill>, Pagination<SkillDTO>>().ReverseMap();
 
@@ -32,7 +39,9 @@ public class MapProfile : Profile
         
         CreateMap<UserSkill, UserSkillDTO>().ReverseMap();
         CreateMap<Pagination<UserSkill>, Pagination<UserSkillDTO>>().ReverseMap();
-        
+
+        CreateMap<AppUser, UserDTO>().ReverseMap();
+
         CreateMap<Address, AddressDTO>().ReverseMap();
         CreateMap<Pagination<Address>, Pagination<AddressDTO>>().ReverseMap();
 

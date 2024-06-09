@@ -9,6 +9,6 @@ namespace Application.DTOs
     public class ProjectStatusDTO
     {
         public string StatusName { get; set; }
-        public string StatusColor { get; set; }
+        public string? StatusColor { get; set; }
     }
 }

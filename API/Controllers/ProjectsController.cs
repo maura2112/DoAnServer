@@ -37,14 +37,15 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            if(pageIndex < 1 || pageSize<1) {
+            if (pageIndex < 1 || pageSize < 1)
+            {
                 return BadRequest(new { message = "Số trang hoặc kích cỡ trang lớn hơn 1" });
             }
             else
             {
                 return Ok(await _projectService.Get(pageIndex, pageSize));
             }
-            
+
         }
 
         [HttpGet]
@@ -66,7 +67,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Project.Filter)]
-        public async Task<IActionResult> Filter( ProjectFilter projects)
+        public async Task<IActionResult> Filter([FromBody]ProjectFilter projects)
         {
             if (!ModelState.IsValid)
             {
@@ -75,6 +76,10 @@ namespace API.Controllers
             Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
             if (projects != null)
             {
+                if (!string.IsNullOrWhiteSpace(projects.Keyword))
+                {
+                    filter = filter.And(item => item.Title.Contains(projects.Keyword));
+                }
                 if (projects.CategoryId > 0)
                 {
                     filter = filter.And(item => item.CategoryId == projects.CategoryId);
@@ -139,12 +144,12 @@ namespace API.Controllers
         [Route(Common.Url.Project.Add)]
         public async Task<IActionResult> AddAsync(AddProjectDTO DTOs, CancellationToken token)
         {
-            
+
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            
+
             //await _projectService.Add(DTOs);
             //await _skillService.AddSkillForProject(DTOs.Skill, DTOs.Id);
             //return NoContent();
@@ -170,7 +175,7 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
             var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.Id);
-            if(fetchedProject == null)
+            if (fetchedProject == null)
             {
                 return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
             }
@@ -188,7 +193,7 @@ namespace API.Controllers
                 });
             }
 
-            
+
         }
 
         [HttpDelete]

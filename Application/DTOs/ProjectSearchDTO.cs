@@ -15,6 +15,7 @@ namespace Application.DTOs
     }
     public class ProjectFilter : SearchDTO
     {
+        public string? Keyword { get; set; }
         public int CategoryId { get; set; }
         public List<int> SkillIds { get; set; } = new List<int>();
         public int Duration { get; set; }

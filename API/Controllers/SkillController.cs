@@ -44,6 +44,11 @@ namespace API.Controllers
             }
             return Ok(await _skillService.GetWithFilter(filter, 1, int.MaxValue));
         }
-
+        [HttpGet]
+        [Route(Common.Url.Skill.All)]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _skillService.GetAll());
+        }
     }
 }

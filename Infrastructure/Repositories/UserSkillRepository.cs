@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.IRepositories;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,13 @@ namespace Infrastructure.Repositories
                 listUserSkills.Add(userSkill);  
             }
             await _context.UserSkills.AddRangeAsync(listUserSkills);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> RemoveUserSkill(int uid)
+        {
+            var userSKills = await _context.UserSkills.Where(x => x.UserId == uid).ToListAsync();
+            _context.UserSkills.RemoveRange(userSKills);
             return await _context.SaveChangesAsync();
         }
     }

@@ -109,6 +109,7 @@ namespace Infrastructure.Repositories
         {
             T entity = await GetByIdAsync(id);
             Delete(entity);
+            context.SaveChanges();
         }
 
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)

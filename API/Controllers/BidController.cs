@@ -144,7 +144,7 @@ namespace API.Controllers
             {
                 return NotFound();
             }
-            else if (DTOs.isAccepted == true)
+            else
             {
                 var bid = await _bidService.AcceptBidding(DTOs.Id);
                 return Ok(new
@@ -154,16 +154,6 @@ namespace API.Controllers
                     data = bid
                 });
             }
-            else
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Từ chối đấu thầu",
-                });
-            }
-
-            
         }
     }
 }

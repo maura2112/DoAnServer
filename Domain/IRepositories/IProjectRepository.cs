@@ -9,5 +9,7 @@ namespace Domain.IRepositories
 {
     public interface IProjectRepository : IGenericRepository<Project>
     {
+        Task<int> GetTotalBids(int projectId);
+        Task<int> GetAverageBudget(int projectId);
     }
 }

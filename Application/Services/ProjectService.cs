@@ -61,6 +61,7 @@ namespace Application.Services
             project.StatusId = 1;
             project.IsDeleted = false;
             project.Description = request.Description;
+            
 
             //
 
@@ -89,6 +90,9 @@ namespace Application.Services
             {
                 projectDto.Skill.Add(skill.SkillName);
             }
+
+            projectDto.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDto.CreatedDate);
+            
             return projectDto;
         }
 
@@ -129,8 +133,9 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
-
-
+                model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
+                model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
+                model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
                 updatedItems.Add(model);
             }
 
@@ -163,7 +168,9 @@ namespace Application.Services
             {
                 projectDTO.Skill.Add(skill.SkillName);
             }
-
+            projectDTO.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDTO.CreatedDate);
+            projectDTO.AverageBudget = await _projectRepository.GetAverageBudget(projectDTO.Id);
+            projectDTO.TotalBids = await _projectRepository.GetTotalBids(projectDTO.Id);
             return projectDTO;
         }
 
@@ -196,7 +203,9 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
-
+                model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
+                model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
+                model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
                 updatedItems.Add(model);
             }
 
@@ -251,7 +260,10 @@ namespace Application.Services
             {
                 projectDto.Skill.Add(skill.SkillName);
             }
-            
+            projectDto.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDto.CreatedDate);
+            projectDto.AverageBudget = await _projectRepository.GetAverageBudget(projectDto.Id);
+            projectDto.TotalBids = await _projectRepository.GetTotalBids(projectDto.Id);
+
             return projectDto;
         }
 

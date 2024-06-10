@@ -29,12 +29,13 @@ namespace Application.DTOs
 
         public virtual ProjectDTO? Project { get; set; } = null!;
         public virtual AppUserDTO? AppUser { get; set; } = null!;
+
+        
     }
 
     public class BidAccepted
     {
         public long Id { get; set; }
-        public bool isAccepted { get; set; }
     }
 
     public class BiddingDTO
@@ -59,8 +60,12 @@ namespace Application.DTOs
         {
             RuleFor(v => v.ProjectId)
                 .NotEmpty().WithMessage("Phải chọn 1 dự án để đấu thầu");
-            RuleFor(v => v.Budget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Budget)
+                .NotEmpty().WithMessage("Ngân sách không được để trống")
+                .GreaterThan(0).WithMessage("Ngân sách phải lớn hơn 0");
+            RuleFor(v => v.Duration)
+                .NotEmpty().WithMessage("Ngân sách không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng lớn hơn 0");
             RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
         }
     }
@@ -71,8 +76,12 @@ namespace Application.DTOs
         {
             RuleFor(v => v.ProjectId)
                 .NotEmpty().WithMessage("Phải chọn 1 dự án để đấu thầu");
-            RuleFor(v => v.Budget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Budget)
+                .NotEmpty().WithMessage("Ngân sách không được để trống")
+                .GreaterThan(0).WithMessage("Ngân sách phải lớn hơn 0");
+            RuleFor(v => v.Duration)
+                .NotEmpty().WithMessage("Ngân sách không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng lớn hơn 0");
             RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
         }
     }
@@ -80,8 +89,12 @@ namespace Application.DTOs
     {
         public UpdateBidDTOValidator()
         {
-            RuleFor(v => v.Budget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.Budget)
+                .NotEmpty().WithMessage("Ngân sách không được để trống")
+                .GreaterThan(0).WithMessage("Ngân sách phải lớn hơn 0");
+            RuleFor(v => v.Duration)
+                .NotEmpty().WithMessage("Ngân sách không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng lớn hơn 0"); ;
             RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
         }
     }

@@ -35,6 +35,10 @@ namespace Application.DTOs
         //public virtual SkillDTO? Skill { get; set; } = null!;
         //public virtual MediaFile? MediaFile { get; set; } = null!;
         public virtual ProjectStatusDTO? ProjectStatus { get; set; } = null!;
+        public float AverageBudget { get; set; }
+        public int TotalBids { get; set; }
+        public string TimeAgo { get; set; }
+
     }
 
     public class AddProjectDTO 
@@ -70,12 +74,18 @@ namespace Application.DTOs
         {
             RuleFor(v => v.Title).NotEmpty().WithMessage("Title không được để trống");
             RuleFor(v => v.CategoryId).NotEmpty().WithMessage("Phải chọn 1 danh mục");
-            RuleFor(v => v.MinBudget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.MaxBudget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MinBudget)
+            .NotEmpty().WithMessage("Không được để trống")
+            .GreaterThan(0).WithMessage("Ngân sách tối thiểu phải lớn hơn 0");
+            RuleFor(v => v.MaxBudget)
+                .NotEmpty().WithMessage("Không được để trống")
+                .GreaterThan(0).WithMessage("Ngân sách tối đa phải lớn hơn 0")
+                .GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
+            RuleFor(v => v.Duration)
+                .NotEmpty().WithMessage("Không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng phải lớn hơn 0");
             RuleFor(v => v.Skill).NotEmpty().WithMessage("Không được để trống");
             RuleFor(v => v.Description).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.MaxBudget).GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
             
         }
     }
@@ -86,13 +96,19 @@ namespace Application.DTOs
         {
             RuleFor(v => v.Title).NotEmpty().WithMessage("Title không được để trống");
             RuleFor(v => v.CategoryId).NotEmpty().WithMessage("Phải chọn 1 danh mục");
-            RuleFor(v => v.MinBudget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.MaxBudget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MinBudget)
+            .NotEmpty().WithMessage("Không được để trống")
+            .GreaterThan(0).WithMessage("Ngân sách tối thiểu phải lớn hơn 0");
+            RuleFor(v => v.MaxBudget)
+                .NotEmpty().WithMessage("Không được để trống")
+                .GreaterThan(0).WithMessage("Ngân sách tối đa phải lớn hơn 0")
+                .GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
+            RuleFor(v => v.Duration)
+                .NotEmpty().WithMessage("Không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng phải lớn hơn 0");
             RuleFor(v => v.Skill).NotEmpty().WithMessage("Không được để trống");
             RuleFor(v => v.Description).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.MaxBudget).GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
-
+            
         }
     }
 
@@ -102,12 +118,19 @@ namespace Application.DTOs
         {
             RuleFor(v => v.Title).NotEmpty().WithMessage("Title không được để trống");
             RuleFor(v => v.CategoryId).NotEmpty().WithMessage("Phải chọn 1 danh mục");
-            RuleFor(v => v.MinBudget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.MaxBudget).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.Duration).NotEmpty().WithMessage("Không được để trống");
+            RuleFor(v => v.MinBudget)
+            .NotEmpty().WithMessage("Không được để trống")
+            .GreaterThan(0).WithMessage("Ngân sách tối thiểu phải lớn hơn 0");
+            RuleFor(v => v.MaxBudget)
+                .NotEmpty().WithMessage("Không được để trống")
+                .GreaterThan(0).WithMessage("Ngân sách tối đa phải lớn hơn 0")
+                .GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
+            RuleFor(v => v.Duration)
+                .NotEmpty().WithMessage("Không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng phải lớn hơn 0");
             RuleFor(v => v.Skill).NotEmpty().WithMessage("Không được để trống");
             RuleFor(v => v.Description).NotEmpty().WithMessage("Không được để trống");
-            RuleFor(v => v.MaxBudget).GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
+            
 
         }
     }

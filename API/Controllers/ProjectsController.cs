@@ -33,7 +33,18 @@ namespace API.Controllers
         [Route(Common.Url.Project.GetAll)]
         public async Task<IActionResult> Index(int pageIndex, int pageSize)
         {
-            return Ok(await _projectService.Get(pageIndex, pageSize));
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            if(pageIndex < 1 || pageSize<1) {
+                return BadRequest(new { message = "Số trang hoặc kích cỡ trang lớn hơn 1" });
+            }
+            else
+            {
+                return Ok(await _projectService.Get(pageIndex, pageSize));
+            }
+            
         }
 
         [HttpGet]

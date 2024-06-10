@@ -1,4 +1,5 @@
 ﻿using Domain.Common;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace Application.DTOs
         public int CategoryId { get; set; }
         public List<int> SkillIds { get; set; } = new List<int>();
         public int Duration { get; set; }
-        public int MinBudget { get; set; }
-        public int MaxBudget { get; set; }
+        public int MinBudget { get; set; } 
+        public int MaxBudget { get; set; } 
 
     }
 
@@ -28,6 +29,16 @@ namespace Application.DTOs
         public int StatusId { get; set; }
 
     }
+
+    public class ProjectSearchDTOValidator : AbstractValidator<ProjectSearchDTO>
+    {
+        public ProjectSearchDTOValidator()
+        {
+            RuleFor(v => v.Keyword).NotEmpty().WithMessage("Từ khóa không được để trống");
+        }
+    }
+
+    
 
 
 }

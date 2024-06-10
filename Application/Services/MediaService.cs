@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.DTOs;
 using Application.IServices;
+using Application.Repositories;
 using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,6 +79,36 @@ namespace Application.Services
         public Task<string> UploadAsync(IFormFile request)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<MediaFileDTO> AddMediaFile(MediaFileDTO mediaFile)
+        {
+            var media = new MediaFile()
+            {
+                FileName = mediaFile.FileName,
+                UserId = mediaFile.UserId,
+                CreateAt = DateTime.Now,
+                Description = mediaFile.Description,
+                Title = mediaFile.Title,
+            };
+            await _mediaRepository.AddAsync(media);
+            return mediaFile;
+        }
+
+        public async Task<MediaFileDTO> UpdateMediaFile(MediaFileDTO mediaFile)
+        {
+            var media = await _mediaRepository.GetByIdAsync(mediaFile.Id);
+            media.Description = mediaFile.Description;
+            media.Title = mediaFile.Title;
+            media.FileName = mediaFile.FileName;
+            _mediaRepository.Update(media);
+            return mediaFile;
+        }
+
+        public async Task<long> DeleteMediaFile(long id)
+        {
+             await _mediaRepository.Delete(id);
+            return id;
         }
     }
 }

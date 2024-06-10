@@ -13,9 +13,17 @@
                 public const string ResetPassword = "ResetPassword";
                 public const string ResetPasswordInputCode= "ResetPasswordInputCode";
                 public const string ResetNewPassword = "ResetNewPassword";
-                public const string Profile = "Profile";
             }
             public const string Profile = "Profile";
+            public const string Update = "Update";
+            public const string ChangePassword = "ChangePassword";
+            public const string UpdateExperience = "UpdateExperience";
+            public const string UpdateEducation = "UpdateEducation";
+            public const string UpdateQualification = "UpdateQualification";
+
+            public const string AddPortfolio = "AddPortfolio";
+            public const string UpdatePortfolio = "UpdatePortfolio";
+            public const string DeletePortfolio = "DeletePortfolio";
         }
         public static class Product
         {
@@ -64,6 +72,7 @@
         public static class Skill
         {
             public const string Add = "Add";
+            public const string All = "GetAll";
             public const string GetByCategoryId = "GetByCategoryId";
 
         }

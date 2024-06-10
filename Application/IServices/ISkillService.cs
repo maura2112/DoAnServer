@@ -16,7 +16,10 @@ namespace Application.IServices
         Task<List<Skill>> AddSkillForUser(List<string> skillNames, int uid);
         Task<List<Skill>> AddSkillForProject(List<string> skillNames, int pId);
 
+        Task<List<Skill>> UpdateSkillForUser(List<string> skillNames, int uid);
+
         Task<Pagination<SkillDTO>> Get(int pageIndex, int pageSize);
+        Task<List<SkillDTO>> GetAll();
 
         Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize);
         Task<int> Add(SkillDTO request);

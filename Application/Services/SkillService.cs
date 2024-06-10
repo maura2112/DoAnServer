@@ -111,18 +111,35 @@ namespace Application.Services
             return skills;
         }
 
+        public async Task<List<Skill>> UpdateSkillForUser(List<string> skillNames, int uid)
+        {
+            await _userSkillRepository.RemoveUserSkill(uid);
+            var skills = await AddSkillForUser(skillNames, uid);
+            return skills;
+        }
+
         public Task<Pagination<SkillDTO>> Get(int pageIndex, int pageSize)
         {
             throw new NotImplementedException();
         }
 
-
-
+        public async Task<List<SkillDTO>> GetAll() {
+            var skills= await _skillRepository.GetAll();
+            var skillDTos =  _mapper.Map<List<SkillDTO>>(skills);
+            foreach (var skillDto in skillDTos)
+            {
+                var cate = await _categoryRepository.GetByIdAsync(skillDto.CategoryId);
+                skillDto.CategoryName = cate.CategoryName;
+            }
+            return skillDTos;
+        }
         public async Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize)
         {
             var skills = await _skillRepository.GetAsync(filter, pageIndex, pageSize);
             var skillDTOs = _mapper.Map<Pagination<SkillDTO>>(skills);
             return skillDTOs;
         }
+
+        
     }
 }

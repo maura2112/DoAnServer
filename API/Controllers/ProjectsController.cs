@@ -66,7 +66,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Project.Filter)]
-        public async Task<IActionResult> Filter([FromQuery] ProjectFilter projects)
+        public async Task<IActionResult> Filter( ProjectFilter projects)
         {
             if (!ModelState.IsValid)
             {

@@ -65,9 +65,9 @@ namespace API.Controllers
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route(Common.Url.Project.Filter)]
-        public async Task<IActionResult> Filter([FromBody]ProjectFilter projects)
+        public async Task<IActionResult> Filter(ProjectFilter projects)
         {
             if (!ModelState.IsValid)
             {

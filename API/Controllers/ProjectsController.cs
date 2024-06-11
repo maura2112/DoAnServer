@@ -59,7 +59,7 @@ namespace API.Controllers
             Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
             if (projects != null && !string.IsNullOrEmpty(projects.Keyword))
             {
-                var keyword = projects.Keyword.ToLower();
+                var keyword = projects.Keyword.ToLower().Trim();
                 filter = item => item.Title.ToLower().Contains(keyword);
             }
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
@@ -78,7 +78,8 @@ namespace API.Controllers
             {
                 if (!string.IsNullOrWhiteSpace(projects.Keyword))
                 {
-                    filter = filter.And(item => item.Title.Contains(projects.Keyword));
+                    var keyword = projects.Keyword.ToLower().Trim();
+                    filter = filter.And(item => item.Title.Contains(keyword));
                 }
                 if (projects.CategoryId > 0)
                 {

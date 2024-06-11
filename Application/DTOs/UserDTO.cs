@@ -24,6 +24,8 @@ namespace Application.DTOs
         public bool? EmailConfirmed { get; set; }
         public List<MediaFileDTO> mediaFiles { get; set; }
 
+        public List<string>? skills { get; set; }
+
         public AddressDTO Address { get; set; }
 
     }

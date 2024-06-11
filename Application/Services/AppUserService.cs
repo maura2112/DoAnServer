@@ -19,12 +19,14 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IAddressRepository _addressRepository;
         private readonly IMediaFileRepository _mediaFileRepository;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository)
+        private readonly ISkillService _skillService;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService)
         {
             _repository = repository;
             _mapper = mapper;
             _addressRepository = addressRepository;
             _mediaFileRepository = mediaFileRepository;
+            _skillService = skillService;
         }
         public async Task<UserDTO> GetUserDTOAsync(int uid)
         {
@@ -65,6 +67,8 @@ namespace Application.Services
                 {
                     userDTO.mediaFiles = _mapper.Map<List<MediaFileDTO>>(medias);
                 }
+                   var skillDTOs = await _skillService.GetForUser(uid);
+                userDTO.skills = skillDTOs.Select(x=>x.SkillName).ToList();
             }
             return userDTO;
         }

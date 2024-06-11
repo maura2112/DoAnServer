@@ -10,6 +10,6 @@ namespace Domain.Common
     {
         public string Month { get; set; }
 
-        public string Year { get; set; }
+        public int Year { get; set; }
     }
 }

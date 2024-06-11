@@ -24,6 +24,13 @@ namespace Infrastructure.Repositories
             return skill;
         }
 
+        public async Task<List<Skill>> GetSkillByUser(int UserId)
+        {
+            var skillids =await _context.UserSkills.Where(x=>x.UserId == UserId).Select(x=>x.SkillId).ToListAsync();
+            var Skills = await _context.Skills.Where(x=> skillids.Contains(x.Id)).ToListAsync();
+            return Skills;
+        }
+
         public async Task<List<Skill>> SaveSkillsToOtherCategory(List<Skill> skills)
         {
             await _context.Skills.AddRangeAsync(skills);

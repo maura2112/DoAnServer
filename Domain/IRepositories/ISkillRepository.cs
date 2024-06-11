@@ -11,6 +11,8 @@ namespace Domain.IRepositories
     {
         public  Task<Skill> GetByNameAsync(string skillName);
 
+        public Task<List<Skill>> GetSkillByUser(int UserId);
+
         public Task<List<Skill>> SaveSkillsToOtherCategory (List<Skill> skills);
         
     }

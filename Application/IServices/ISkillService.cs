@@ -21,6 +21,8 @@ namespace Application.IServices
         Task<Pagination<SkillDTO>> Get(int pageIndex, int pageSize);
         Task<List<SkillDTO>> GetAll();
 
+        Task<List<SkillDTO>> GetForUser(int uid);
+
         Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize);
         Task<int> Add(SkillDTO request);
 

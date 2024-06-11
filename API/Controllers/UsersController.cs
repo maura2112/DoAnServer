@@ -43,7 +43,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.User.Update)]
-        public async Task<IActionResult> Update(UserUpdateDTO dto)
+        public async Task<IActionResult> Update([FromBody] UserUpdateDTO dto)
         {
             var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)

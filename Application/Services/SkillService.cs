@@ -140,6 +140,16 @@ namespace Application.Services
             return skillDTOs;
         }
 
-        
+        public async Task<List<SkillDTO>> GetForUser(int uid)
+        {
+            var skills = await _skillRepository.GetSkillByUser(uid);
+             var skillDTOs = new List<SkillDTO>();
+            if (skills == null)
+            {
+                return skillDTOs;
+            }
+            skillDTOs =  _mapper.Map<List<SkillDTO>>(skills);
+            return skillDTOs;
+        }
     }
 }

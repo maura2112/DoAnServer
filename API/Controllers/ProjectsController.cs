@@ -56,7 +56,7 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Domain.Entities.Project, bool>> filter = null;
+            Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
             if (projects != null && !string.IsNullOrEmpty(projects.Keyword))
             {
                 var keyword = projects.Keyword.ToLower();

@@ -11,7 +11,7 @@ namespace Application.DTOs
     public class ProjectSearchDTO : SearchDTO
     {
         //public int CategoryId { get; set; }
-        public string Keyword { get; set; }
+        public string? Keyword { get; set; }
     }
     public class ProjectFilter : SearchDTO
     {
@@ -31,13 +31,7 @@ namespace Application.DTOs
 
     }
 
-    public class ProjectSearchDTOValidator : AbstractValidator<ProjectSearchDTO>
-    {
-        public ProjectSearchDTOValidator()
-        {
-            RuleFor(v => v.Keyword).NotEmpty().WithMessage("Từ khóa không được để trống");
-        }
-    }
+    
 
     
 

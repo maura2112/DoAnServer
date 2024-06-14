@@ -38,6 +38,9 @@ namespace Application.DTOs
         public float AverageBudget { get; set; }
         public int TotalBids { get; set; }
         public string TimeAgo { get; set; }
+        public string CreatedDateString { get; set; }
+        public string? UpdatedDateString { get; set; }
+
 
     }
 

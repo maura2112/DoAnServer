@@ -61,7 +61,7 @@ namespace Application.Services
             project.StatusId = 1;
             project.IsDeleted = false;
             project.Description = request.Description;
-            
+
 
             //
 
@@ -92,7 +92,9 @@ namespace Application.Services
             }
 
             projectDto.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDto.CreatedDate);
-            
+            projectDto.CreatedDateString = DateTimeHelper.ToVietnameseDateString(projectDto.CreatedDate);
+            projectDto.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(projectDto.UpdatedDate);
+
             return projectDto;
         }
 
@@ -136,6 +138,8 @@ namespace Application.Services
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
+                model.CreatedDateString = DateTimeHelper.ToVietnameseDateString(model.CreatedDate);
+                model.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(model.UpdatedDate);
                 updatedItems.Add(model);
             }
 
@@ -171,6 +175,8 @@ namespace Application.Services
             projectDTO.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDTO.CreatedDate);
             projectDTO.AverageBudget = await _projectRepository.GetAverageBudget(projectDTO.Id);
             projectDTO.TotalBids = await _projectRepository.GetTotalBids(projectDTO.Id);
+            projectDTO.CreatedDateString = DateTimeHelper.ToVietnameseDateString(projectDTO.CreatedDate);
+            projectDTO.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(projectDTO.UpdatedDate);
             return projectDTO;
         }
 
@@ -206,6 +212,8 @@ namespace Application.Services
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
+                model.CreatedDateString = DateTimeHelper.ToVietnameseDateString(model.CreatedDate);
+                model.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(model.UpdatedDate);
                 updatedItems.Add(model);
             }
 
@@ -263,6 +271,10 @@ namespace Application.Services
             projectDto.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDto.CreatedDate);
             projectDto.AverageBudget = await _projectRepository.GetAverageBudget(projectDto.Id);
             projectDto.TotalBids = await _projectRepository.GetTotalBids(projectDto.Id);
+            projectDto.CreatedDateString = DateTimeHelper.ToVietnameseDateString(projectDto.CreatedDate);
+            projectDto.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(projectDto.UpdatedDate);
+
+
 
             return projectDto;
         }
@@ -276,7 +288,7 @@ namespace Application.Services
             }
             project.StatusId = statusId;
 
-            
+
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
             _projectRepository.Update(project);

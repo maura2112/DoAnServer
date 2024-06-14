@@ -19,6 +19,8 @@ namespace Domain.Entities
         public virtual ICollection<UserProject> UserProjects { get; set; }
         public virtual ICollection<UserSkill> UserSkills { get; set; }
         public virtual ICollection<MediaFile> MediaFiles  { get; set; }
+        public virtual ICollection<UserReport> UserReports  { get; set; }
+        public virtual ICollection<Blog> Blogs  { get; set; }
         public virtual Address? Address { get; set; } = null!;
 
         public string? Description { get; set; }

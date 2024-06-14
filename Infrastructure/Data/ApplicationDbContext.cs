@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser, Role ,int>
+    public class ApplicationDbContext : IdentityDbContext<AppUser, Role, int>
     {
         public ApplicationDbContext()
         {
@@ -62,6 +62,11 @@ namespace Infrastructure.Data
         public virtual DbSet<ProjectSkill> ProjectSkills { get; set; }
         public virtual DbSet<Bookmark> Bookmarks { get; set; }
         public virtual DbSet<Address> Addresses { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<RelatedBlog> RelatedBlogs { get; set; }
+        public virtual DbSet<Blog> Blogs { get; set; }
+        public virtual DbSet<ReportCategory> ReportCategories { get; set; }
+        public virtual DbSet<UserReport> UserReports { get; set; }
 
     }
 }

@@ -1,0 +1,28 @@
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Infrastructure.Data.Configurations
+{
+    public class BlogConfiguration : IEntityTypeConfiguration<Blog>
+    {
+        public void Configure(EntityTypeBuilder<Blog> builder)
+        {
+            builder.ToTable("Blogs");
+            builder.HasKey(c => c.Id);
+            builder.Property(x => x.Id).UseIdentityColumn();
+            builder.Property(t => t.Title)
+                .HasMaxLength(1000)
+                .IsRequired();
+            builder.Property(x => x.CreatedDate).IsRequired();
+
+            // Relationship
+            builder.HasOne(x => x.AppUser).WithMany(x => x.Blogs).HasForeignKey(x => x.CreatedBy);
+        }
+    }
+}

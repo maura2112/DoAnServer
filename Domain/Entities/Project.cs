@@ -20,6 +20,7 @@ namespace Domain.Entities
         public int? CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+        public DateTime? EstimateStartDate { get; set; }
         public int StatusId { get; set; }
 
         [ForeignKey("MediaFile")]
@@ -33,6 +34,7 @@ namespace Domain.Entities
         public virtual ICollection<Bookmark> Bookmarks { get; set; }
         public virtual ICollection<UserProject> UserProjects { get; set; }
         public virtual ICollection<ProjectSkill> ProjectSkills { get; set; }
+        public virtual ICollection<UserReport> UserReports { get; set; }
 
     }
 }

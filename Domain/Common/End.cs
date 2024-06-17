@@ -8,7 +8,7 @@ namespace Domain.Common
 {
     public class End
     {
-        public string Month { get; set; }
+        public string? Month { get; set; }
 
         public int Year { get; set; }
     }

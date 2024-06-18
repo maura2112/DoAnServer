@@ -20,7 +20,7 @@ namespace API.Controllers
         private readonly ICurrentUserService _currentUserService;
 
 
-        public BidController(IBidService bidService, ICurrentUserService currentUserService, IBidRepository bidRepository, ICurrentUserService currentUser, IProjectRepository projectRepository)
+        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser, IProjectRepository projectRepository)
         {
             _bidService = bidService;
             _bidRepository = bidRepository;
@@ -32,32 +32,56 @@ namespace API.Controllers
         [Route(Common.Url.Bid.GetBiddingListByUserId)]
         public async Task<IActionResult> GetListByUserId([FromQuery] BidSearchDTO bids)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                Expression<Func<Domain.Entities.Bid, bool>> filter = null;
+                if (bids != null)
+                {
+                    filter = item => item.UserId == bids.UserId;
+                }
+
+                var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
+
+                return Ok(result);
             }
-            Expression<Func<Domain.Entities.Bid, bool>> filter = null;
-            if (bids != null)
+            catch (Exception ex)
             {
-                filter = item => item.UserId == bids.UserId;
+                // Log the exception here if needed
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
             }
-            return Ok(await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize));
         }
 
         [HttpGet]
         [Route(Common.Url.Bid.GetBiddingListByProjectId)]
         public async Task<IActionResult> GetListByProjectId([FromQuery] BidListDTO bids)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                Expression<Func<Domain.Entities.Bid, bool>> filter = null;
+                if (bids != null && bids.ProjectId > 0)
+                {
+                    filter = item => item.ProjectId == bids.ProjectId;
+                }
+
+                var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
+
+                return Ok(result);
             }
-            Expression<Func<Domain.Entities.Bid, bool>> filter = null;
-            if (bids != null)
+            catch (Exception ex)
             {
-                filter = item => item.ProjectId == bids.ProjectId;
+                // Log the exception here if needed
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
             }
-            return Ok(await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize));
         }
 
         [HttpPost]
@@ -65,10 +89,16 @@ namespace API.Controllers
         public async Task<IActionResult> Bidding(BiddingDTO DTOs, CancellationToken token)
         {
             var userId = _currentUserService.UserId;
-            var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.ProjectId);
-            if(fetchedProject == null)
+            if (userId <=0)
             {
-                return NotFound(new {message = "Không tìm thấy dự án!"});
+                return Unauthorized(); // Chuyển về HTTP 401 Unauthorized nếu chưa đăng nhập
+            }
+
+            var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.ProjectId);
+            if (fetchedProject == null)
+            {
+                return NotFound(new { message = "Không tìm thấy dự án!" });
+
             }
             else
             {
@@ -79,17 +109,32 @@ namespace API.Controllers
                 }
                 else
                 {
-                    var bid = await _bidService.Add(DTOs);
-                    return Ok(new
+                    try
                     {
-                        success = true,
-                        message = "Bạn vừa tạo đấu thầu thành công",
-                        data = bid
-                    });
+                        var bid = await _bidService.Add(DTOs);
+                        var response = new BidResponseDTO
+                        {
+                            Success = true,
+                            Message = "Bạn vừa tạo đấu thầu thành công",
+                            Data = bid
+                        };
+                        return Ok(new
+                        {
+                            success = true,
+                            message = "Bạn vừa tạo đấu thầu thành công",
+                            data = bid
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the exception here if needed
+                        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+                    }
                 }
             }
-            
         }
+
+
 
         //[HttpDelete]
         //[Route(Common.Url.Bid.Delete)]
@@ -111,7 +156,7 @@ namespace API.Controllers
             //var userId = _currentUserService.UserId;
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState);
             }
             var bidDTO = await _bidRepository.GetByIdAsync(DTOs.Id);
             if(bidDTO == null)
@@ -137,7 +182,7 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState);
             }
             var bidDTO = await _bidRepository.GetByIdAsync(DTOs.Id);
             if (bidDTO == null)

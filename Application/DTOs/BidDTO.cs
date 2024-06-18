@@ -46,6 +46,17 @@ namespace Application.DTOs
         public int Budget { get; set; }
     }
 
+    public class ErrorResponseDTO
+    {
+        public string message { get; set; }
+    }
+    public class BidResponseDTO
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public BidDTO Data { get; set; }
+    }
+
     public class UpdateBidDTO
     {
         public long Id { get; set; }

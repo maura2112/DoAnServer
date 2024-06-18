@@ -48,9 +48,7 @@ namespace Application.Services
         public async Task<ProjectDTO> Add(AddProjectDTO request)
         {
             var userId = _currentUserService.UserId;
-
             var project = _mapper.Map<Project>(request);
-
             project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
@@ -153,6 +151,10 @@ namespace Application.Services
         public async Task<ProjectDTO> GetDetailProjectById(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
+            if(project == null)
+            {
+                return null;
+            }
             var projectDTO = _mapper.Map<ProjectDTO>(project);
 
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);

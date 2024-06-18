@@ -55,6 +55,14 @@ namespace Application.DTOs
         //public long? MediaFileId { get; set; }
         public List<string> Skill { get; set; } = new();
 
+        
+    }
+
+    public class ProjectResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public ProjectDTO Data { get; set; }
     }
 
     public class UpdateProjectDTO 

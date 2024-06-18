@@ -35,17 +35,18 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState); // Trả về BadRequest với ModelState khi ModelState không hợp lệ
             }
+
             if (pageIndex < 1 || pageSize < 1)
             {
-                return BadRequest(new { message = "Số trang hoặc kích cỡ trang lớn hơn 1" });
+                ModelState.AddModelError("", "Số trang hoặc kích cỡ trang lớn hơn 1"); // Thêm lỗi vào ModelState
+                return BadRequest(ModelState); // Trả về BadRequest với ModelState đã thêm lỗi
             }
             else
             {
                 return Ok(await _projectService.Get(pageIndex, pageSize));
             }
-
         }
 
         [HttpGet]
@@ -65,13 +66,14 @@ namespace API.Controllers
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }
 
+
         [HttpPost]
         [Route(Common.Url.Project.Filter)]
         public async Task<IActionResult> Filter(ProjectFilter projects)
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(new SerializableError(ModelState));
             }
             Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
             if (projects != null)
@@ -138,34 +140,46 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            return Ok(await _projectService.GetDetailProjectById(id));
+
+            var projectDetail = await _projectService.GetDetailProjectById(id);
+            if (projectDetail == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(projectDetail);
         }
+
 
         [HttpPost]
         [Route(Common.Url.Project.Add)]
         public async Task<IActionResult> AddAsync(AddProjectDTO DTOs, CancellationToken token)
         {
-
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
 
-            //await _projectService.Add(DTOs);
-            //await _skillService.AddSkillForProject(DTOs.Skill, DTOs.Id);
-            //return NoContent();
-
             var project = await _projectService.Add(DTOs);
-            //nen tra ve 1 object
+
+            if (project == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProjectResponse { Success = false, Message = "Failed to create project." });
+            }
+
             await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
 
-            return Ok(new
+            var response = new ProjectResponse
             {
-                success = true,
-                message = "Bạn vừa tạo dự án thành công",
-                data = project
-            });
+                Success = true,
+                Message = "Bạn vừa tạo dự án thành công",
+                Data = project
+            };
+
+            return Ok(response);
         }
+
+
 
         [HttpPut]
         [Route(Common.Url.Project.Update)]
@@ -173,28 +187,31 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState);
             }
+
             var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.Id);
             if (fetchedProject == null)
             {
                 return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
             }
-            else
+
+            var project = await _projectService.Update(DTOs);
+            if (project == null)
             {
-                var project = await _projectService.Update(DTOs);
-
-                await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Bạn vừa cập nhật dự án thành công",
-                    data = project
-                });
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProjectResponse { Success = false, Message = "Failed to update project." });
             }
 
+            await _skillService.AddSkillForProject(DTOs.Skill, project.Id);
 
+            var response = new ProjectResponse
+            {
+                Success = true,
+                Message = "Bạn vừa cập nhật dự án thành công",
+                Data = project
+            };
+
+            return Ok(response);
         }
 
         [HttpDelete]
@@ -203,25 +220,22 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState);
             }
+
             var fetchedProject = await _projectRepository.GetByIdAsync(projectId);
             if (fetchedProject == null)
             {
                 return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
             }
 
-            else
-            {
-                await _projectService.Delete(projectId);
+            await _projectService.Delete(projectId);
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Bạn vừa xóa dự án thành công",
-                    data = projectId
-                });
-            }
+            return Ok(new ProjectResponse
+            {
+                Success = true,
+                Message = "Bạn vừa xóa dự án thành công"
+            });
         }
 
         [HttpPut]
@@ -230,26 +244,30 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState);
             }
 
             var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.Id);
             if (fetchedProject == null)
             {
-                return NotFound(new { message = "Không tìm thấy dự án phù hợp!" });
+                return NotFound(new ProjectResponse { Success = false, Message = "Không tìm thấy dự án phù hợp!" });
             }
-            else
-            {
-                var project = await _projectService.UpdateStatus(DTOs.Id, DTOs.StatusId);
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Bạn vừa thay đổi trạng thái dự án thành công",
-                    data = project
-                });
+            var project = await _projectService.UpdateStatus(DTOs.Id, DTOs.StatusId);
+
+            if (project == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProjectResponse { Success = false, Message = "Failed to update project status." });
             }
+
+            return Ok(new ProjectResponse
+            {
+                Success = true,
+                Message = "Bạn vừa thay đổi trạng thái dự án thành công",
+                Data = project
+            });
         }
+
 
     }
 }

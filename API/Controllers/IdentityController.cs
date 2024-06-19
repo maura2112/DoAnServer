@@ -3,15 +3,25 @@ using Application.DTOs.AuthenticationDTO;
 using Application.IServices;
 using AutoMapper;
 using Domain.Entities;
+using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Oauth2.v2;
+using Google.Apis.Services;
 using MailKit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Data;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using static API.Common.Url;
 using static Domain.Exceptions.Constant;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
@@ -27,7 +37,9 @@ namespace API.Controllers
         private readonly ISkillService _skillService;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<Role> _roleManager;
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager)
+        private readonly IConfiguration _configuration;
+
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager, IConfiguration configuration)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -37,6 +49,7 @@ namespace API.Controllers
             _signInManager = signInManager;
             _emailSender = emailSender;
             _roleManager = roleManager;
+            _configuration = configuration;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -260,18 +273,76 @@ namespace API.Controllers
         {
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            IList<AuthenticationScheme>  ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+           var  ExternalLogins = await _signInManager.GetExternalAuthenticationSchemesAsync();
 
-            return Ok(ExternalLogins.First().Name);
+            return Ok(ExternalLogins);
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.External)]
-        public IActionResult GetExternalLogin(string provider)
+        public async Task<IActionResult> GetExternalLoginAsync([FromBody]string accessToken)
         {
-            // Request a redirect to the external login provider.
-            var redirectUrl = Url.Action("Callback");
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-            return new ChallengeResult(provider, properties);
+            var credential = GoogleCredential.FromAccessToken(accessToken);
+            var oauthService = new Oauth2Service(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential
+            });
+            var userInfo = await oauthService.Userinfo.Get().ExecuteAsync();
+            var UserDb = await _userManager.FindByEmailAsync(userInfo.Email);
+            if (UserDb != null)
+            {
+                if(UserDb.EmailConfirmed == false)
+                {
+                    UserDb.EmailConfirmed = true;
+                    var userResult = await _userManager.UpdateAsync(UserDb);
+                }
+            }
+            else
+            {
+                UserDb = new AppUser()
+                {
+                    UserName = userInfo.Email,
+                    Email = userInfo.Email,
+                    TaxCode = "",
+                    IsCompany = false,
+                    PasswordHash = _passwordGeneratorService.HashPassword(userInfo.Id),
+                    Name = userInfo.Name,
+                    Avatar = "https://i.pinimg.com/736x/bc/43/98/bc439871417621836a0eeea768d60944.jpg",
+                    CreatedDate = DateTime.UtcNow,
+                };
+                var userResult = await _userManager.CreateAsync(UserDb);
+                if (userResult.Succeeded)
+                {
+                    var currentUser = await _userManager.FindByIdAsync(UserDb.Id.ToString());
+                    var roles = await _roleManager.Roles.ToListAsync();
+                    await _userManager.AddToRolesAsync(currentUser, ["Freelancer"]);
+                }
+            }
+
+            // Login
+            var rolesUser = await _userManager.GetRolesAsync(UserDb);
+            var claims = new List<Claim>
+                {
+                    new("Id", UserDb.Id.ToString()),
+                    new(ClaimTypes.Email, UserDb.Email)
+                };
+            foreach (var role in rolesUser)
+            {
+                claims.Add(new Claim("Roles", role));
+            }
+
+            var accessTokenLogin = _jwtTokenService.GenerateAccessToken(claims);
+            var refreshToken = _jwtTokenService.GenerateRefreshToken();
+            var loginRespone = new LoginRespone()
+            {
+                UserId = UserDb.Id,
+                Role = rolesUser.First(),
+                Name = UserDb.Name,
+                Avatar = UserDb.Avatar,
+                EmailConfirmed = UserDb.EmailConfirmed,
+                AccessToken = accessTokenLogin,
+                RefreshToken = refreshToken
+            };
+            return Ok(loginRespone);
         }
 
     }   

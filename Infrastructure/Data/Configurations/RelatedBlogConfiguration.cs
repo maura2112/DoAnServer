@@ -20,6 +20,7 @@ namespace Infrastructure.Data.Configurations
 
             //Relationship
             builder.HasOne(x => x.Blog).WithMany(x => x.RelatedBlogs).HasForeignKey(x => x.BlogId);
+            builder.HasOne(x => x.Blog).WithMany(x => x.RelatedBlogs).HasForeignKey(x => x.RelatedBlogId);
         }
     }
 }

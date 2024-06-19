@@ -16,6 +16,8 @@ namespace Domain.Entities
 
         public virtual Blog? Blog { get; set; } = null!;
 
+        public virtual Blog? Blog_Related { get; set; } = null!;
+
     }
 }
 

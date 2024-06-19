@@ -101,29 +101,10 @@ namespace Application.Services
             foreach (var bid in bidDTOs.Items)
             {
                 var bidDTO = _mapper.Map<BidDTO>(bid);
-
-
                 var user = await _appUserRepository.GetByIdAsync(bid.UserId);
                 bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
                 var address = await _addressRepository.GetAddressByUserId((int)bid.UserId);
                 bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
-
-
-                //var project = await _projectRepository.GetByIdAsync(bid.ProjectId);
-                //bidDTO.Project = _mapper.Map<ProjectDTO>(project);
-
-                //var category = await _categoryRepository.GetByIdAsync(bid.Project.CategoryId);
-                //bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
-
-                //var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
-                //bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
-
-                //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
-                //foreach (var skill in listSkills)
-                //{
-                //    bidDTO.Project.Skill.Add(skill.SkillName);
-                //}
-
                 updatedItems.Add(bidDTO);
             }
 

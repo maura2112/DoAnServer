@@ -26,5 +26,7 @@ namespace Domain.Entities
 
         public virtual Project? Project { get; set; } = null!;
         public virtual AppUser? AppUser { get; set; } = null!;
+
+        
     }
 }

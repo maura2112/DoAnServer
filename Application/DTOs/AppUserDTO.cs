@@ -17,6 +17,14 @@ namespace Application.DTOs
         public virtual AddressDTO? Address { get; set; } = null!;
         public string? TaxCode { get; set; }
 
+        public string? Email { get; set; }
+
+        public bool? EmailConfirmed { get; set; }
+
+        public string Description { get; set; }
+
+        public string LockoutEnabled { get; set; }
+
         public bool IsCompany { get; set; }
 
         public string? Education { get; set; }

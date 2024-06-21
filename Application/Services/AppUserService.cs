@@ -1,8 +1,12 @@
 ﻿using Application.DTOs;
+using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
 using Domain.Common;
+using Domain.Entities;
 using Domain.IRepositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -17,17 +21,42 @@ namespace Application.Services
     {
         private readonly IAppUserRepository _repository;
         private readonly IMapper _mapper;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IAddressRepository _addressRepository;
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly ISkillService _skillService;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService)
+        private readonly PaginationService<UserDTO> _paginationService;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService)
         {
             _repository = repository;
             _mapper = mapper;
             _addressRepository = addressRepository;
             _mediaFileRepository = mediaFileRepository;
             _skillService = skillService;
+            _userManager = userManager;
+            _paginationService = paginationService;
         }
+
+        public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
+        {
+            var users = new List<AppUser>();
+            if (userSearch.role != null)
+            {
+                var userWithRole = await _userManager.GetUsersInRoleAsync(userSearch.role);
+                users = userWithRole.ToList();
+            }
+            else
+            {
+                users = await _userManager.Users.ToListAsync();
+            }
+            if(userSearch.search != null)
+            {
+                users = users.Where(x=>x.Name.ToLower().Contains(userSearch.search.ToLower()) || x.Email.ToLower().Contains(userSearch.search.ToLower())).ToList();
+            }
+            var userDTOS =  _mapper.Map<List<UserDTO>>(users);
+            return await _paginationService.ToPagination(userDTOS, userSearch.PageIndex, userSearch.PageSize);
+        }
+
         public async Task<UserDTO> GetUserDTOAsync(int uid)
         {
             var userDTO = new UserDTO();
@@ -72,5 +101,6 @@ namespace Application.Services
             }
             return userDTO;
         }
+
     }
 }

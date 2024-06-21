@@ -279,7 +279,7 @@ namespace API.Controllers
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.External)]
-        public async Task<IActionResult> GetExternalLoginAsync([FromBody]string accessToken)
+        public async Task<IActionResult> GetExternalLoginAsync([FromBody] string accessToken)
         {
             var credential = GoogleCredential.FromAccessToken(accessToken);
             var oauthService = new Oauth2Service(new BaseClientService.Initializer()

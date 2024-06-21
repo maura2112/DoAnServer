@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Application.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -45,6 +46,7 @@ public static class DependencyInjection
         //Cate
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ICategoryService, CategoryService>();
+
         //Media
         services.AddScoped<IMediaFileRepository, MediaFileRepository>();
         services.AddScoped<IMediaService, MediaService>();
@@ -93,6 +95,10 @@ public static class DependencyInjection
         //services.AddScoped<ISkillService, SkillService>();
         services.AddScoped<IStatusRepository, StatusRepository>();
 
+
+        //Paging 
+        services.AddScoped<PaginationService<UserDTO>>();
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;
@@ -118,7 +124,7 @@ public static class DependencyInjection
             opt.User.AllowedUserNameCharacters = null;
             opt.Lockout.AllowedForNewUsers = true; // Default true
             opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Default 5
-            opt.Lockout.MaxFailedAccessAttempts = 3; // Default 5
+            opt.Lockout.MaxFailedAccessAttempts = 5; // Default 5
         })
             .AddRoles<Role>()
             .AddEntityFrameworkStores<ApplicationDbContext>();

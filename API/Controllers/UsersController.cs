@@ -151,7 +151,6 @@ namespace API.Controllers
             });
         }
 
-
         [HttpPost]
         [Route(Common.Url.User.AddPortfolio)]
         public async Task<IActionResult> AddPortfolio(MediaFileDTO mediaFile)
@@ -178,5 +177,44 @@ namespace API.Controllers
             var fileId = await _mediaFileService.DeleteMediaFile(id);
             return Ok(fileId);
         }
+
+        [HttpPut]
+        [Route(Common.Url.User.ConvertIntoRecruiter)]
+        public async Task<IActionResult> ConvertIntoRecruiter(long id)
+        {
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route(Common.Url.User.GetUsers)]
+        public async Task<IActionResult> GetUsers([FromQuery] UserSearchDTO userSearchDTO)
+        {
+            var users = await _appUserService.GetUsers(userSearchDTO);
+            return Ok(users);
+        }
+
+        [HttpPost]
+        [Route(Common.Url.User.Lock)]
+        public async Task<IActionResult> Lock([FromBody] int userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
+            var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
+            if (result.Succeeded)
+            {
+                return Ok("Khóa thành công người dùng");
+            }
+
+            return BadRequest("Khóa không thành công người dùng");
+        }
+
+
+
+
+
     }
 }

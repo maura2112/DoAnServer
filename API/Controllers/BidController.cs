@@ -18,14 +18,16 @@ namespace API.Controllers
         private readonly IBidRepository _bidRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IAppUserRepository _appUserRepository;
 
 
-        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser, IProjectRepository projectRepository)
+        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser, IProjectRepository projectRepository, IAppUserRepository appUserRepository)
         {
             _bidService = bidService;
             _bidRepository = bidRepository;
             _currentUserService = currentUser;
             _projectRepository = projectRepository;
+            _appUserRepository = appUserRepository;
         }
 
         [HttpGet]
@@ -34,9 +36,10 @@ namespace API.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                var fetchedUser = await _appUserRepository.GetByIdAsync(bids.UserId);
+                if (fetchedUser == null)
                 {
-                    return BadRequest(ModelState);
+                    return NotFound(new { message = "Người dùng không tồn tại!" });
                 }
 
                 Expression<Func<Domain.Entities.Bid, bool>> filter = null;
@@ -47,7 +50,17 @@ namespace API.Controllers
 
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
 
-                return Ok(result);
+                string msg = null;
+                if (result.TotalItemsCount <= 0)
+                {
+                    msg = "Bạn chưa có đấu thầu nào!";
+                };
+                return Ok(new
+                {
+                    success = true,
+                    message = msg,
+                    data = result
+                });
             }
             catch (Exception ex)
             {
@@ -62,11 +75,12 @@ namespace API.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                var fetchedProject = await _projectRepository.GetByIdAsync(bids.ProjectId);
+                if (fetchedProject == null)
                 {
-                    return BadRequest(ModelState);
-                }
+                    return NotFound(new { message = "Không tìm thấy dự án!" });
 
+                }
                 Expression<Func<Domain.Entities.Bid, bool>> filter = null;
                 if (bids != null && bids.ProjectId > 0)
                 {
@@ -74,8 +88,17 @@ namespace API.Controllers
                 }
 
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
-
-                return Ok(result);
+                string msg = null;
+                if (result.TotalItemsCount <= 0)
+                {
+                    msg = "Chưa có đấu thầu nào cho dự án này!";
+                };
+                return Ok(new
+                {
+                    success = true,
+                    message = msg,
+                    data = result
+                });
             }
             catch (Exception ex)
             {

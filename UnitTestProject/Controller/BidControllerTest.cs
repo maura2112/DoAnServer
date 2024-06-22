@@ -24,6 +24,7 @@ namespace UnitTestProject.Controller
         private Mock<ICurrentUserService> _mockCurrentUserService;
         private Mock<IBidRepository> _mockBidRepository;
         private Mock<IProjectRepository> _mockProjectRepository;
+        private Mock<IAppUserRepository> _mockAppUserRepository;
 
         [SetUp]
         public void Setup()
@@ -32,141 +33,154 @@ namespace UnitTestProject.Controller
             _mockCurrentUserService = new Mock<ICurrentUserService>();
             _mockBidRepository = new Mock<IBidRepository>();
             _mockProjectRepository = new Mock<IProjectRepository>();
+            _mockAppUserRepository = new Mock<IAppUserRepository>();
 
             _bidController = new BidController(
                 _mockBidService.Object,
                 _mockBidRepository.Object,
                 _mockCurrentUserService.Object,
-                _mockProjectRepository.Object
+                _mockProjectRepository.Object,
+                _mockAppUserRepository.Object
             );
         }
         #region Get List Bid By UserId
         [Test]
-        public async Task GetListByUserId_ModelStateInvalid_ReturnsBadRequest()
+        public async Task GetListByUserId_UserNotFound_ReturnsNotFound()
         {
             // Arrange
-            _bidController.ModelState.AddModelError("key", "error message");
+            var bidSearchDto = new BidSearchDTO { UserId = 1, PageIndex = 1, PageSize = 10 };
+            _mockAppUserRepository.Setup(repo => repo.GetByIdAsync(bidSearchDto.UserId)).ReturnsAsync((AppUser)null);
 
             // Act
-            var result = await _bidController.GetListByUserId(new BidSearchDTO());
+            var result = await _bidController.GetListByUserId(bidSearchDto);
 
             // Assert
-            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.AreEqual("Người dùng không tồn tại!", notFoundResult.Value?.GetType().GetProperty("message")?.GetValue(notFoundResult.Value)?.ToString());
         }
 
         [Test]
-        public async Task GetListByUserId_ValidRequest_ReturnsOkWithBids()
+        public async Task GetListByUserId_NoBidsForUser_ReturnsOkWithMessage()
         {
             // Arrange
-            var userId = 1;
-            var bids = new List<Bid>
-        {
-            new Bid { Id = 1, UserId = userId, ProjectId = 1, Proposal = "Proposal 1", Duration = 10, Budget = 1000, CreatedDate = DateTime.UtcNow }
-            // Add more sample bids as needed
-        };
+            var bidSearchDto = new BidSearchDTO { UserId = 1, PageIndex = 1, PageSize = 10 };
+            var user = new AppUser { Id = bidSearchDto.UserId };
+            var pagedResult = new Pagination<BidDTO> { TotalItemsCount = 0, Items = new List<BidDTO>() };
 
-            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), It.IsAny<int>(), It.IsAny<int>()))
-                           .ReturnsAsync(new Pagination<BidDTO> { Items = bids.Select(b => new BidDTO { Id = b.Id }).ToList() });
+            _mockAppUserRepository.Setup(repo => repo.GetByIdAsync(bidSearchDto.UserId)).ReturnsAsync(user);
+            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), bidSearchDto.PageIndex, bidSearchDto.PageSize)).ReturnsAsync(pagedResult);
 
             // Act
-            var result = await _bidController.GetListByUserId(new BidSearchDTO { UserId = userId, PageIndex = 1, PageSize = 10 });
+            var result = await _bidController.GetListByUserId(bidSearchDto);
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
-
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var bidsDto = okResult.Value as Pagination<BidDTO>;
-            Assert.IsNotNull(bidsDto);
-            Assert.AreEqual(bids.Count, bidsDto.Items.Count);
+            Assert.AreEqual(true, okResult.Value?.GetType().GetProperty("success")?.GetValue(okResult.Value));
+            Assert.AreEqual("Bạn chưa có đấu thầu nào!", okResult.Value?.GetType().GetProperty("message")?.GetValue(okResult.Value)?.ToString());
         }
 
-
-
-
-
-
         [Test]
-        public async Task GetListByUserId_ServiceError_ReturnsInternalServerError()
+        public async Task GetListByUserId_BidsForUser_ReturnsOkWithData()
         {
             // Arrange
-            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Domain.Entities.Bid, bool>>>(), It.IsAny<int>(), It.IsAny<int>()))
-                           .ThrowsAsync(new Exception("Service exception"));
+            var bidSearchDto = new BidSearchDTO { UserId = 1, PageIndex = 1, PageSize = 10 };
+            var user = new AppUser { Id = bidSearchDto.UserId };
+            var bids = new List<BidDTO> { new BidDTO { UserId = bidSearchDto.UserId } };
+            var pagedResult = new Pagination<BidDTO> { TotalItemsCount = 1, Items = bids };
+
+            _mockAppUserRepository.Setup(repo => repo.GetByIdAsync(bidSearchDto.UserId)).ReturnsAsync(user);
+            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), bidSearchDto.PageIndex, bidSearchDto.PageSize)).ReturnsAsync(pagedResult);
 
             // Act
-            var result = await _bidController.GetListByUserId(new BidSearchDTO());
+            var result = await _bidController.GetListByUserId(bidSearchDto);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(true, okResult.Value?.GetType().GetProperty("success")?.GetValue(okResult.Value));
+            Assert.AreEqual(null, okResult.Value?.GetType().GetProperty("message")?.GetValue(okResult.Value));
+            Assert.AreEqual(pagedResult, okResult.Value?.GetType().GetProperty("data")?.GetValue(okResult.Value));
+        }
+
+        [Test]
+        public async Task GetListByUserId_ExceptionThrown_ReturnsInternalServerError()
+        {
+            // Arrange
+            var bidSearchDto = new BidSearchDTO { UserId = 1, PageIndex = 1, PageSize = 10 };
+            var user = new AppUser { Id = bidSearchDto.UserId };
+
+            _mockAppUserRepository.Setup(repo => repo.GetByIdAsync(bidSearchDto.UserId)).ReturnsAsync(user);
+            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), bidSearchDto.PageIndex, bidSearchDto.PageSize)).ThrowsAsync(new Exception("Test exception"));
+
+            // Act
+            var result = await _bidController.GetListByUserId(bidSearchDto);
 
             // Assert
             Assert.IsInstanceOf<ObjectResult>(result);
-            Assert.AreEqual(StatusCodes.Status500InternalServerError, (result as ObjectResult).StatusCode);
+            var objectResult = result as ObjectResult;
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("Internal server error", objectResult.Value?.GetType().GetProperty("message")?.GetValue(objectResult.Value)?.ToString());
         }
+
+
         #endregion
         #region Get List Bid By Project Id
         [Test]
-        public async Task GetListByProjectId_ModelStateInvalid_ReturnsBadRequest()
+        public async Task GetListByProjectId_ProjectNotFound_ReturnsNotFound()
         {
             // Arrange
-            _bidController.ModelState.AddModelError("key", "error message");
+            var bidListDto = new BidListDTO { ProjectId = 1, PageIndex = 1, PageSize = 10 };
+            _mockProjectRepository.Setup(repo => repo.GetByIdAsync(bidListDto.ProjectId)).ReturnsAsync((Project)null);
 
             // Act
-            var result = await _bidController.GetListByProjectId(new BidListDTO());
+            var result = await _bidController.GetListByProjectId(bidListDto);
 
             // Assert
-            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.AreEqual("Không tìm thấy dự án!", notFoundResult.Value?.GetType().GetProperty("message")?.GetValue(notFoundResult.Value)?.ToString());
         }
 
         [Test]
-        public async Task GetListByProjectId_ValidRequest_ReturnsOkWithBids()
+        public async Task GetListByProjectId_NoBidsForProject_ReturnsOkWithMessage()
         {
             // Arrange
-            var projectId = 1;
-            var bids = new List<Bid>
-        {
-            new Bid { Id = 1, ProjectId = projectId, UserId = 1, Proposal = "Proposal 1", Duration = 10, Budget = 1000, CreatedDate = DateTime.UtcNow }
-            // Add more sample bids as needed
-        };
+            var bidListDto = new BidListDTO { ProjectId = 1, PageIndex = 1, PageSize = 10 };
+            var project = new Project { Id = 1 };
+            var pagedResult = new Pagination<BidDTO> { TotalItemsCount = 0, Items = new List<BidDTO>() };
 
-            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), It.IsAny<int>(), It.IsAny<int>()))
-                           .ReturnsAsync(new Pagination<BidDTO> { Items = bids.Select(b => new BidDTO { Id = b.Id }).ToList() });
+            _mockProjectRepository.Setup(repo => repo.GetByIdAsync(bidListDto.ProjectId)).ReturnsAsync(project);
+            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), bidListDto.PageIndex, bidListDto.PageSize)).ReturnsAsync(pagedResult);
 
             // Act
-            var result = await _bidController.GetListByProjectId(new BidListDTO { ProjectId = projectId, PageIndex = 1, PageSize = 10 });
+            var result = await _bidController.GetListByProjectId(bidListDto);
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
-
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var bidsDto = okResult.Value as Pagination<BidDTO>;
-            Assert.IsNotNull(bidsDto);
-            Assert.AreEqual(bids.Count, bidsDto.Items.Count);
+            Assert.AreEqual(true, okResult.Value?.GetType().GetProperty("success")?.GetValue(okResult.Value));
+            Assert.AreEqual("Chưa có đấu thầu nào cho dự án này!", okResult.Value?.GetType().GetProperty("message")?.GetValue(okResult.Value)?.ToString());
         }
 
         [Test]
-        public async Task GetListByProjectId_ValidRequest_NoBids_ReturnsEmptyList()
+        public async Task GetListByProjectId_ExceptionThrown_ReturnsInternalServerError()
         {
             // Arrange
-            var projectId = 2;
-            var emptyBids = new List<Bid>();
-
-            _mockBidService.Setup(service => service.GetWithFilter(It.IsAny<Expression<Func<Bid, bool>>>(), It.IsAny<int>(), It.IsAny<int>()))
-                           .ReturnsAsync(new Pagination<BidDTO> { Items = emptyBids.Select(b => new BidDTO { Id = b.Id }).ToList() });
+            var bidListDto = new BidListDTO { ProjectId = 1, PageIndex = 1, PageSize = 10 };
+            _mockProjectRepository.Setup(repo => repo.GetByIdAsync(bidListDto.ProjectId)).ThrowsAsync(new Exception("Test exception"));
 
             // Act
-            var result = await _bidController.GetListByProjectId(new BidListDTO { ProjectId = projectId, PageIndex = 1, PageSize = 10 });
+            var result = await _bidController.GetListByProjectId(bidListDto);
 
             // Assert
-            Assert.IsInstanceOf<OkObjectResult>(result);
-
-            var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var bidsDto = okResult.Value as Pagination<BidDTO>;
-            Assert.IsNotNull(bidsDto);
-            Assert.AreEqual(0, bidsDto.Items.Count);
+            Assert.IsInstanceOf<ObjectResult>(result);
+            var objectResult = result as ObjectResult;
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("Internal server error", objectResult.Value?.GetType().GetProperty("message")?.GetValue(objectResult.Value)?.ToString());
         }
+
         #endregion
         #region Bidding
         [Test]

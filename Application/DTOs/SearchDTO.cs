@@ -16,8 +16,8 @@ namespace Application.DTOs
     {
         public SearchDTOValidator()
         {
-            RuleFor(v => v.PageIndex).GreaterThan(1).WithMessage("Số trang phải lớn hơn 1");
-            RuleFor(v => v.PageSize).GreaterThan(1).WithMessage("Kích cỡ trang phải lớn hơn 1");
+            RuleFor(v => v.PageIndex).GreaterThan(0).WithMessage("Số trang phải lớn hơn 0");
+            RuleFor(v => v.PageSize).GreaterThan(0).WithMessage("Kích cỡ trang phải lớn hơn 0").LessThan(11).WithMessage("Kích cỡ trang tối đa là 10");
         }
     }
 }

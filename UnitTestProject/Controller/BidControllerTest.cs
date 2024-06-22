@@ -54,9 +54,6 @@ namespace UnitTestProject.Controller
             Assert.IsInstanceOf<BadRequestObjectResult>(result);
         }
 
-
-
-
         [Test]
         public async Task GetListByUserId_ValidRequest_ReturnsOkWithBids()
         {

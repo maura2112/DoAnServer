@@ -486,13 +486,14 @@ namespace UnitTestProject.Controller
             // Arrange
             var dto = new AddProjectDTO
             {
-                Title = "Test Project",
+                Title = "Project Game Unity 3D",
                 CategoryId = 1,
-                MinBudget = 1000,
-                MaxBudget = 5000,
-                Duration = 30,
-                Description = "Test Description",
-                Skill = new List<string> { "Skill1", "Skill2" }
+                MinBudget = 20000000,
+                MaxBudget = 50000000,
+                Duration = 2,
+                Description = "",
+                Skill = new List<string> { ".Net", "Java" }
+
             };
 
             var projectDto = new ProjectDTO

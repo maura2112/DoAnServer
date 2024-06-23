@@ -57,7 +57,7 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+                return BadRequest(ModelState);
             }
             var existUser = await _userManager.FindByEmailAsync(user.Email);
             if (existUser != null)

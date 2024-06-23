@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    internal class ProjectService : IProjectService
+    public class ProjectService : IProjectService
     {
         private readonly IMapper _mapper;
         private readonly IProjectRepository _projectRepository;
@@ -48,7 +48,16 @@ namespace Application.Services
         public async Task<ProjectDTO> Add(AddProjectDTO request)
         {
             var userId = _currentUserService.UserId;
+            if (userId == null)
+            {
+                return null;
+            }
             var project = _mapper.Map<Project>(request);
+            var existedCategory = await _categoryRepository.GetByIdAsync(request.CategoryId);
+            if (existedCategory == null)
+            {
+                return null; 
+            }
             project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
@@ -63,9 +72,19 @@ namespace Application.Services
 
             //
 
+            
 
             //media file
-            await _projectRepository.AddAsync(project);
+
+            try
+            {
+                await _projectRepository.AddAsync(project);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Tạo dự án mới thất bại", ex);
+            }
+            
             //var urlRecord = project.CreateUrlRecordAsync("tao-du-an", project.Title);
             //await _urlRepository.AddAsync(urlRecord);
 
@@ -74,8 +93,8 @@ namespace Application.Services
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
             projectDto.AppUser = _mapper.Map<AppUserDTO>(user);
 
-            var address = await _addressRepository.GetAddressByUserId(userId);
-            projectDto.AppUser.Address = _mapper.Map<AddressDTO>(address);
+            //var address = await _addressRepository.GetAddressByUserId(userId);
+            //projectDto.AppUser.Address = _mapper.Map<AddressDTO>(address);
 
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDto.Category = _mapper.Map<CategoryDTO>(category);
@@ -100,9 +119,13 @@ namespace Application.Services
         public async Task<ProjectDTO> Delete(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
+            if (project == null)
+            {
+                throw new Exception($"Project with ID {id} not found.");
+            }
             project.IsDeleted = true;
+             _projectRepository.Update(project);
             var projectDto = _mapper.Map<ProjectDTO>(project);
-            _projectRepository.Update(project);
             return projectDto;
         }
 
@@ -117,22 +140,29 @@ namespace Application.Services
                 var model = _mapper.Map<ProjectDTO>(x);
 
                 var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
-                model.AppUser = _mapper.Map<AppUserDTO>(user);
+                model.AppUser = user != null ? _mapper.Map<AppUserDTO>(user) : null;
 
-                var address = await _addressRepository.GetAddressByUserId((int)x.CreatedBy);
-                model.AppUser.Address = _mapper.Map<AddressDTO>(address);
+                var address = user != null ? await _addressRepository.GetAddressByUserId((int)x.CreatedBy) : null;
+                if (model.AppUser != null && address != null)
+                {
+                    model.AppUser.Address = _mapper.Map<AddressDTO>(address);
+                }
 
                 var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
-                model.Category = _mapper.Map<CategoryDTO>(category);
+                model.Category = category != null ? _mapper.Map<CategoryDTO>(category) : null;
 
                 var status = await _statusRepository.GetByIdAsync(x.StatusId);
-                model.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
+                model.ProjectStatus = status != null ? _mapper.Map<ProjectStatusDTO>(status) : null;
 
                 var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
-                foreach (var skill in listSkills)
+                if (listSkills != null)
                 {
-                    model.Skill.Add(skill.SkillName);
+                    foreach (var skill in listSkills)
+                    {
+                        model.Skill.Add(skill.SkillName);
+                    }
                 }
+
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
@@ -144,6 +174,7 @@ namespace Application.Services
             projectDTOs.Items = updatedItems;
             return projectDTOs;
         }
+
 
 
 

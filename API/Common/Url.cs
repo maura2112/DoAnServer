@@ -27,6 +27,9 @@
             public const string ConvertIntoRecruiter = "ConvertIntoRecruiter"; //it2
             public const string GetUsers = "GetUsers";
             public const string Lock = "Lock";
+            public const string Unlock = "Unlock";
+
+            public const string Roles = "Roles";
         }
         public static class Product
         {
@@ -78,6 +81,14 @@
             public const string All = "GetAll";
             public const string GetByCategoryId = "GetByCategoryId";
 
+        }
+
+        public static class Report
+        {
+            public const string Categories = "Categories";
+            public const string Create = "Create";
+            public const string Reports = "Reports";
+            public const string Approve = "Approve";
         }
     }
 }

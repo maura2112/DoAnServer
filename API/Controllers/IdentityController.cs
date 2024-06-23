@@ -110,6 +110,15 @@ namespace API.Controllers
                     message= "Email hoặc mật khẩu sai!"
                 });
             }
+
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau."
+                });
+            }
             if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordHash, userDto.Password))
             {
                 return BadRequest(new

@@ -20,7 +20,11 @@ namespace Application.DTOs
         public string? Description { get; set; }
         public bool? EmailConfirmed { get; set; }
 
-        public string LockoutEnabled { get; set; }
+        public DateTime? LockoutEnd { get; set; }
+
+        public bool? LockoutEnabled { get; set; }
+
+        public bool? IsLock { get; set; }
 
         public string? PhoneNumber { get; set; }
         public bool? PhoneNumberConfirmed { get; set; }

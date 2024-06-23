@@ -98,6 +98,13 @@ public static class DependencyInjection
 
         //Paging 
         services.AddScoped<PaginationService<UserDTO>>();
+        services.AddScoped<PaginationService<ReportDTO>>();
+
+        //Report 
+        services.AddScoped<IReportCategoryService, ReportCategoryService>();
+        services.AddScoped<IReportCategoryRepository, ReportCategoryRepository>();
+        services.AddScoped<IUserReportService, UserReportService>();
+        services.AddScoped<IReportRepository, ReportRepository>();
 
         services.AddAuthentication(options =>
         {

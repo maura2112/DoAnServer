@@ -1,0 +1,20 @@
+﻿using Domain.Entities;
+using Domain.IRepositories;
+using Infrastructure.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Infrastructure.Repositories
+{
+    public class ReportRepository : GenericRepository<UserReport>, IReportRepository
+    {
+        private readonly ApplicationDbContext _context;
+        public ReportRepository(ApplicationDbContext context) : base(context)
+        {
+            _context = context;
+        }
+    }
+}

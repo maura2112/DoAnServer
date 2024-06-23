@@ -43,6 +43,8 @@ public class MapProfile : Profile
 
         //Meida File
         CreateMap<MediaFile, MediaFileDTO>().ReverseMap();
+        //Report
+        CreateMap<UserReport, ReportDTO>().ReverseMap();
 
         CreateMap<Skill, SkillDTO>().ReverseMap();
         CreateMap<Pagination<Skill>, Pagination<SkillDTO>>().ReverseMap();
@@ -53,7 +55,7 @@ public class MapProfile : Profile
         CreateMap<UserSkill, UserSkillDTO>().ReverseMap();
         CreateMap<Pagination<UserSkill>, Pagination<UserSkillDTO>>().ReverseMap();
 
-        CreateMap<AppUser, UserDTO>().ReverseMap();
+        CreateMap<AppUser, UserDTO>().ForMember(dest => dest.LockoutEnd, opt => opt.MapFrom(src => src.LockoutEnd.HasValue ? src.LockoutEnd.Value.UtcDateTime : (DateTime?)null)).ReverseMap();
 
         CreateMap<Address, AddressDTO>().ReverseMap();
         CreateMap<Pagination<Address>, Pagination<AddressDTO>>().ReverseMap();

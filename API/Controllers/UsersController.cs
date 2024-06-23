@@ -5,6 +5,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -22,7 +23,8 @@ namespace API.Controllers
         private readonly ISkillService _skillService;
         private readonly IMediaService _mediaFileService;
         private readonly IPasswordGeneratorService _passwordGeneratorService;
-        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService)
+        private readonly RoleManager<Role> _roleManager;
+        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager)
         {
             _appUserService = appUserService;
             _currentUserService = currentUserService;
@@ -30,6 +32,7 @@ namespace API.Controllers
             _skillService = skillService;
             _passwordGeneratorService = passwordGeneratorService;
             _mediaFileService = mediaFileService;
+            _roleManager = roleManager;
         }
         [HttpGet]
         [Route(Common.Url.User.Profile)]
@@ -193,6 +196,14 @@ namespace API.Controllers
             return Ok(users);
         }
 
+        [HttpGet]
+        [Route(Common.Url.User.Roles)]
+        public async Task<IActionResult> Roles()
+        {
+            var roles = await _roleManager.Roles.ToListAsync();
+            return Ok(roles);
+        }
+
         [HttpPost]
         [Route(Common.Url.User.Lock)]
         public async Task<IActionResult> Lock([FromBody] int userId)
@@ -210,6 +221,19 @@ namespace API.Controllers
             }
 
             return BadRequest("Khóa không thành công người dùng");
+        }
+
+        [HttpPost]
+        [Route(Common.Url.User.Unlock)]
+        public async Task<IActionResult> Unlock([FromBody] int userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
+
+            var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
+
+            return  Ok("Mở khóa thành công người dùng");
         }
 
 

@@ -16,9 +16,8 @@ namespace Infrastructure.Data.Configurations
             builder.ToTable("UserReports");
             builder.HasKey(c => c.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(t => t.ReportToUrl).IsRequired();
+            builder.Property(t => t.ReportToUrl);
             builder.Property(x => x.CreatedBy).IsRequired();
-            builder.Property(x => x.IsApproved).IsRequired();
             builder.Property(x => x.CreatedDate).IsRequired();
 
             // Relationship

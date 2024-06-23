@@ -53,7 +53,15 @@ namespace Application.Services
             {
                 users = users.Where(x=>x.Name.ToLower().Contains(userSearch.search.ToLower()) || x.Email.ToLower().Contains(userSearch.search.ToLower())).ToList();
             }
-            var userDTOS =  _mapper.Map<List<UserDTO>>(users);
+
+            var userDTOS = users.Select(user =>
+            {
+                var userDTO = _mapper.Map<UserDTO>(user);
+                if(userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled == true) {
+                    userDTO.IsLock =true;
+                }
+                return userDTO;
+            }).ToList();
             return await _paginationService.ToPagination(userDTOS, userSearch.PageIndex, userSearch.PageSize);
         }
 

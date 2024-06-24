@@ -8,6 +8,8 @@ namespace Application.DTOs
 {
     public class ReportDTO
     {
+
+        public string? NameCreatedBy { get; set; }
         public string? ReportToUrl { get; set; }
         public int? ProjectId { get; set; }
 
@@ -19,5 +21,15 @@ namespace Application.DTOs
         public string? ReportType { get; set; }
 
         public string? ReportName { get; set; }
+
+        public string? ProjectName { get; set; }
+
+        public string? ProjectUser { get; set; }
+
+        public string? BidName { get; set; }
+
+        public string? BidUser { get; set; }
+
+        public bool? IsApproved { get; set; }
     }
 }

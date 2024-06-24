@@ -211,16 +211,17 @@ namespace API.Controllers
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
-                return NotFound("User not found.");
+                return NotFound("Không tìm thấy người dùng.");
             }
-            var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
-            var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
-            if (result.Succeeded)
+            if (user.LockoutEnabled && user.LockoutEnd > DateTime.Now)
             {
+                return BadRequest("Khóa không thành công người dùng");
+            }else
+            {
+                var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
+                var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
                 return Ok("Khóa thành công người dùng");
-            }
-
-            return BadRequest("Khóa không thành công người dùng");
+            } 
         }
 
         [HttpPost]
@@ -228,12 +229,21 @@ namespace API.Controllers
         public async Task<IActionResult> Unlock([FromBody] int userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return NotFound("Không tìm thấy người dùng.");
+            }
+            if (user.LockoutEnabled && user.LockoutEnd >DateTime.Now ) {
 
-            var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
+                var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
 
-            var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
+                var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
 
-            return  Ok("Mở khóa thành công người dùng");
+                return Ok("Mở khóa thành công người dùng");
+            }else
+            {
+                return BadRequest("Người dùng chưa bị khóa");
+            }
         }
 
 

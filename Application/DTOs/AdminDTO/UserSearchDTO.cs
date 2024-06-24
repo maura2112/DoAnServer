@@ -12,6 +12,11 @@ namespace Application.DTOs
 
         public string? role { set; get; }
         public string? search { set; get; }
+
+        public string? email { set; get; }
+
+        public string? phone { set; get; }
+        public List<string>? skills { set; get; }
     }
     public class UserSearchDTOValidator : AbstractValidator<UserSearchDTO>
     {
@@ -19,6 +24,8 @@ namespace Application.DTOs
         {
             RuleFor(v => v.role)
                 .Must(BeAValidRole).WithMessage("Vai trò không hợp lệ");
+            RuleFor(v => v.phone)
+            .Matches(@"^\d+$").WithMessage("Số điện thoại chỉ chứa số");
         }
         private bool BeAValidRole(string role)
         {

@@ -22,7 +22,7 @@ namespace Application.IServices
         Task<BidDTO> Delete(int id);
 
         Task<BidDTO> AcceptBidding(long id);
-
+        Task<BidDTO> GetBidById(int id);
 
 
 

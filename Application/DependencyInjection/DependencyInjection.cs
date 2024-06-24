@@ -95,6 +95,8 @@ public static class DependencyInjection
         //services.AddScoped<ISkillService, SkillService>();
         services.AddScoped<IStatusRepository, StatusRepository>();
 
+        services.AddScoped<IProjectService, ProjectService>();
+
 
         //Paging 
         services.AddScoped<PaginationService<UserDTO>>();

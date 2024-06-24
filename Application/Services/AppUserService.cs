@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -51,7 +52,15 @@ namespace Application.Services
             }
             if(userSearch.search != null)
             {
-                users = users.Where(x=>x.Name.ToLower().Contains(userSearch.search.ToLower()) || x.Email.ToLower().Contains(userSearch.search.ToLower())).ToList();
+                users = users.Where(x=>x.Name.ToLower().Contains(userSearch.search.ToLower()) || x.Description.ToLower().Contains(userSearch.search.ToLower())).ToList();
+            }
+            if (userSearch.email != null)
+            {
+                users = users.Where(x => x.Email.ToLower().Contains(userSearch.email.ToLower())).ToList();
+            }
+            if (userSearch.phone != null)
+            {
+                users = users.Where(x => x.PhoneNumber.ToLower().Contains(userSearch.email.ToLower())).ToList();
             }
 
             var userDTOS = users.Select(user =>
@@ -60,6 +69,8 @@ namespace Application.Services
                 if(userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled == true) {
                     userDTO.IsLock =true;
                 }
+                var skillDTOs =  _skillService.GetForUser(user.Id);
+                userDTO.skills = skillDTOs.Result.Select(x => x.SkillName).ToList();
                 return userDTO;
             }).ToList();
             return await _paginationService.ToPagination(userDTOS, userSearch.PageIndex, userSearch.PageSize);

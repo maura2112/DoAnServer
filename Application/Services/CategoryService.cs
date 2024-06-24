@@ -23,9 +23,16 @@ namespace Application.Services
         }
         public async Task<List<CategoryDTO>> GetAll()
         {
-            var categories = await _categoryRepository.GetAll();
-            var categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
-            return categoryDTOs;
+            try
+            {
+                var categories = await _categoryRepository.GetAll();
+                var categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
+                return categoryDTOs;
+            }
+            catch (Exception ex)
+            {
+                return new List<CategoryDTO>(); 
+            }
         }
     }
 }

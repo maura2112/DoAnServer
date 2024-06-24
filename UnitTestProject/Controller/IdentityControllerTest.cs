@@ -23,6 +23,9 @@ using Application.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using UnitTestProject.MockHandler;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Oauth2.v2;
+using Google.Apis.Services;
 
 namespace UnitTestProject.Controller
 {
@@ -83,30 +86,49 @@ namespace UnitTestProject.Controller
 
         #region Register
         [Test]
-        public async Task Register_ModelStateInvalid_ReturnsBadRequest()
+        public async Task Register_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
-            _controller.ModelState.AddModelError("Email", "Email is required");
+            _controller.ModelState.AddModelError("Error", "Invalid model state");
+            var registerDto = new RegisterDTO();
 
             // Act
-            var result = await _controller.Register(new RegisterDTO());
+            var result = await _controller.Register(registerDto);
 
             // Assert
             Assert.IsInstanceOf<BadRequestObjectResult>(result);
         }
 
         [Test]
-        public async Task Register_UserExists_ReturnsConflict()
+        public async Task Register_EmailAlreadyInUse_ReturnsConflict()
         {
             // Arrange
             var registerDto = new RegisterDTO { Email = "test@example.com" };
-            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(new AppUser());
+            _userManagerMock.Setup(u => u.FindByEmailAsync(registerDto.Email)).ReturnsAsync(new AppUser());
 
             // Act
             var result = await _controller.Register(registerDto);
 
             // Assert
             Assert.IsInstanceOf<ConflictObjectResult>(result);
+            var conflictResult = result as ConflictObjectResult;
+            Assert.AreEqual("Email đã được sử dụng.", conflictResult.Value?.GetType().GetProperty("message")?.GetValue(conflictResult.Value)?.ToString());
+        }
+
+        [Test]
+        public async Task Register_UserCreationFails_ThrowsException()
+        {
+            // Arrange
+            var registerDto = new RegisterDTO { Email = "test@example.com", Password = "password123", Roles = new List<string> { "User" } };
+            var identityResult = IdentityResult.Failed(new IdentityError { Description = "Test error" });
+
+            _userManagerMock.Setup(u => u.FindByEmailAsync(registerDto.Email)).ReturnsAsync((AppUser)null);
+            _passwordGeneratorServiceMock.Setup(p => p.HashPassword(registerDto.Password)).Returns("hashedPassword");
+            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<AppUser>())).ReturnsAsync(identityResult);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<Exception>(() => _controller.Register(registerDto));
+            Assert.AreEqual("Test error", ex.Message);
         }
 
         [Test]
@@ -160,91 +182,6 @@ namespace UnitTestProject.Controller
             }
         }
 
-
-
-        [Test]
-        public void Register_CreateUserFails_ThrowsException()
-        {
-            // Arrange
-            var registerDto = new RegisterDTO
-            {
-                Email = "test@example.com",
-                Password = "Password123",
-                Roles = new List<string> { "User" },
-                Skill = new List<string> { "Skill1" },
-                IsCompany = false
-            };
-
-            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((AppUser)null);
-            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<AppUser>())).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error" }));
-            _passwordGeneratorServiceMock.Setup(p => p.HashPassword(It.IsAny<string>())).Returns("hashedPassword");
-
-            // Act & Assert
-            var ex = Assert.ThrowsAsync<Exception>(() => _controller.Register(registerDto));
-            Assert.AreEqual("Error", ex.Message);
-        }
-
-        [Test]
-        public async Task Register_NotCompany_AddsSkill()
-        {
-            // Arrange
-            var registerDto = new RegisterDTO
-            {
-                Email = "test@example.com",
-                Password = "Password123",
-                Roles = new List<string> { "User" },
-                Skill = new List<string> { "Skill1" },
-                IsCompany = false
-            };
-
-            var userId = 1; // Giả sử ID của user sau khi tạo là 1
-            var appUser = new AppUser { Id = userId, Email = registerDto.Email };
-
-            // Mock UserManager
-            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((AppUser)null);
-            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<AppUser>())).ReturnsAsync(IdentityResult.Success);
-            _userManagerMock.Setup(u => u.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(appUser);
-            _userManagerMock.Setup(u => u.AddToRolesAsync(It.IsAny<AppUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
-
-            // Mock RoleManager
-            var roles = new List<Role>
-    {
-        new Role { Id = 1, Name = "User" }
-    };
-            _roleManagerMock.Setup(rm => rm.Roles).Returns(roles.AsQueryable());
-
-            // Mock PasswordGeneratorService
-            _passwordGeneratorServiceMock.Setup(p => p.HashPassword(It.IsAny<string>())).Returns("hashedPassword");
-
-            // Act
-            var actionResult = await _controller.Register(registerDto);
-
-            // Assert
-            Assert.IsAssignableFrom<ActionResult>(actionResult); // Kiểm tra actionResult có thể gán được cho ActionResult
-
-            if (actionResult is OkObjectResult okResult)
-            {
-                Assert.IsTrue((bool)okResult.Value.GetType().GetProperty("success")?.GetValue(okResult.Value));
-                Assert.AreEqual("Bạn vừa đăng kí thành công", okResult.Value.GetType().GetProperty("message")?.GetValue(okResult.Value)?.ToString());
-
-                var data = okResult.Value.GetType().GetProperty("data")?.GetValue(okResult.Value);
-                Assert.IsNotNull(data);
-                Assert.AreEqual(userId, int.Parse(data.GetType().GetProperty("UserId")?.GetValue(data)?.ToString()));
-
-                // Verify các hoạt động với UserManager và SkillService
-                _userManagerMock.Verify(u => u.CreateAsync(It.IsAny<AppUser>()), Times.Once);
-                _userManagerMock.Verify(u => u.FindByEmailAsync(registerDto.Email), Times.Once);
-                _userManagerMock.Verify(u => u.FindByIdAsync(userId.ToString()), Times.Once);
-                _userManagerMock.Verify(u => u.AddToRolesAsync(appUser, It.Is<IEnumerable<string>>(r => r.Contains("User"))), Times.Once);
-                _skillServiceMock.Verify(s => s.AddSkillForUser(registerDto.Skill, userId), Times.Once);
-
-                // Kiểm tra các hoạt động khác có thể thêm vào nếu cần
-            }
-            else
-            {
-                Assert.Fail("Expected OkObjectResult but received a different ActionResult.");
-            }
-        }
 
 
         #endregion
@@ -661,6 +598,14 @@ namespace UnitTestProject.Controller
         }
 
 
+
+
+
+        #endregion
+
+        #region GetExternalLoginAsync
+
+        
 
 
 

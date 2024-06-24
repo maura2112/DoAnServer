@@ -79,9 +79,19 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
+
             var userId = _currentUserService.UserId;
 
             var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Bạn hãy đăng nhập"
+                });
+            }
+
             if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordHash, dto.OldPassword))
             {
                 return BadRequest(new
@@ -90,14 +100,25 @@ namespace API.Controllers
                     message = "Mật khẩu cũ sai !"
                 });
             }
+
             user.PasswordHash = _passwordGeneratorService.HashPassword(dto.NewPassword);
             var userResult = await _userManager.UpdateAsync(user);
-            
+
+            if (!userResult.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Lỗi khi cập nhật mật khẩu"
+                });
+            }
+
             return Ok(new
             {
-                success = true,
+                success = true
             });
         }
+
 
         [HttpPut]
         [Route(Common.Url.User.UpdateEducation)]

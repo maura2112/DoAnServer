@@ -31,9 +31,20 @@ namespace Application.DTOs
 
     }
 
-    
+    public class ProjectSearchDTOValidator : AbstractValidator<ProjectSearchDTO>
+    {
+        public ProjectSearchDTOValidator()
+        {
+            RuleFor(v => v.Keyword.Length).LessThan(100).WithMessage("Từ khóa không được vượt quá 100 kí tự");
+            
 
-    
+
+        }
+    }
+
+
+
+
 
 
 }

@@ -16,7 +16,16 @@ namespace API.Controllers
         [Route(Common.Url.Category.GetAll)]
         public async Task<IActionResult> Index()
         {
-            return Ok(await _categoryService.GetAll());
+            try
+            {
+                var categories = await _categoryService.GetAll();
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if needed
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
         }
     }
 }

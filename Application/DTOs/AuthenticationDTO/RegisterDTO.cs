@@ -28,9 +28,9 @@ namespace Application.DTOs
             RuleFor(v => v.Email).NotEmpty().WithMessage("Email không được để trống")
                 .EmailAddress().WithMessage("Email không đúng định dạng");
             RuleFor(v => v.Password)
-                .NotEmpty().WithMessage("Mật khẩu không được để trống")
-                .MinimumLength(6).WithMessage("Mật khẩu nhập vào phải có ít nhất 6 ký tự")
-                .MaximumLength(32).WithMessage("Mật khẩu nhập vào phải có nhiều nhất 32 ký tự");
+                .NotEmpty().WithMessage("Mật khẩu không được để trống");
+                //.MinimumLength(6).WithMessage("Mật khẩu nhập vào phải có ít nhất 6 ký tự")
+                //.MaximumLength(32).WithMessage("Mật khẩu nhập vào phải có nhiều nhất 32 ký tự");
             RuleFor(v => v.Name)
                 .NotEmpty().WithMessage("Tên không được để trống")
                 .Matches(@"^[a-zA-Z\s]+$").WithMessage("Tên không được chứa số hoặc kí tự đặc biệt")
@@ -41,7 +41,7 @@ namespace Application.DTOs
             .Equal(v => v.ConfirmPassword)
             .WithMessage("Xác nhận mật khẩu không khớp");
             RuleFor(v => v.Skill).NotEmpty().WithMessage("Kĩ năng không được để trống");
-            RuleFor(v => v.Skill.Count).LessThan(5).WithMessage("Không được chọn quá 10 kĩ năng");
+            RuleFor(v => v.Skill.Count).LessThan(5).WithMessage("Không được chọn quá 5 kĩ năng");
         }
     }
 }

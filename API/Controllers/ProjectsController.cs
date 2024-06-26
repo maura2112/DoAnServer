@@ -66,6 +66,30 @@ namespace API.Controllers
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }
 
+        [HttpGet]
+        [Route(Common.Url.Project.Gets)]
+        public async Task<IActionResult> Gets([FromQuery] ProjectSearchDTO projects)
+        {
+            var projectDTOs = await _projectService.GetProjectDTOs(projects);
+            return Ok(projectDTOs); 
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Project.UpdateStatus)]
+        public async Task<IActionResult> UpdateStatus([FromQuery] int statusId, [FromQuery] int projectId)
+        {
+            var projectDTOs = await _projectService.UpdateProjectStatus(statusId , projectId);
+            return Ok(projectDTOs);
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Project.AllStatus)]
+        public async Task<IActionResult> AllStatus()
+        {
+            var DTOs = await _projectService.GetAllStatus();
+            return Ok(DTOs);
+        }
+
 
         [HttpPost]
         [Route(Common.Url.Project.Filter)]

@@ -43,7 +43,13 @@ namespace API.Controllers
             var userDtos = await _appUserService.GetUserDTOAsync(userId);
             return (Ok(userDtos));
         }
-
+        [HttpGet]
+        [Route(Common.Url.User.GetUser)]
+        public async Task<IActionResult> GetUser(int uid)
+        {
+            var userDtos = await _appUserService.GetUserDTOAsync(uid);
+            return (Ok(userDtos));
+        }
         [HttpPost]
         [Route(Common.Url.User.Update)]
         public async Task<IActionResult> Update([FromBody] UserUpdateDTO dto)
@@ -227,49 +233,54 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.User.Lock)]
-        public async Task<IActionResult> Lock([FromBody] int userId)
+        public async Task<IActionResult> Lock([FromBody] List<int> userIds)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null)
+            var users = await _userManager.Users.Where(x=>userIds.Contains(x.Id)).ToListAsync();
+            if (!users.Any())
             {
                 return NotFound("Không tìm thấy người dùng.");
             }
-            if (user.LockoutEnabled && user.LockoutEnd > DateTime.Now)
+            var userLock = users.Where(x=>x.LockoutEnabled || x.LockoutEnd  == null).ToList();
+
+            if (!userLock.Any())
             {
-                return BadRequest("Khóa không thành công người dùng");
+                return BadRequest("Tất cả người dùng đều đang bị khóa");
             }else
             {
-                var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
-                var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
-                return Ok("Khóa thành công người dùng");
+                foreach (var user in userLock) {
+                    var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
+                    var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
+                    var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
+                }
+                return Ok("Khóa thành công "+userLock.Count +" người dùng");
             } 
         }
 
         [HttpPost]
         [Route(Common.Url.User.Unlock)]
-        public async Task<IActionResult> Unlock([FromBody] int userId)
+        public async Task<IActionResult> Unlock([FromBody] List<int> userIds)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null)
+            var users = await _userManager.Users.Where(x => userIds.Contains(x.Id)).ToListAsync();
+            if (!users.Any())
             {
                 return NotFound("Không tìm thấy người dùng.");
             }
-            if (user.LockoutEnabled && user.LockoutEnd >DateTime.Now ) {
+            var userUnlock = users.Where(x => !x.LockoutEnabled || x.LockoutEnd != null).ToList();
 
-                var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
-
-                var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
-
-                return Ok("Mở khóa thành công người dùng");
-            }else
+            if (!userUnlock.Any())
             {
-                return BadRequest("Người dùng chưa bị khóa");
+                return BadRequest("Tất cả người dùng đều đang mở khóa");
+            }
+            else
+            {
+                foreach (var user in userUnlock)
+                {
+                    var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, true);
+
+                    var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
+                }
+                return Ok("Mở khóa thành công "+ userUnlock.Count+" người dùng");
             }
         }
-
-
-
-
-
     }
 }

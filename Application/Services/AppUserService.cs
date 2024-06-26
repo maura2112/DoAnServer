@@ -66,7 +66,7 @@ namespace Application.Services
             var userDTOS = users.Select(user =>
             {
                 var userDTO = _mapper.Map<UserDTO>(user);
-                if(userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled == true) {
+                if(userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled != true) {
                     userDTO.IsLock =true;
                 }
                 var skillDTOs =  _skillService.GetForUser(user.Id);

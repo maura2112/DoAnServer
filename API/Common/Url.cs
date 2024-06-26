@@ -30,6 +30,7 @@
             public const string Unlock = "Unlock";
 
             public const string Roles = "Roles";
+            public const string GetUser = "GetUser";
         }
         public static class Product
         {
@@ -44,6 +45,7 @@
         public static class Project
         {
             public const string GetAll = "GetAll";
+            public const string Gets = "Gets";
             //public const string GetByCategory = "GetByCategory";
             public const string GetProjectDetails = "GetProjectDetailsById";
             public const string GetProjectsByUserId = "GetProjectsByUserId";
@@ -52,6 +54,8 @@
             public const string Delete = "DeleteProject";
             public const string Filter = "Filter";
             public const string Search = "Search";
+
+            public const string AllStatus = "AllStatus";
             public const string UpdateStatus = "UpdateStatus";
 
         }

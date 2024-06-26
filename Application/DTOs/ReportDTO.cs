@@ -8,7 +8,7 @@ namespace Application.DTOs
 {
     public class ReportDTO
     {
-
+        public int Id { get; set; }
         public string? NameCreatedBy { get; set; }
         public string? ReportToUrl { get; set; }
         public int? ProjectId { get; set; }

@@ -12,6 +12,19 @@ namespace Application.DTOs
     {
         //public int CategoryId { get; set; }
         public string? Keyword { get; set; }
+
+        public List<string>? Skill { get; set; }
+
+        public int? StatusId { get; set; }
+
+        public int? MinBudget { get; set; }
+        public int? MaxBudget { get; set; }
+        public int? CategoryId { get; set; }
+
+        public DateTime? CreatedFrom { get; set; }
+        public DateTime? CreatedTo { get; set; }
+
+
     }
     public class ProjectFilter : SearchDTO
     {
@@ -35,7 +48,7 @@ namespace Application.DTOs
     {
         public ProjectSearchDTOValidator()
         {
-            RuleFor(v => v.Keyword.Length).LessThan(100).WithMessage("Từ khóa không được vượt quá 100 kí tự");
+            //RuleFor(v => v.Keyword.Length).LessThan(100).WithMessage("Từ khóa không được vượt quá 100 kí tự");
             
 
 

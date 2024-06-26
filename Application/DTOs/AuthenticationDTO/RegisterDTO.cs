@@ -19,7 +19,7 @@ namespace Application.DTOs
 
         public bool IsCompany { get; set; }
         public List<string> Roles { get; set; } = new();
-        public List<string> Skill { get; set; } = new();
+        public List<string>? Skill { get; set; } = new();
     }
     public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
     {
@@ -40,8 +40,6 @@ namespace Application.DTOs
             RuleFor(v => v.Password)
             .Equal(v => v.ConfirmPassword)
             .WithMessage("Xác nhận mật khẩu không khớp");
-            RuleFor(v => v.Skill).NotEmpty().WithMessage("Kĩ năng không được để trống");
-            RuleFor(v => v.Skill.Count).LessThan(5).WithMessage("Không được chọn quá 10 kĩ năng");
         }
     }
 }

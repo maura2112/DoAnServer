@@ -101,6 +101,7 @@ public static class DependencyInjection
         //Paging 
         services.AddScoped<PaginationService<UserDTO>>();
         services.AddScoped<PaginationService<ReportDTO>>();
+        services.AddScoped<PaginationService<ProjectDTO>>();
 
         //Report 
         services.AddScoped<IReportCategoryService, ReportCategoryService>();

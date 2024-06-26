@@ -21,6 +21,12 @@ namespace Application.IServices
     {
         Task<Pagination<ProjectDTO>> Get(int pageIndex, int pageSize);
 
+        Task<Pagination<ProjectDTO>> GetProjectDTOs(ProjectSearchDTO search);
+
+        Task<ProjectDTO> UpdateProjectStatus(int statusId, int projectId);
+
+        Task<List<ProjectStatusDTO>> GetAllStatus();
+
         Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
 
         Task<ProjectDTO> GetDetailProjectById(int id);

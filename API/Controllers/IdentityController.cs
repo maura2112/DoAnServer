@@ -111,7 +111,7 @@ namespace API.Controllers
                 });
             }
 
-            if (await _userManager.IsLockedOutAsync(user))
+            if (user.LockoutEnd > DateTime.Now)
             {
                 return BadRequest(new
                 {

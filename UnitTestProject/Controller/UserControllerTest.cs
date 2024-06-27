@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using UnitTestProject.MockExtension;
 using static API.Common.Url;
 
 namespace UnitTestProject.Controller
@@ -606,92 +608,8 @@ namespace UnitTestProject.Controller
 
         #region Lock
 
-        //[Test]
-        //public async Task Lock_Returns_OkResult_When_User_Found_And_Successfully_Locked()
-        //{
-        //    // Arrange
-        //    int userId = 1;
-        //    var user = new AppUser { Id = userId, UserName = "testuser" };
-
-        //    userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
-
-        //    currentUserServiceMock.Setup(m => m.UserId).Returns(userId);
-
-        //    var usersController = new UsersController(
-        //        appUserServiceMock.Object,
-        //        currentUserServiceMock.Object,
-        //        userManagerMock.Object,
-        //        skillServiceMock.Object,
-        //        passwordGeneratorServiceMock.Object,
-        //        mediaFileServiceMock.Object,
-        //        roleManagerMock.Object
-        //    );
-
-        //    // Act
-        //    var result = await usersController.Lock(userId);
-
-        //    // Assert
-        //    Assert.IsInstanceOf<OkObjectResult>(result);
-        //    var okResult = result as OkObjectResult;
-        //    Assert.IsNotNull(okResult);
-        //    Assert.AreEqual("Khóa thành công người dùng", okResult.Value);
-
-        //    // Verify interactions
-        //    userManagerMock.Verify(m => m.FindByIdAsync(userId.ToString()), Times.Once);
-        //    userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, It.IsAny<DateTimeOffset?>()), Times.Once);
-        //}
-    
+        #endregion
 
 
-    [Test]
-    public async Task Lock_Returns_NotFoundResult_When_User_NotFound()
-    {
-        // Arrange
-        int userId = 1;
-        userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync((AppUser)null);
-
-        // Act
-        var result = await usersController.Lock(userId);
-
-        // Assert
-        Assert.IsInstanceOf<NotFoundObjectResult>(result);
-        var notFoundResult = result as NotFoundObjectResult;
-        Assert.IsNotNull(notFoundResult);
-        Assert.AreEqual("User not found.", notFoundResult.Value);
-
-        // Verify interactions
-        userManagerMock.Verify(m => m.FindByIdAsync(userId.ToString()), Times.Once);
     }
-
-    //[Test]
-    //public async Task Lock_Returns_BadRequestResult_When_SetLockoutEndDate_Fails()
-    //{
-    //    // Arrange
-    //    int userId = 1;
-    //    var user = new AppUser { Id = userId, UserName = "testuser" };
-    //    var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
-
-    //    userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
-    //    userManagerMock.Setup(m => m.SetLockoutEndDateAsync(user, lockoutEndDate)).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Failed to set lockout end date." }));
-
-    //    // Act
-    //    var result = await usersController.Lock(userId);
-
-    //    // Assert
-    //    Assert.IsInstanceOf<BadRequestObjectResult>(result);
-    //    var badRequestResult = result as BadRequestObjectResult;
-    //    Assert.IsNotNull(badRequestResult);
-    //    Assert.AreEqual("Khóa không thành công người dùng", badRequestResult.Value);
-
-    //    // Verify interactions
-    //    userManagerMock.Verify(m => m.FindByIdAsync(userId.ToString()), Times.Once);
-    //    userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, lockoutEndDate), Times.Once);
-    //}
-
-
-
-    #endregion
-
-
-}
 }

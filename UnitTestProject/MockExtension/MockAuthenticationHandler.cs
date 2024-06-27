@@ -9,9 +9,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace UnitTestProject.MockHandler
-{
-    public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         public MockAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
@@ -29,4 +27,4 @@ namespace UnitTestProject.MockHandler
         }
     }
 
-}
+

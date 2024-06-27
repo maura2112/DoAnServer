@@ -22,7 +22,6 @@ using System.Security.Claims;
 using Application.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
-using UnitTestProject.MockHandler;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Oauth2.v2;
 using Google.Apis.Services;

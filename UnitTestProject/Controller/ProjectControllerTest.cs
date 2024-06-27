@@ -767,5 +767,116 @@ namespace UnitTestProject.Controller
             Assert.AreEqual(projectId, responseData.Data.Id);
         }
         #endregion
+        #region Gets
+        [Test]
+        public async Task Gets_ReturnsOkResult_WithProjectDTOs()
+        {
+            // Arrange
+            var projectsDto = new List<ProjectDTO>
+            {
+                new ProjectDTO { Id = 1, Title = "Project1" },
+                new ProjectDTO { Id = 2, Title = "Project2" }
+            };
+
+            var pagination = new Pagination<ProjectDTO>
+            {
+                Items = projectsDto,
+                TotalItemsCount = projectsDto.Count,
+                PageIndex = 1,
+                PageSize = 10
+            };
+
+            var projectSearchDto = new ProjectSearchDTO
+            {
+                PageIndex = 1,
+                PageSize = 10,
+                Keyword = "searchKeyword",
+                Skill = new List<string> { "skill1", "skill2" },
+                StatusId = 1,
+                MinBudget = 1000,
+                MaxBudget = 5000,
+                CategoryId = 3,
+                CreatedFrom = new DateTime(2023, 1, 1),
+                CreatedTo = new DateTime(2023, 12, 31)
+            };
+
+            _mockProjectService.Setup(x => x.GetProjectDTOs(projectSearchDto))
+                .ReturnsAsync(pagination);
+
+            // Act
+            var result = await _controller.Gets(projectSearchDto) as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+            var resultValue = result.Value as Pagination<ProjectDTO>;
+            Assert.IsNotNull(resultValue);
+            Assert.AreEqual(pagination.TotalItemsCount, resultValue.TotalItemsCount);
+            Assert.AreEqual(pagination.PageIndex, resultValue.PageIndex);
+            Assert.AreEqual(pagination.PageSize, resultValue.PageSize);
+            Assert.AreEqual(pagination.Items, resultValue.Items);
+        }
+
+
+        #endregion
+        #region UpdateStatus
+        [Test]
+        public async Task UpdateStatus_ReturnsOkResult_WithProjectDTO()
+        {
+            // Arrange
+            int statusId = 1;
+            int projectId = 1;
+            var projectDto = new ProjectDTO { Id = projectId, Title = "Project1" };
+
+            _mockProjectService.Setup(x => x.UpdateProjectStatus(statusId, projectId))
+                .ReturnsAsync(projectDto);
+
+            // Act
+            var result = await _controller.UpdateStatus(statusId, projectId) as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+            var resultValue = result.Value as ProjectDTO;
+            Assert.IsNotNull(resultValue);
+            Assert.AreEqual(projectDto.Id, resultValue.Id);
+            Assert.AreEqual(projectDto.Title, resultValue.Title);
+        }
+
+
+        #endregion
+        #region AllStatus
+        [Test]
+        public async Task AllStatus_ReturnsOkResult_WithProjectStatusDTOs()
+        {
+            // Arrange
+            var projectStatusDtos = new List<ProjectStatusDTO>
+            {
+                new ProjectStatusDTO { Id = 1, StatusName = "Status1", StatusColor = "Green" },
+                new ProjectStatusDTO { Id = 2, StatusName = "Status2", StatusColor = "Red" }
+            };
+
+            _mockProjectService.Setup(x => x.GetAllStatus())
+                .ReturnsAsync(projectStatusDtos);
+
+            // Act
+            var result = await _controller.AllStatus() as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+
+            var resultValue = result.Value as List<ProjectStatusDTO>;
+            Assert.IsNotNull(resultValue);
+            Assert.AreEqual(projectStatusDtos.Count, resultValue.Count);
+            // Kiểm tra các thuộc tính của ProjectStatusDTO nếu cần thiết
+            Assert.AreEqual(projectStatusDtos[0].StatusName, resultValue[0].StatusName);
+            Assert.AreEqual(projectStatusDtos[1].StatusColor, resultValue[1].StatusColor);
+        }
+
+
+        #endregion
     }
 }

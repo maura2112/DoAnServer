@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Extensions;
 using Application.IServices;
 using Application.Services;
 using AutoMapper;
@@ -27,6 +28,7 @@ namespace UnitTestProject.Service
         private Mock<ICurrentUserService> _currentUserServiceMock;
         private Mock<IAddressRepository> _addressRepositoryMock;
         private Mock<IStatusRepository> _statusRepositoryMock;
+        private  PaginationService<ProjectDTO> _paginationServiceMock;
 
         [SetUp]
         public void Setup()
@@ -39,6 +41,8 @@ namespace UnitTestProject.Service
             _currentUserServiceMock = new Mock<ICurrentUserService>();
             _addressRepositoryMock = new Mock<IAddressRepository>();
             _statusRepositoryMock = new Mock<IStatusRepository>();
+            _paginationServiceMock = new PaginationService<ProjectDTO>();
+
 
             _projectService = new ProjectService(
                 _mapperMock.Object,
@@ -49,7 +53,8 @@ namespace UnitTestProject.Service
                 _projectSkillRepositoryMock.Object,
                 _currentUserServiceMock.Object,
                 _addressRepositoryMock.Object,
-                _statusRepositoryMock.Object
+                _statusRepositoryMock.Object,
+                _paginationServiceMock
             );
         }
         #region Add Project

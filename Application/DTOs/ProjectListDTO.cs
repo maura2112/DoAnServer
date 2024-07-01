@@ -9,5 +9,7 @@ namespace Application.DTOs
     public class ProjectListDTO : SearchDTO
     {
         public int UserId { get; set; } 
+
+        public int? StatusId { get; set; }
     }
 }

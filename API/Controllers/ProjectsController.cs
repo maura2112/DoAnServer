@@ -91,6 +91,7 @@ namespace API.Controllers
         }
 
 
+
         [HttpPost]
         [Route(Common.Url.Project.Filter)]
         public async Task<IActionResult> Filter(ProjectFilter projects)
@@ -148,11 +149,16 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Domain.Entities.Project, bool>> filter = null;
-            if (projects != null)
+            var filter = PredicateBuilder.True<Domain.Entities.Project>();
+            var userid =  _currentUserService.UserId;
+
+            filter = filter.And(item => item.CreatedBy == userid);
+
+            if (projects.StatusId != null)
             {
-                filter = item => item.CreatedBy == projects.UserId;
+                filter = filter.And(item => item.StatusId == projects.StatusId);
             }
+
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }
 

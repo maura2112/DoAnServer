@@ -18,6 +18,8 @@ namespace Domain.Entities
 
         public int Budget { get; set; }
 
+        public bool? IsCompleted { get; set; }
+
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public DateTime? AcceptedDate { get; set; }

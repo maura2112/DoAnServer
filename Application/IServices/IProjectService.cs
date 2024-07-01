@@ -29,6 +29,7 @@ namespace Application.IServices
 
         Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
 
+
         Task<ProjectDTO> GetDetailProjectById(int id);
 
         Task<ProjectDTO> Add(AddProjectDTO request);

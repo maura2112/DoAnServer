@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace API.Utilities
+namespace API.Common
 {
     public static class PredicateBuilder
     {

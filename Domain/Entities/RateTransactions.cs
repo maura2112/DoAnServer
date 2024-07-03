@@ -10,16 +10,20 @@ namespace Domain.Entities
 {
     public class RateTransaction :BaseEntity
     {
-        [ForeignKey("Project")]
-        public int? ProjectId { get; set; }
+        [ForeignKey("UserProject")]
+        public int? ProjectUserId { get; set; }
 
-        public DateTime? AcceptedDate { get; set; }
-        [ForeignKey("Bid")]
-        public long? BidId { get; set; }
-        public DateTime? CompletedDate { get; set; }
-        public DateTime? TransactionCompletedDate { get; set; }
-        public virtual Bid? Bid { get; set; }
-        public virtual Project? Project { get; set; }
+        public DateTime? ProjectAcceptedDate { get; set; }
+
+        [ForeignKey("UserBid")]
+        public int? BidUserId { get; set; }
+
+        public DateTime? BidCompletedDate { get; set; }
+
+        public bool? Rated { get; set; }
+
+        public virtual AppUser? UserProject { get; set; }
+        public virtual AppUser? UserBid { get; set; }
 
     }
 }

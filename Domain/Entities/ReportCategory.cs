@@ -11,6 +11,8 @@ namespace Domain.Entities
     {
         public string Name { get; set; }
         public string Description { get; set; }
+
+        public string? ReportCode { get; set; }
         public virtual ICollection<UserReport> UserReports { get; set; }
     }
 }

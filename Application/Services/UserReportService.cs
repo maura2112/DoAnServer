@@ -35,7 +35,7 @@ namespace Application.Services
             _bidService = bidService;
         }
 
-        public async Task CreateReport(ReportDTO dto)
+        public async Task CreateReport(ReportCreateDTO dto)
         {
             var userReport = _mapper.Map<UserReport>(dto);
             userReport.CreatedDate = DateTime.Now;

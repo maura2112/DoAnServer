@@ -10,6 +10,7 @@ using Application.Services;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.Xml;
 using Infrastructure.Services;
+using API.Hubs;
 
 namespace API
 {
@@ -59,6 +60,7 @@ namespace API
             builder.Services.AddTransient<RouteMiddleware>();
             builder.Services.AddAutoMapper(typeof(MapProfile));
             builder.Services.AddDbContext<ApplicationDbContext>(opt => builder.Configuration.GetConnectionString("DefaultConnection"));
+            builder.Services.AddSignalR();
 
             builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
             {
@@ -79,6 +81,7 @@ namespace API
             app.UseSwaggerUI();
             app.UseMiddleware<RouteMiddleware>();
             app.UseHttpsRedirection();
+            app.MapHub<ChatHub>("/chat");
 
             app.UseAuthorization();
 

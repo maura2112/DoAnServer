@@ -66,7 +66,9 @@ public static class DependencyInjection
         //Project
         services.AddScoped<IAppUserService, AppUserService>();
         services.AddScoped<IAppUserRepository, AppUserRepository>();
-
+        //Notification
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         //Bid
         services.AddScoped<IBidRepository, BidRepository>();
         services.AddScoped<IBidService, BidService>();

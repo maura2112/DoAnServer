@@ -1,11 +1,15 @@
-﻿using Application.DTOs;
+﻿using API.Hubs;
+using Application.DTOs;
 using Application.IServices;
 using Application.Services;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static API.Common.Url;
 
@@ -14,20 +18,30 @@ namespace API.Controllers
     
     public class BidController : ApiControllerBase
     {
+        private ApplicationDbContext _context = new ApplicationDbContext();
+        private readonly IHubContext<ChatHub> _chatHubContext;
+
         private readonly IBidService _bidService;
         private readonly IBidRepository _bidRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IAppUserRepository _appUserRepository;
+        private readonly INotificationService _notificationService;
+        private readonly INotificationRepository _notificationRepository;
 
 
-        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser, IProjectRepository projectRepository, IAppUserRepository appUserRepository)
+        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser, 
+            IProjectRepository projectRepository, IAppUserRepository appUserRepository, 
+            INotificationService notificationService, IHubContext<ChatHub> chatHubContext, INotificationRepository notificationRepository)
         {
             _bidService = bidService;
             _bidRepository = bidRepository;
             _currentUserService = currentUser;
             _projectRepository = projectRepository;
             _appUserRepository = appUserRepository;
+            _notificationService = notificationService;
+            _chatHubContext = chatHubContext;
+            _notificationRepository = notificationRepository;
         }
 
         [HttpGet]
@@ -141,12 +155,44 @@ namespace API.Controllers
                             Message = "Bạn vừa tạo đấu thầu thành công",
                             Data = bid
                         };
-                        return Ok(new
+
+                        NotificationDto notificationDto = new NotificationDto() {
+                            NotificationId = await _notificationRepository.GetNotificationMax() +1,
+                            SendId = userId,                  
+                            SendUserName = bid.AppUser.Name,
+                            ProjectName = bid.Project.Title,
+                            RecieveId = bid.Project.CreatedBy,
+                            Description = "đã đấu thầu dự án của bạn .",
+                            Datetime = DateTime.Now,
+                            NotificationType = 1,
+                            IsRead = 0,
+                            Link = "details/"+bid.ProjectId
+                        };
+
+                            bool x = await _notificationService.AddNotification(notificationDto);
+                        if (x)
                         {
-                            success = true,
-                            message = "Bạn vừa tạo đấu thầu thành công",
-                            data = bid
-                        });
+                            var hubConnections = await _context.HubConnections
+                                .Where(con => con.userId == bid.Project.CreatedBy).ToListAsync();
+
+                            foreach (var hubConnection in hubConnections)
+                            {
+                                await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                            }
+
+                            return Ok(new
+                            {
+                                success = true,
+                                message = "Bạn vừa tạo đấu thầu thành công",
+                                data = bid
+                            });
+                        }
+                        else
+                        {
+                            return BadRequest();
+                        }
+
+                       
                     }
                     catch (Exception ex)
                     {

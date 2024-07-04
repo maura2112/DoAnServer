@@ -99,7 +99,6 @@ namespace Application.DTOs
             RuleFor(v => v.Proposal)
                 .NotEmpty().WithMessage("Đề xuất không được để trống");
             RuleFor(v => v.Proposal.Length)
-                .GreaterThan(50).WithMessage("Đề xuất không được ít hơn 50 kí tự")
                 .LessThan(1000).WithMessage("Đề xuất không được lớn hơn 1000 kí tự");
 
         }

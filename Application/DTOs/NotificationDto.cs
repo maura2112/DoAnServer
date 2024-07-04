@@ -1,13 +1,12 @@
-﻿using Domain.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities
+namespace Application.DTOs
 {
-    public class Notification 
+    public class NotificationDto
     {
         public int NotificationId { get; set; }
         public int? SendId { get; set; }
@@ -19,7 +18,5 @@ namespace Domain.Entities
         public int? NotificationType { get; set; }
         public int? IsRead { get; set; }
         public string? Link { get; set; }
-        public virtual AppUser? RecieveNavigation { get; set; }
-        public virtual AppUser? SendNavigation { get; set; }
     }
 }

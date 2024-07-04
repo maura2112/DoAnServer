@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
@@ -21,6 +22,15 @@ namespace Domain.Entities
         public virtual ICollection<MediaFile> MediaFiles  { get; set; }
         public virtual ICollection<UserReport> UserReports  { get; set; }
         public virtual ICollection<Blog> Blogs  { get; set; }
+        public virtual ICollection<Notification> RecieveNavigations { get; set; }
+        public virtual ICollection<Notification> SendNavigations { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Conversation> User1Navigations { get; set; }
+        [JsonIgnore]
+
+        public virtual ICollection<Conversation> User2Navigations { get; set; }
+        public virtual ICollection<Message> Senders { get; set; }
+
         public virtual Address? Address { get; set; } = null!;
 
         public string? Description { get; set; }

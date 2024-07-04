@@ -68,6 +68,8 @@ namespace Infrastructure.Data
         public virtual DbSet<Blog> Blogs { get; set; }
         public virtual DbSet<ReportCategory> ReportCategories { get; set; }
         public virtual DbSet<UserReport> UserReports { get; set; }
-
+        public virtual DbSet<HubConnection> HubConnections { get; set; }
+        public virtual DbSet<Conversation> Conversations { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
     }
 }

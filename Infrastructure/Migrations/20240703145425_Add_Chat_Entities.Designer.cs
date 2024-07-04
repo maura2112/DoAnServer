@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240617005724_updateDatabase")]
-    partial class updateDatabase
+    [Migration("20240703145425_Add_Chat_Entities")]
+    partial class Add_Chat_Entities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,29 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Conversation", b =>
+                {
+                    b.Property<int>("ConversationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConversationId"));
+
+                    b.Property<int?>("User1")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("User2")
+                        .HasColumnType("int");
+
+                    b.HasKey("ConversationId");
+
+                    b.HasIndex("User1");
+
+                    b.HasIndex("User2");
+
+                    b.ToTable("Conversations", (string)null);
+                });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
@@ -334,6 +357,25 @@ namespace Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Domain.Entities.HubConnection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("userId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HubConnection", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.MediaFile", b =>
                 {
                     b.Property<long>("Id")
@@ -396,31 +438,42 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("NotificationId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime?>("Datetime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("IsRead")
+                        .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NotificationType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProjectName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RecieveId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SendId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SendUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("RecieveId");
+
+                    b.HasIndex("SendId");
 
                     b.ToTable("Notifications", (string)null);
                 });
@@ -566,6 +619,49 @@ namespace Infrastructure.Migrations
                     b.ToTable("ProjectStatus", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Rating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RateToUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Star")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("Ratings");
+                });
+
             modelBuilder.Entity("Domain.Entities.RelatedBlog", b =>
                 {
                     b.Property<int>("Id")
@@ -592,6 +688,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BlogId");
+
+                    b.HasIndex("RelatedBlogId");
 
                     b.ToTable("RelatedBlogs", (string)null);
                 });
@@ -773,6 +871,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("BidId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
@@ -796,7 +897,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReportToUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -837,6 +937,44 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserSkills", (string)null);
+                });
+
+            modelBuilder.Entity("Message", b =>
+                {
+                    b.Property<int>("MessagesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessagesId"));
+
+                    b.Property<int?>("ConversationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("File")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("IsRead")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MessageText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MessageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SendDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("SenderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MessagesId");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -942,6 +1080,21 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Conversation", b =>
+                {
+                    b.HasOne("Domain.Entities.AppUser", "User1Navigation")
+                        .WithMany("User1Navigations")
+                        .HasForeignKey("User1");
+
+                    b.HasOne("Domain.Entities.AppUser", "User2Navigation")
+                        .WithMany("User2Navigations")
+                        .HasForeignKey("User2");
+
+                    b.Navigation("User1Navigation");
+
+                    b.Navigation("User2Navigation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
                     b.HasOne("Domain.Entities.AppUser", "AppUser")
@@ -1026,6 +1179,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("Domain.Entities.AppUser", "RecieveNavigation")
+                        .WithMany("RecieveNavigations")
+                        .HasForeignKey("RecieveId");
+
+                    b.HasOne("Domain.Entities.AppUser", "SendNavigation")
+                        .WithMany("SendNavigations")
+                        .HasForeignKey("SendId");
+
+                    b.Navigation("RecieveNavigation");
+
+                    b.Navigation("SendNavigation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Project", b =>
                 {
                     b.HasOne("Domain.Entities.Category", "Category")
@@ -1076,15 +1244,34 @@ namespace Infrastructure.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Rating", b =>
+                {
+                    b.HasOne("Domain.Entities.ProjectStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Status");
+                });
+
             modelBuilder.Entity("Domain.Entities.RelatedBlog", b =>
                 {
-                    b.HasOne("Domain.Entities.Blog", "Blog")
-                        .WithMany("RelatedBlogs")
+                    b.HasOne("Domain.Entities.Blog", "Blog_Related")
+                        .WithMany()
                         .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Blog", "Blog")
+                        .WithMany("RelatedBlogs")
+                        .HasForeignKey("RelatedBlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Blog");
+
+                    b.Navigation("Blog_Related");
                 });
 
             modelBuilder.Entity("Domain.Entities.Skill", b =>
@@ -1170,6 +1357,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("Message", b =>
+                {
+                    b.HasOne("Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId");
+
+                    b.HasOne("Domain.Entities.AppUser", "Sender")
+                        .WithMany("Senders")
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Domain.Entities.Role", null)
@@ -1221,6 +1423,11 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Conversation", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Address");
@@ -1232,6 +1439,16 @@ namespace Infrastructure.Migrations
                     b.Navigation("Bookmarks");
 
                     b.Navigation("MediaFiles");
+
+                    b.Navigation("RecieveNavigations");
+
+                    b.Navigation("SendNavigations");
+
+                    b.Navigation("Senders");
+
+                    b.Navigation("User1Navigations");
+
+                    b.Navigation("User2Navigations");
 
                     b.Navigation("UserProjects");
 

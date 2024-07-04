@@ -14,12 +14,16 @@ namespace Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
             builder.ToTable("Notifications");
-            builder.HasKey(c => c.Id);
-            builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(t => t.Title)
-                .HasMaxLength(1000)
-                .IsRequired();
-            builder.Property(x => x.CreatedDate).IsRequired();
+            builder.HasKey(c => c.NotificationId);
+            builder.Property(n => n.NotificationId)
+               .ValueGeneratedNever();
+            builder.Property(t => t.Description)
+                .HasMaxLength(1000);
+               
+
+            //Relationship
+            builder.HasOne(x => x.RecieveNavigation).WithMany(x => x.RecieveNavigations).HasForeignKey(x => x.RecieveId);
+            builder.HasOne(x => x.SendNavigation).WithMany(x => x.SendNavigations).HasForeignKey(x => x.SendId);
         }
     }
 }

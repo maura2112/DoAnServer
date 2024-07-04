@@ -22,7 +22,9 @@ public class MapProfile : Profile
         //UpdateProject 
         CreateMap<Project, UpdateProjectDTO>().ReverseMap();
         CreateMap<ProjectDTO, UpdateProjectDTO>().ReverseMap();
-
+        //Notification
+        CreateMap<Notification, NotificationDto>().ReverseMap();
+        CreateMap<Message, ChatDto>().ReverseMap();
 
         CreateMap<Bid, BidDTO>().ReverseMap();
         CreateMap<Pagination<Bid>, Pagination<BidDTO>>().ReverseMap();

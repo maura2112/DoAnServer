@@ -56,7 +56,7 @@ namespace Application.Services
                 reportDTO.NameCreatedBy = userReport.Result.Name;
 
                 if(report.BidId != null) {
-                    var Bid = _bidService.GetBidById((int)report.BidId);
+                    var Bid = _bidService.GetBidById((long)report.BidId);
                     var userBid = _userManager.FindByIdAsync(Bid.Result.UserId.ToString());
                     reportDTO.BidUser = userBid.Result.Name;
                 }else if(report.ProjectId != null) {

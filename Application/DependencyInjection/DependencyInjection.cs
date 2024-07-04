@@ -75,6 +75,10 @@ public static class DependencyInjection
         services.AddScoped<ISkillService, SkillService>();
         services.AddScoped<ISkillRepository, SkillRepository>();
 
+        //Rating
+        services.AddScoped<IRatingService, RatingService>();
+        services.AddScoped<IRatingRepository, RatingRepository>();
+
         //RateTransaction
         services.AddScoped<IRateTransactionService, RateTransactionService>();
         services.AddScoped<IRateTransactionRepository, RateTransactionRepository>();

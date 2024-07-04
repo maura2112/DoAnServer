@@ -13,6 +13,8 @@ namespace Domain.Entities
         [ForeignKey("UserProject")]
         public int? ProjectUserId { get; set; }
 
+        public int? ProjectId { get; set; }
+
         public DateTime? ProjectAcceptedDate { get; set; }
 
         [ForeignKey("UserBid")]

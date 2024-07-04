@@ -27,7 +27,8 @@ namespace Application.Services
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly ISkillService _skillService;
         private readonly PaginationService<UserDTO> _paginationService;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService)
+        private readonly IRatingService _ratingService;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -36,6 +37,7 @@ namespace Application.Services
             _skillService = skillService;
             _userManager = userManager;
             _paginationService = paginationService;
+            _ratingService = ratingService;
         }
 
         public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
@@ -109,8 +111,6 @@ namespace Application.Services
                     var edu = System.Text.Json.JsonSerializer.Deserialize<List<Education>>(user.Education, options);
                     userDTO.Educations = edu;
                 }
-                // quanlification
-
                 if (user.Qualifications != null)
                 {
                     var quali = System.Text.Json.JsonSerializer.Deserialize<List<Qualification>>(user.Qualifications, options);
@@ -123,6 +123,12 @@ namespace Application.Services
                 }
                    var skillDTOs = await _skillService.GetForUser(uid);
                 userDTO.skills = skillDTOs.Select(x=>x.SkillName).ToList();
+
+                var ratings = await _ratingService.GetRatingsForUser(uid);
+                if (ratings.Any())
+                {
+                    userDTO.ratings = ratings;
+                }
             }
             return userDTO;
         }

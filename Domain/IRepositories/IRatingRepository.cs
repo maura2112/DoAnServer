@@ -9,5 +9,6 @@ namespace Domain.IRepositories
 {
     public interface IRatingRepository : IGenericRepository<Rating>
     {
+        public Task<List<Rating>> Ratings(int uid);
     }
 }

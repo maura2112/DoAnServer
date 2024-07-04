@@ -27,5 +27,12 @@ namespace Application.Services
              await _repository.AddAsync(rating);
             return dto;
         }
+
+        public async Task<List<RatingDTO>> GetRatingsForUser(int uid)
+        {
+            var rating = await _repository.Ratings(uid);
+            var ratingDTO =  _mapper.Map<List<RatingDTO>>(rating);
+            return ratingDTO;
+        }
     }
 }

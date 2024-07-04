@@ -17,7 +17,7 @@ namespace Domain.Entities
 
         public int? ProjectId { get; set; }
 
-        public int? BidId { get; set; }
+        public long? BidId { get; set; }
 
         public bool IsApproved { get; set; }
         public string Description { get; set;}

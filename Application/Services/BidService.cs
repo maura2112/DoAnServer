@@ -46,7 +46,7 @@ namespace Application.Services
             _addressRepository = addressRepository;
         }
 
-        public async Task<BidDTO> GetBidById(int id)
+        public async Task<BidDTO> GetBidById(long id)
         {
             var bid = await _bidRepository.GetByIdAsync(id);
             var bidDTO = _mapper.Map<BidDTO>(bid);

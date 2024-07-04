@@ -29,6 +29,7 @@ namespace Application.DTOs
         public string? PhoneNumber { get; set; }
         public bool? PhoneNumberConfirmed { get; set; }
         public List<MediaFileDTO> mediaFiles { get; set; }
+        public List<RatingDTO>? ratings { get; set; }
 
         public List<string>? skills { get; set; }
 

@@ -69,26 +69,18 @@ namespace UnitTestProject.Controller
         {
             // Arrange
             var userId = 123; 
-            var dto = new ReportDTO
+            var dto = new ReportCreateDTO
             {
-                NameCreatedBy = "TruongBQ",
                 ReportToUrl = "https://User/User1",
                 ProjectId = 1,
                 BidId = 2,
                 CreatedBy = userId,
                 ReportCategoryId = 3,
                 Description = "Test report",
-                ReportType = "TypeA",
-                ReportName = "ReportA",
-                ProjectName = "ProjectA",
-                ProjectUser = "UserA",
-                BidName = "BidA",
-                BidUser = "UserB",
-                IsApproved = true
             };
 
             _currentUserServiceMock.SetupGet(x => x.UserId).Returns(userId);
-            _userReportServiceMock.Setup(x => x.CreateReport(It.IsAny<ReportDTO>()))
+            _userReportServiceMock.Setup(x => x.CreateReport(It.IsAny<ReportCreateDTO>()))
                 .Returns(Task.CompletedTask); 
 
             // Act

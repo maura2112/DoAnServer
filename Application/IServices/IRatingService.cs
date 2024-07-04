@@ -10,5 +10,7 @@ namespace Application.IServices
     public interface IRatingService
     {
         Task<RatingDTO> CreateRating(RatingDTO dto);
+
+        Task<List<RatingDTO>> GetRatingsForUser(int uid);
     }
 }

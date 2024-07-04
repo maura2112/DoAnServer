@@ -33,7 +33,7 @@ namespace Application.Services
             }
             var filter2 = PredicateBuilder.True<Domain.Entities.RateTransaction>();
             filter2 = filter2.And(item => item.ProjectUserId == userId2);
-            filter2 = filter2.And(item => item.BidUserId == userId2);
+            filter2 = filter2.And(item => item.BidUserId == userId1);
             filter2 = filter2.And(item => item.Rated == false || item.Rated == null);
             RateTransaction = await _repositoty.GetByFilter(filter2);
             return RateTransaction;

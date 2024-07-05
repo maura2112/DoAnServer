@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class ProjectListDTO : SearchDTO
+    public class ProjectAcceptDTO
     {
-        public int UserId { get; set; } 
-
-        public int? StatusId { get; set; }
+        public int ProjectId { get; set; }
     }
 }

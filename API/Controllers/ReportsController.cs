@@ -33,7 +33,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Report.Create)]
-        public async Task<IActionResult> CreateReport([FromForm] ReportDTO dto)
+        public async Task<IActionResult> CreateReport([FromForm] ReportCreateDTO dto)
         {
             var userId = _currentUserService.UserId;
             dto.CreatedBy = userId;

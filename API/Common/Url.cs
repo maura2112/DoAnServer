@@ -11,7 +11,7 @@
                 public const string Register = "Register";
                 public const string External = "External";
                 public const string ResetPassword = "ResetPassword";
-                public const string ResetPasswordInputCode= "ResetPasswordInputCode";
+                public const string ResetPasswordInputCode = "ResetPasswordInputCode";
                 public const string ResetNewPassword = "ResetNewPassword";
             }
             public const string Profile = "Profile";
@@ -42,6 +42,10 @@
             public const string GetAll = "GetAll";
             public const string Add = "AddCategory";
         }
+        public static class Rating
+        {
+            public const string Rate = "Rate";
+        }
         public static class Project
         {
             public const string GetAll = "GetAll";
@@ -57,6 +61,7 @@
 
             public const string AllStatus = "AllStatus";
             public const string UpdateStatus = "UpdateStatus";
+            public const string AcceptBid = "AcceptBid";
 
         }
 

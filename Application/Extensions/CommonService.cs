@@ -15,7 +15,7 @@ namespace Application.Extensions
                                     .Take(pageSize).ToList();
             var result = new Pagination<T>()
             {
-                TotalItemsCount = items.Count,
+                TotalItemsCount = itemDTO.Count,
                 Items = items,
                 PageIndex = pageIndex,
                 PageSize = pageSize

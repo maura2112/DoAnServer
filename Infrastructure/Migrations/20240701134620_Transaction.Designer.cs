@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240701134620_Transaction")]
+    partial class Transaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,29 +24,6 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Conversation", b =>
-                {
-                    b.Property<int>("ConversationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConversationId"));
-
-                    b.Property<int?>("User1")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("User2")
-                        .HasColumnType("int");
-
-                    b.HasKey("ConversationId");
-
-                    b.HasIndex("User1");
-
-                    b.HasIndex("User2");
-
-                    b.ToTable("Conversations", (string)null);
-                });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
@@ -357,25 +337,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Domain.Entities.HubConnection", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ConnectionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("userId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("HubConnection", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.MediaFile", b =>
                 {
                     b.Property<long>("Id")
@@ -438,42 +399,42 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
                 {
-                    b.Property<int>("NotificationId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("Datetime")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Link")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("IsRead")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Link")
+                    b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("NotificationType")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ProjectName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RecieveId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SendId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SendUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("NotificationId");
-
-                    b.HasIndex("RecieveId");
-
-                    b.HasIndex("SendId");
+                    b.HasKey("Id");
 
                     b.ToTable("Notifications", (string)null);
                 });
@@ -977,44 +938,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserSkills", (string)null);
                 });
 
-            modelBuilder.Entity("Message", b =>
-                {
-                    b.Property<int>("MessagesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessagesId"));
-
-                    b.Property<int?>("ConversationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("File")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("IsRead")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MessageText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("MessageType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SendDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("SenderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("MessagesId");
-
-                    b.HasIndex("ConversationId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("Messages", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -1118,21 +1041,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Conversation", b =>
-                {
-                    b.HasOne("Domain.Entities.AppUser", "User1Navigation")
-                        .WithMany("User1Navigations")
-                        .HasForeignKey("User1");
-
-                    b.HasOne("Domain.Entities.AppUser", "User2Navigation")
-                        .WithMany("User2Navigations")
-                        .HasForeignKey("User2");
-
-                    b.Navigation("User1Navigation");
-
-                    b.Navigation("User2Navigation");
-                });
-
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
                     b.HasOne("Domain.Entities.AppUser", "AppUser")
@@ -1215,21 +1123,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("MediaFolder");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("Domain.Entities.AppUser", "RecieveNavigation")
-                        .WithMany("RecieveNavigations")
-                        .HasForeignKey("RecieveId");
-
-                    b.HasOne("Domain.Entities.AppUser", "SendNavigation")
-                        .WithMany("SendNavigations")
-                        .HasForeignKey("SendId");
-
-                    b.Navigation("RecieveNavigation");
-
-                    b.Navigation("SendNavigation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Project", b =>
@@ -1410,21 +1303,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Skill");
                 });
 
-            modelBuilder.Entity("Message", b =>
-                {
-                    b.HasOne("Conversation", "Conversation")
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationId");
-
-                    b.HasOne("Domain.Entities.AppUser", "Sender")
-                        .WithMany("Senders")
-                        .HasForeignKey("SenderId");
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("Sender");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Domain.Entities.Role", null)
@@ -1476,11 +1354,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Conversation", b =>
-                {
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Address");
@@ -1492,16 +1365,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Bookmarks");
 
                     b.Navigation("MediaFiles");
-
-                    b.Navigation("RecieveNavigations");
-
-                    b.Navigation("SendNavigations");
-
-                    b.Navigation("Senders");
-
-                    b.Navigation("User1Navigations");
-
-                    b.Navigation("User2Navigations");
 
                     b.Navigation("UserProjects");
 

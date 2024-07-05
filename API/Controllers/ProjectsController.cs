@@ -20,13 +20,14 @@ namespace API.Controllers
         private readonly ICurrentUserService _currentUserService;
         private readonly ISkillService _skillService;
         private readonly IProjectRepository _projectRepository;
-        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository)
+        private readonly IBidRepository _bidRepository;
+        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository, IBidRepository bidRepository)
         {
             _projectService = projectService;
             _currentUserService = currentUserService;
             _skillService = skillService;
             _projectRepository = projectRepository;
-
+            _bidRepository = bidRepository;
         }
 
         [HttpGet]
@@ -91,6 +92,32 @@ namespace API.Controllers
         }
 
 
+        [HttpGet]
+        [Route(Common.Url.Project.AcceptBid)]
+        public async Task<IActionResult> AcceptBid(int bidid)
+        {
+            var userId = _currentUserService.UserId;
+            var bid = await _bidRepository.GetByIdAsync(bidid);
+            if (bid == null)
+            {
+                return BadRequest("Không có dự thầu");
+            }
+            var project = await _projectRepository.GetByIdAsync(bid.ProjectId);
+            if (project.CreatedBy != userId || project.StatusId != (int)Application.Common.ProjectStatus.StatusId.Open)
+            {
+                return BadRequest("Bạn không thể chấp nhận dự thầu này");
+            }
+            bid.AcceptedDate = DateTime.Now;
+            bid.UpdatedDate = DateTime.Now;
+            _bidRepository.Update(bid);
+            project.StatusId =(int) Application.Common.ProjectStatus.StatusId.Close; //
+            _projectRepository.Update(project);
+            var projectDTO = await _projectService.GetDetailProjectById(project.Id);
+            return Ok(projectDTO);
+        }
+
+
+
         [HttpPost]
         [Route(Common.Url.Project.Filter)]
         public async Task<IActionResult> Filter(ProjectFilter projects)
@@ -148,11 +175,16 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Domain.Entities.Project, bool>> filter = null;
-            if (projects != null)
+            var filter = PredicateBuilder.True<Domain.Entities.Project>();
+            var userid =  _currentUserService.UserId;
+
+            filter = filter.And(item => item.CreatedBy == userid);
+
+            if (projects.StatusId != null)
             {
-                filter = item => item.CreatedBy == projects.UserId;
+                filter = filter.And(item => item.StatusId == projects.StatusId);
             }
+
             return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
         }
 

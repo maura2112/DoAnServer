@@ -18,15 +18,14 @@ namespace Domain.Entities
 
         public int RateToUserId { get; set; }
 
+        [ForeignKey("RateTransaction")]
+        public int RateTransactionId{ get; set; }
+
+        public virtual RateTransaction? RateTransaction { get; set; }
+
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
 
-
-        public bool? IsDelete { get; set; }
-
-        [ForeignKey("Status")]
-        public int StatusId { get; set; }
-        public ProjectStatus Status { get; set; }
     }
 }

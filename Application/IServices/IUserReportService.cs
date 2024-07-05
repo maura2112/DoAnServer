@@ -10,7 +10,7 @@ namespace Application.IServices
 {
     public interface IUserReportService
     {
-        public Task CreateReport(ReportDTO dto);
+        public Task CreateReport(ReportCreateDTO dto);
         public Task<Pagination<ReportDTO>> GetReports(ReportSearchDTO searchDTO);
         Task<bool> ApproveReport(int id);
     }

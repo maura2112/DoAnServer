@@ -52,7 +52,9 @@ namespace Application.Services
             }
             if(userSearch.search != null)
             {
-                users = users.Where(x=>x.Name.ToLower().Contains(userSearch.search.ToLower()) || x.Description.ToLower().Contains(userSearch.search.ToLower())).ToList();
+                users = users.Where(x => (x.Name != null && x.Name.ToLower().Contains(userSearch.search.ToLower())) ||
+                         (x.Description != null && x.Description.ToLower().Contains(userSearch.search.ToLower())))
+             .ToList();
             }
             if (userSearch.email != null)
             {
@@ -60,7 +62,11 @@ namespace Application.Services
             }
             if (userSearch.phone != null)
             {
-                users = users.Where(x => x.PhoneNumber.ToLower().Contains(userSearch.email.ToLower())).ToList();
+                users = users.Where(x => x.PhoneNumber != null).ToList();
+                if(users.Count > 0)
+                {
+                    users = users.Where(x => x.PhoneNumber.ToLower().Contains(userSearch.phone.ToLower())).ToList();
+                }
             }
 
             var userDTOS = users.Select(user =>

@@ -1,4 +1,5 @@
-﻿/*using API.Controllers;
+﻿using API.Controllers;
+using API.Hubs;
 using Application.DTOs;
 using Application.IServices;
 using Domain.Common;
@@ -6,6 +7,7 @@ using Domain.Entities;
 using Domain.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,9 @@ namespace UnitTestProject.Controller
         private Mock<IBidRepository> _mockBidRepository;
         private Mock<IProjectRepository> _mockProjectRepository;
         private Mock<IAppUserRepository> _mockAppUserRepository;
+        private Mock<INotificationService>  _mockNotificationService;
+        private Mock<INotificationRepository>  _mockNotificationRepository;
+        private Mock<IHubContext<ChatHub>> _mockChatHubContext;
 
         [SetUp]
         public void Setup()
@@ -34,13 +39,20 @@ namespace UnitTestProject.Controller
             _mockBidRepository = new Mock<IBidRepository>();
             _mockProjectRepository = new Mock<IProjectRepository>();
             _mockAppUserRepository = new Mock<IAppUserRepository>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockNotificationRepository = new Mock<INotificationRepository>();
+        
 
-            _bidController = new BidController(
+        _bidController = new BidController(
                 _mockBidService.Object,
                 _mockBidRepository.Object,
                 _mockCurrentUserService.Object,
                 _mockProjectRepository.Object,
-                _mockAppUserRepository.Object
+                _mockAppUserRepository.Object,
+                _mockNotificationService.Object,
+                _mockChatHubContext.Object,
+                _mockNotificationRepository.Object
+                
             );
         }
         #region Get List Bid By UserId
@@ -301,7 +313,7 @@ namespace UnitTestProject.Controller
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
 
-            
+
         }
 
 
@@ -473,7 +485,7 @@ namespace UnitTestProject.Controller
             _mockBidRepository.Setup(repo => repo.GetByIdAsync(existingBid.Id))
                               .ReturnsAsync(existingBid); // Simulate existing bid
 
-            
+
 
             var dto = new BidDTO
             {
@@ -504,4 +516,3 @@ namespace UnitTestProject.Controller
 
     }
 }
-*/

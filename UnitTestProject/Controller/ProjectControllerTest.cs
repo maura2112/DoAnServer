@@ -10,6 +10,7 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Linq.Expressions;
+using ProjectStatus = Domain.Entities.ProjectStatus;
 
 namespace UnitTestProject.Controller
 {
@@ -20,6 +21,7 @@ namespace UnitTestProject.Controller
         private Mock<ICurrentUserService> _mockCurrentUserService;
         private Mock<ISkillService> _mockSkillService;
         private Mock<IProjectRepository> _mockProjectRepository;
+        private Mock<IBidRepository> _mockBidRepository;
         private ProjectsController _controller;
 
         [SetUp]
@@ -29,12 +31,14 @@ namespace UnitTestProject.Controller
             _mockCurrentUserService = new Mock<ICurrentUserService>();
             _mockSkillService = new Mock<ISkillService>();
             _mockProjectRepository = new Mock<IProjectRepository>();
+            _mockBidRepository = new Mock<IBidRepository>();
 
             _controller = new ProjectsController(
                 _mockProjectService.Object,
                 _mockCurrentUserService.Object,
                 _mockSkillService.Object,
-                _mockProjectRepository.Object
+                _mockProjectRepository.Object,
+                _mockBidRepository.Object
             );
         }
         #region GetAll
@@ -874,6 +878,72 @@ namespace UnitTestProject.Controller
             // Kiểm tra các thuộc tính của ProjectStatusDTO nếu cần thiết
             Assert.AreEqual(projectStatusDtos[0].StatusName, resultValue[0].StatusName);
             Assert.AreEqual(projectStatusDtos[1].StatusColor, resultValue[1].StatusColor);
+        }
+
+
+        #endregion
+        #region Accept Bid
+        [Test]
+        public async Task AcceptBid_ValidBidId_ReturnsOk()
+        {
+            // Arrange
+            var userId = 1;
+            var bidId = 1;
+            var projectId = 1;
+            var openStatusId = 1; 
+
+            var bid = new Bid { Id = bidId, ProjectId = projectId };
+            var project = new Project { Id = projectId, CreatedBy = userId, StatusId = openStatusId };
+            var projectDTO = new ProjectDTO { Id = project.Id };
+
+            _mockCurrentUserService.Setup(x => x.UserId).Returns(userId);
+            _mockBidRepository.Setup(x => x.GetByIdAsync(bidId)).ReturnsAsync(bid);
+            _mockProjectRepository.Setup(x => x.GetByIdAsync(projectId)).ReturnsAsync(project);
+            _mockProjectService.Setup(x => x.GetDetailProjectById(projectId)).ReturnsAsync(projectDTO);
+
+            // Act
+            var result = await _controller.AcceptBid(bidId);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            
+        }
+
+        [Test]
+        public async Task AcceptBid_InvalidBidId_ReturnsBadRequest()
+        {
+            // Arrange
+            var bidId = 999; 
+
+            _mockBidRepository.Setup(x => x.GetByIdAsync(bidId)).ReturnsAsync((Bid)null); // Simulate bid not found
+
+            // Act
+            var result = await _controller.AcceptBid(bidId);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+        [Test]
+        public async Task AcceptBid_UnauthorizedUser_ReturnsBadRequest()
+        {
+            // Arrange
+            var userId = 1;
+            var bidId = 1;
+            var projectId = 1;
+
+            var bid = new Bid { Id = bidId, ProjectId = projectId };
+            var project = new Project { Id = projectId, CreatedBy = 2, StatusId = 1 };
+
+            _mockCurrentUserService.Setup(x => x.UserId).Returns(userId);
+            _mockBidRepository.Setup(x => x.GetByIdAsync(bidId)).ReturnsAsync(bid);
+            _mockProjectRepository.Setup(x => x.GetByIdAsync(projectId)).ReturnsAsync(project);
+
+            // Act
+            var result = await _controller.AcceptBid(bidId);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
         }
 
 

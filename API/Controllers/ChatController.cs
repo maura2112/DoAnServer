@@ -60,14 +60,7 @@ namespace API.Controllers
 
             if (existingConversation != null)
             {
-                return Ok(new
-                {
-                    ConversationId = existingConversation.ConversationId,
-                    user1 = existingConversation.User1,
-                    user2 = existingConversation.User2,
-                    User1Name = existingConversation.User1Navigation.Name,
-                    User2Name = existingConversation.User2Navigation.Name,
-                });
+                return Ok(existingConversation.ConversationId);
             }
 
             var conversation = new Conversation()
@@ -79,14 +72,7 @@ namespace API.Controllers
             await _context.AddAsync(conversation);
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                ConversationId = conversation.ConversationId,
-                user1 = conversation.User1,
-                user2 = conversation.User2,
-                User1Name = conversation.User1Navigation.Name,
-                User2Name = conversation.User2Navigation.Name,
-            });
+            return Ok( conversation.ConversationId);
         }
 
         [HttpGet("Info/{userId}")]

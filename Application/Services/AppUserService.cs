@@ -28,7 +28,9 @@ namespace Application.Services
         private readonly ISkillService _skillService;
         private readonly PaginationService<UserDTO> _paginationService;
         private readonly IRatingService _ratingService;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService)
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IRateTransactionService _transactionService;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -38,6 +40,8 @@ namespace Application.Services
             _userManager = userManager;
             _paginationService = paginationService;
             _ratingService = ratingService;
+            _currentUserService = currentUserService;
+            _transactionService = transactionService;
         }
 
         public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
@@ -128,6 +132,15 @@ namespace Application.Services
                 if (ratings.Any())
                 {
                     userDTO.ratings = ratings;
+                }
+                var userId = _currentUserService.UserId;
+                if(userId != user.Id)
+                {
+                    var transaction = await _transactionService.GetRateTransactionByUsers(userId, user.Id);
+                    if(transaction != null)
+                    {
+                        userDTO.IsRated = true;
+                    }
                 }
             }
             return userDTO;

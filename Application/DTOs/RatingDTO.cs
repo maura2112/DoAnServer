@@ -9,6 +9,7 @@ namespace Application.DTOs
 {
     public class RatingDTO
     {
+        public int Id { get; set; } 
         public int? UserId { get; set; }
         public string Comment { get; set; }
 
@@ -18,6 +19,8 @@ namespace Application.DTOs
         public int? ProjectId { get; set; }
 
         public string? ProjectName { get; set; }
+
+        public string? UserRate { get; set; }
 
         public List<string>? SkillOfProject { get; set; }
 

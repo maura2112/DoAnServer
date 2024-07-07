@@ -47,6 +47,7 @@ namespace API.Controllers
         [Route(Common.Url.User.GetUser)]
         public async Task<IActionResult> GetUser(int uid)
         {
+            var userId = _currentUserService.UserId;
             var userDtos = await _appUserService.GetUserDTOAsync(uid);
             return (Ok(userDtos));
         }

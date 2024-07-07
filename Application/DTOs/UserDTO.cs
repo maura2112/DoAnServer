@@ -33,6 +33,8 @@ namespace Application.DTOs
 
         public List<string>? skills { get; set; }
 
+        public bool? IsRated { get; set; }
+
         public AddressDTO Address { get; set; }
 
     }

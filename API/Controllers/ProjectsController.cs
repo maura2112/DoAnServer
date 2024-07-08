@@ -116,6 +116,16 @@ namespace API.Controllers
             return Ok(projectDTO);
         }
 
+        [HttpGet]
+        [Route(Common.Url.Project.GetByStatus)]
+        public async Task<IActionResult> GetByStatus([FromQuery] ProjectStatusFilter statusFilter)
+        {
+            var userId = _currentUserService.UserId;
+            statusFilter.userId = userId;
+            var result = await _projectService.GetByStatus(statusFilter);
+            return Ok(result);
+        }
+
 
 
         [HttpPost]

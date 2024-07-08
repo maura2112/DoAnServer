@@ -62,6 +62,7 @@
             public const string AllStatus = "AllStatus";
             public const string UpdateStatus = "UpdateStatus";
             public const string AcceptBid = "AcceptBid";
+            public const string GetByStatus = "GetByStatus";
 
         }
 

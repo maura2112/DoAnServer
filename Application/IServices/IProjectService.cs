@@ -25,6 +25,8 @@ namespace Application.IServices
 
         Task<ProjectDTO> UpdateProjectStatus(int statusId, int projectId);
 
+        Task<Pagination<ProjectBidDTO>> GetByStatus(ProjectStatusFilter search);
+
         Task<List<ProjectStatusDTO>> GetAllStatus();
 
         Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);

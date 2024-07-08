@@ -20,6 +20,9 @@ namespace Application.DTOs
         public string? Description { get; set; }
         public bool? EmailConfirmed { get; set; }
 
+        public int TotalProject { get; set; }
+        public int  TotalBid { get; set; }
+
         public DateTime? LockoutEnd { get; set; }
 
         public bool? LockoutEnabled { get; set; }

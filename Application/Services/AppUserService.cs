@@ -1,10 +1,12 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -30,7 +32,9 @@ namespace Application.Services
         private readonly IRatingService _ratingService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IRateTransactionService _transactionService;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService)
+        private readonly IProjectRepository _projectRepository;
+        private readonly IBidRepository _bidRepository;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository)
         {
             _repository = repository;
             _mapper = mapper;
@@ -42,6 +46,8 @@ namespace Application.Services
             _ratingService = ratingService;
             _currentUserService = currentUserService;
             _transactionService = transactionService;
+            _projectRepository = projectRepository;
+            _bidRepository = bidRepository;
         }
 
         public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
@@ -75,17 +81,32 @@ namespace Application.Services
                 }
             }
 
-            var userDTOS = users.Select(user =>
+            var userDTOS = users.Select( user =>
             {
-                var userDTO = _mapper.Map<UserDTO>(user);
-                if(userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled != true) {
-                    userDTO.IsLock =true;
-                }
-                var skillDTOs =  _skillService.GetForUser(user.Id);
-                userDTO.skills = skillDTOs.Result.Select(x => x.SkillName).ToList();
-                return userDTO;
+                var userDTO = ProcessUserDto(user);
+                return userDTO.Result;
             }).ToList();
             return await _paginationService.ToPagination(userDTOS, userSearch.PageIndex, userSearch.PageSize);
+        }
+
+        public async Task<UserDTO> ProcessUserDto(AppUser user)
+        {
+            var userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled != true)
+            {
+                userDTO.IsLock = true;
+            }
+            var filter = PredicateBuilder.True<Domain.Entities.Project>();
+            filter = filter.And(item => item.CreatedBy == userDTO.Id);
+
+            var filter2 = PredicateBuilder.True<Domain.Entities.Bid>();
+            filter2 = filter2.And(item => item.UserId == userDTO.Id);
+
+            userDTO.TotalProject = await _projectRepository.CountAsync(filter);
+            userDTO.TotalBid = await _bidRepository.CountAsync(filter2);
+            var skillDTOs = _skillService.GetForUser(userDTO.Id);
+            userDTO.skills = skillDTOs.Result.Select(x => x.SkillName).ToList();
+            return userDTO;
         }
 
         public async Task<UserDTO> GetUserDTOAsync(int uid)

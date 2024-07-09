@@ -102,21 +102,21 @@ namespace API.Controllers
           .Include(c => c.User2Navigation)
           .FirstOrDefaultAsync(c => c.ConversationId == chatDto.ConversationId);
 
-            var hubConnections = await _context.HubConnections.Where(con => con.userId == conversation.User1Navigation.Id).ToListAsync();
-            foreach (var hubConnection in hubConnections)
+            if(chatDto.SenderId == conversation.User1Navigation.Id)
             {
-                await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", message);
-            }
-
-            var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == conversation.User2Navigation.Id).ToListAsync();
-            foreach (var hubConnection in hubConnectionsd)
+                var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == conversation.User2Navigation.Id).ToListAsync();
+                foreach (var hubConnection in hubConnectionsd)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", message);
+                }
+            }else
             {
-                await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", message);
+                var hubConnections = await _context.HubConnections.Where(con => con.userId == conversation.User1Navigation.Id).ToListAsync();
+                foreach (var hubConnection in hubConnections)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", message);
+                }
             }
-
-
-            
-
             return Ok();
         }
 

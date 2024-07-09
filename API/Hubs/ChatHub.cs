@@ -9,7 +9,7 @@ namespace API.Hubs
     public class ChatHub : Hub
     {
         private ApplicationDbContext _context = new ApplicationDbContext();
-       
+
         public override Task OnConnectedAsync()
         {
             Clients.Caller.SendAsync("OnConnected");
@@ -35,14 +35,8 @@ namespace API.Hubs
 
             if (hubConnection != null)
             {
-                var userId = hubConnection.userId;
-
-                if (userId != null)
-                {
-                    var hubConnections = await _context.HubConnections.Where(con => con.userId == userId).ToListAsync();
-                    _context.HubConnections.RemoveRange(hubConnections);
-                    await _context.SaveChangesAsync();
-                }
+                _context.HubConnections.Remove(hubConnection);
+                await _context.SaveChangesAsync();
             }
 
             await base.OnDisconnectedAsync(exception);

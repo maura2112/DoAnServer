@@ -50,15 +50,17 @@ namespace Infrastructure.Repositories
 
         public async Task<Pagination<Project>> ProjectToPagination(int pageIndex, int pageSize)
         {
-            var itemCount = await _context.Projects.CountAsync();
-            var items = await _context.Projects.Skip((pageIndex - 1) * pageSize)
+            
+            var items = await _context.Projects
+                .Where(x => x.IsDeleted == false && x.StatusId == 2)
                 .AsNoTracking()
-                .Where(x=>x.IsDeleted==false && x.StatusId == 2)
                 .ToListAsync();
+            var totalItem = items.Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize).ToList();
             var result = new Pagination<Project>()
             {
-                TotalItemsCount = itemCount,
-                Items = items,
+                TotalItemsCount = items.Count(),
+                Items = totalItem,
                 PageIndex = pageIndex,
                 PageSize = pageSize
             };
@@ -72,7 +74,7 @@ namespace Infrastructure.Repositories
                 .Where(x => x.IsDeleted == false && x.StatusId == 2)
                 .AsNoTracking()
                 .ToListAsync();
-            var totalItem = items.Skip((pageIndex - 1) * pageSize).ToList();
+            var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
             var result = new Pagination<Project>()
             {
                 PageSize = pageSize,
@@ -84,14 +86,6 @@ namespace Infrastructure.Repositories
             return result;
         }
 
-
-        public async Task<List<Project>> ProjectGetAll()
-        {
-            var items = await _dbSet
-                .AsNoTracking()
-                .Where(x => x.IsDeleted == false && x.StatusId == 2)
-                .ToListAsync();
-            return items;
-        }
+        
     }
 }

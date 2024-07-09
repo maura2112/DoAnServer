@@ -18,6 +18,6 @@ namespace Domain.IRepositories
             Expression<Func<Project, bool>> filter,
             int pageIndex,
             int pageSize);
-        public Task<List<Project>> ProjectGetAll();
+       
     }
 }

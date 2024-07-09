@@ -30,7 +30,7 @@ namespace Application.IServices
         Task<List<ProjectStatusDTO>> GetAllStatus();
 
         Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
-
+        Task<Pagination<ProjectDTO>> GetWithFilterRecruiter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
 
         Task<ProjectDTO> GetDetailProjectById(int id);
 

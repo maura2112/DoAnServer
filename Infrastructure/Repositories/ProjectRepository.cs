@@ -83,6 +83,7 @@ namespace Infrastructure.Repositories
             return result;
         }
 
+
         public async Task<List<Project>> ProjectGetAll()
         {
             var items = await _dbSet

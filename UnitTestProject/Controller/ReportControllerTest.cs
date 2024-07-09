@@ -72,17 +72,13 @@ namespace UnitTestProject.Controller
             var dto = new ReportCreateDTO
             {
                 ReportToUrl = "https://User/User1",
-                ProjectId = 1,
-                BidId = 2,
                 CreatedBy = userId,
                 ReportCategoryId = 3,
                 Description = "Test report",
             };
-
             _currentUserServiceMock.SetupGet(x => x.UserId).Returns(userId);
             _userReportServiceMock.Setup(x => x.CreateReport(It.IsAny<ReportCreateDTO>()))
                 .Returns(Task.CompletedTask); 
-
             // Act
             var result = await _controller.CreateReport(dto) as OkObjectResult;
 

@@ -20,6 +20,7 @@ namespace Application.DTOs
         public int? MinBudget { get; set; }
         public int? MaxBudget { get; set; }
         public int? CategoryId { get; set; }
+        public bool? IsDeleted { get; set; }
 
         public DateTime? CreatedFrom { get; set; }
         public DateTime? CreatedTo { get; set; }

@@ -194,8 +194,7 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.StatusId == projects.StatusId);
             }
-
-            return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
+            return Ok(await _projectService.GetWithFilterRecruiter(filter, projects.PageIndex, projects.PageSize));
         }
 
         [HttpGet]

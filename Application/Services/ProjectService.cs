@@ -427,7 +427,7 @@ namespace Application.Services
                         join p in _context.Projects on b.ProjectId equals p.Id 
                         join s in _context.ProjectStatus on p.StatusId equals s.Id
                         join u in _context.Users on p.CreatedBy equals u.Id
-                        where b.UserId == search.userId 
+                        where b.UserId == 26
                         select new ProjectBidDTO
                         {
                             ProjectName = p.Title,

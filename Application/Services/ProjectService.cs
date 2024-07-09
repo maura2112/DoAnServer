@@ -139,7 +139,7 @@ namespace Application.Services
 
         public async Task<Pagination<ProjectDTO>> Get(int pageIndex, int pageSize)
         {
-            var projects = await _projectRepository.ToPagination(pageIndex, pageSize);
+            var projects = await _projectRepository.ProjectToPagination(pageIndex, pageSize);
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
             var updatedItems = new List<ProjectDTO>();
 
@@ -310,7 +310,7 @@ namespace Application.Services
 
         public async Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
         {
-            var projects = await _projectRepository.GetAsync(filter, pageIndex, pageSize);
+            var projects = await _projectRepository.ProjectGetAsync(filter, pageIndex, pageSize);
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
             var updatedItems = new List<ProjectDTO>();
 

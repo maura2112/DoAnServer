@@ -6,8 +6,10 @@ using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Common;
 
 namespace Infrastructure.Repositories
 {
@@ -41,12 +43,53 @@ namespace Infrastructure.Repositories
                 return 0;
             }
         }
-
-
-
         public async Task<int> GetTotalBids(int projectId)
         {
             return await _context.Bids.Where(x => x.ProjectId == projectId).CountAsync();
+        }
+
+        public async Task<Pagination<Project>> ProjectToPagination(int pageIndex, int pageSize)
+        {
+            var itemCount = await _context.Projects.CountAsync();
+            var items = await _context.Projects.Skip((pageIndex - 1) * pageSize)
+                .AsNoTracking()
+                .Where(x=>x.IsDeleted==false && x.StatusId == 2)
+                .ToListAsync();
+            var result = new Pagination<Project>()
+            {
+                TotalItemsCount = itemCount,
+                Items = items,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
+
+            return result;
+        }
+
+        public async Task<Pagination<Project>> ProjectGetAsync(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
+        {
+            var items = await _dbSet.Where(filter)
+                .AsNoTracking()
+                .ToListAsync();
+            var totalItem = items.Skip((pageIndex - 1) * pageSize).Where(x => x.IsDeleted == false && x.StatusId == 2).ToList();
+            var result = new Pagination<Project>()
+            {
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                TotalItemsCount = items.Count(),
+                Items = totalItem,
+            };
+
+            return result;
+        }
+
+        public async Task<List<Project>> ProjectGetAll()
+        {
+            var items = await _dbSet
+                .AsNoTracking()
+                .Where(x => x.IsDeleted == false && x.StatusId == 2)
+                .ToListAsync();
+            return items;
         }
     }
 }

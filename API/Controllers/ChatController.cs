@@ -43,12 +43,12 @@ namespace API.Controllers
         }
 
         [HttpPost("AddConversation/{user1}/{user2}")]
-        public async Task<IActionResult> CreateConversation(int user1 ,int user2)
+        public async Task<IActionResult> CreateConversation(int user1, int user2)
         {
             AppUser u1 = await _context.Users.FirstOrDefaultAsync(x => x.Id == user1);
             AppUser u2 = await _context.Users.FirstOrDefaultAsync(x => x.Id == user2);
 
-            if(u1 == null || u2 == null)
+            if (u1 == null || u2 == null)
             {
                 return BadRequest();
             }
@@ -72,7 +72,7 @@ namespace API.Controllers
             await _context.AddAsync(conversation);
             await _context.SaveChangesAsync();
 
-            return Ok( conversation.ConversationId);
+            return Ok(conversation.ConversationId);
         }
 
         [HttpGet("Info/{userId}")]
@@ -90,7 +90,7 @@ namespace API.Controllers
         [HttpPost("SendMessage")]
         public async Task<IActionResult> SendMessage(ChatDto chatDto)
         {
-            Message message= _mapper.Map<Message>(chatDto);
+            Message message = _mapper.Map<Message>(chatDto);
             message.SendDate = DateTime.Now;
             message.IsRead = 0;
 
@@ -101,22 +101,39 @@ namespace API.Controllers
           .Include(c => c.User1Navigation)
           .Include(c => c.User2Navigation)
           .FirstOrDefaultAsync(c => c.ConversationId == chatDto.ConversationId);
-
-            if(chatDto.SenderId == conversation.User1Navigation.Id)
+            if (chatDto.SenderId == conversation.User1Navigation.Id)
             {
                 var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == conversation.User2Navigation.Id).ToListAsync();
                 foreach (var hubConnection in hubConnectionsd)
                 {
                     await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", message);
                 }
-            }else
+                var hubConnections = await _context.HubConnections.Where(con => con.userId == conversation.User1Navigation.Id).ToListAsync();
+                foreach (var hubConnection in hubConnections)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("HaveMessage", 1);
+                }
+            }
+            else
             {
                 var hubConnections = await _context.HubConnections.Where(con => con.userId == conversation.User1Navigation.Id).ToListAsync();
                 foreach (var hubConnection in hubConnections)
                 {
                     await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", message);
                 }
+                var hubConnections2 = await _context.HubConnections.Where(con => con.userId == conversation.User2Navigation.Id).ToListAsync();
+                foreach (var hubConnection in hubConnections2)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("HaveMessage", 1);
+                }
             }
+
+
+
+
+
+
+
             return Ok();
         }
 
@@ -138,7 +155,7 @@ namespace API.Controllers
                     Conversation = c,
                     LatestMessage = c.Messages.OrderByDescending(m => m.SendDate).FirstOrDefault()
                 })
-                .Where(x => x.LatestMessage != null) 
+                .Where(x => x.LatestMessage != null)
                 .Select(x => new
                 {
                     x.LatestMessage.ConversationId,
@@ -149,7 +166,7 @@ namespace API.Controllers
                     x.LatestMessage.File,
                     x.LatestMessage.SenderId,
                     //User = _context.Users.FirstOrDefault(y => y.Id == x.LatestMessage.SenderId )
-                     User = x.Conversation.User1 == userId ? x.Conversation.User2Navigation : x.Conversation.User1Navigation
+                    User = x.Conversation.User1 == userId ? x.Conversation.User2Navigation : x.Conversation.User1Navigation
                 })
                 .Select(x => new
                 {
@@ -219,7 +236,7 @@ namespace API.Controllers
                 .OrderByDescending(x => x.SendDate)
                 .ToList();
             int x = 0;
-            for(int i = 0;i< latestMessagesWithUsers.Count; i++)
+            for (int i = 0; i < latestMessagesWithUsers.Count; i++)
             {
                 if (latestMessagesWithUsers[i].IsRead == 0 && latestMessagesWithUsers[i].SenderId != userId)
                 {

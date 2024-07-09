@@ -20,7 +20,7 @@ namespace Application.DTOs
         public DateTime TimeBid { get; set; }
         public int Duration { get; set; }
 
-        public DateTime Deadline { get; set; }
+        public DateTime? Deadline { get; set; }
 
         public string ProjectOwner { get; set; }
 

@@ -462,11 +462,11 @@ namespace Application.Services
         public async Task<Pagination<ProjectBidDTO>> GetByStatus(ProjectStatusFilter search)
         {
             var query = from b in _context.Bids
-                        join p in _context.Projects on b.ProjectId equals p.Id 
+                        join p in _context.Projects on b.ProjectId equals p.Id
                         join s in _context.ProjectStatus on p.StatusId equals s.Id
                         join u in _context.Users on p.CreatedBy equals u.Id
-                        where b.UserId == 26
-                        select new ProjectBidDTO
+                        where b.UserId == search.userId
+                       select new ProjectBidDTO
                         {
                             ProjectName = p.Title,
                             ProjectId = b.ProjectId,
@@ -478,15 +478,14 @@ namespace Application.Services
                             ProjectOwnerId = u.Id,
                             TimeBid = b.CreatedDate,
                             Duration = b.Duration,
-                            Deadline = (DateTime)p.EstimateStartDate + TimeSpan.FromDays(p.Duration),
-                            CanMakeDone = (search.statusId == (int)Application.Common.ProjectStatus.StatusId.Close)?true : false,
+                            Deadline = (p.EstimateStartDate!= null)? (DateTime)p.EstimateStartDate + TimeSpan.FromDays(p.Duration): null,
+                            CanMakeDone = (p.StatusId == (int)Application.Common.ProjectStatus.StatusId.Close)?true : false,
                         };
             if (search.statusId.HasValue)
             {
                 query = query.Where(x => x.StatusId == search.statusId.Value);
             }
-
-            var totalItem = query.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToList();
+            var totalItem = await query.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
             var result = new Pagination<ProjectBidDTO>()
             {
                 PageSize = search.PageSize,

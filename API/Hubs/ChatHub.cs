@@ -8,8 +8,12 @@ namespace API.Hubs
 {
     public class ChatHub : Hub
     {
-        private ApplicationDbContext _context = new ApplicationDbContext();
+        private readonly ApplicationDbContext _context;
 
+        public ChatHub(ApplicationDbContext context)
+        {
+            _context = context;
+        }
         public override Task OnConnectedAsync()
         {
             Clients.Caller.SendAsync("OnConnected");

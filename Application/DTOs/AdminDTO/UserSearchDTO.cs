@@ -26,6 +26,14 @@ namespace Application.DTOs
                 .Must(BeAValidRole).WithMessage("Vai trò không hợp lệ");
             RuleFor(v => v.phone)
             .Matches(@"^\d+$").WithMessage("Số điện thoại chỉ chứa số");
+            RuleFor(v => v.search.Length)
+                .LessThan(100).WithMessage("Ít hơn 100 kí tự");
+            RuleFor(v => v.email.Length)
+                .LessThan(100).WithMessage("Ít hơn 100 kí tự");
+            RuleFor(v => v.phone.Length)
+                .LessThan(100).WithMessage("Ít hơn 10 kí tự");
+
+
         }
         private bool BeAValidRole(string role)
         {

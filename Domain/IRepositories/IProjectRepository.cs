@@ -18,6 +18,10 @@ namespace Domain.IRepositories
             Expression<Func<Project, bool>> filter,
             int pageIndex,
             int pageSize);
-       
+        public Task<Pagination<Project>> RecruiterGetAsync(
+            Expression<Func<Project, bool>> filter,
+            int pageIndex,
+            int pageSize);
+
     }
 }

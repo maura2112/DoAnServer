@@ -65,7 +65,7 @@ namespace Application.Services
         {
             try
             {
-                var categories = await _categoryRepository.GetByStatus(null);
+                var categories = await _categoryRepository.GetByStatus(false);
                 var categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
                 return categoryDTOs;
             }

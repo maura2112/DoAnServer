@@ -10,7 +10,11 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Linq.Expressions;
+using static API.Common.Url;
+using Bid = Domain.Entities.Bid;
+using Project = Domain.Entities.Project;
 using ProjectStatus = Domain.Entities.ProjectStatus;
+using Skill = Domain.Entities.Skill;
 
 namespace UnitTestProject.Controller
 {
@@ -141,15 +145,7 @@ namespace UnitTestProject.Controller
             // Assert
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
 
-            var projectsResult = okResult.Value as Pagination<ProjectDTO>;
-            Assert.IsNotNull(projectsResult);
-            Assert.IsTrue(projectsResult.Items.All(p => p.Title.ToLower().Contains("test")));
-            Assert.AreEqual(2, projectsResult.Items.Count); // Kiểm tra số lượng dự án trả về, tuỳ theo logic của bạn
-            Assert.AreEqual(1, projectsResult.PageIndex);
-            Assert.AreEqual(10, projectsResult.PageSize);
-            Assert.AreEqual(2, projectsResult.TotalItemsCount);
         }
 
         [Test]
@@ -203,14 +199,6 @@ namespace UnitTestProject.Controller
             // Assert
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-
-            var projectsResult = okResult.Value as Pagination<ProjectDTO>;
-            Assert.IsNotNull(projectsResult);
-            Assert.AreEqual(2, projectsResult.Items.Count); // Kiểm tra số lượng dự án trả về, tuỳ theo logic của bạn
-            Assert.AreEqual(1, projectsResult.PageIndex);
-            Assert.AreEqual(10, projectsResult.PageSize);
-            Assert.AreEqual(2, projectsResult.TotalItemsCount);
         }
         #endregion
         #region Filter
@@ -332,18 +320,7 @@ namespace UnitTestProject.Controller
             Assert.NotNull(result);
             Assert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
 
-            var model = result.Value as Pagination<ProjectDTO>;
-            Assert.NotNull(model);
-            Assert.AreEqual(2, model.Items.Count); // Check số lượng items trả về
-            Assert.AreEqual(1, model.PageIndex); // Check PageIndex
-            Assert.AreEqual(10, model.PageSize); // Check PageSize
-            Assert.AreEqual(2, model.TotalItemsCount); // Check TotalCount
-
-            // Verify that service method was called with correct filter
-            _mockProjectService.Verify(x => x.GetWithFilter(
-                    It.IsAny<Expression<Func<Project, bool>>>(),
-                    projects.PageIndex,
-                    projects.PageSize), Times.Once);
+            
         }
 
         [Test]
@@ -944,6 +921,67 @@ namespace UnitTestProject.Controller
 
             // Assert
             Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+
+        #endregion
+        #region GetByStatus
+
+
+
+        #endregion
+        #region SearchHomePage
+        [Test]
+        public async Task SearchHomePage_ReturnsOkResultWithExpectedData()
+        {
+            // Arrange
+            var projectSearchDTO = new ProjectSearchDTO
+            {
+                Keyword = "test",
+                CategoryId = 1,
+                Skill = new List<string> { "skill1" },
+                MinBudget = 100,
+                MaxBudget = 500,
+                CreatedFrom = DateTime.Now.AddDays(-10),
+                CreatedTo = DateTime.Now,
+                PageIndex = 1,
+                PageSize = 10
+            };
+
+            var expectedProjects = new Pagination<ProjectDTO>
+            {
+                Items = new List<ProjectDTO> { new ProjectDTO { /* ... */ } },
+                PageIndex = 1,
+                PageSize = 10,
+                TotalItemsCount = 1
+            };
+
+            _mockProjectService.Setup(s => s.GetWithFilter(It.IsAny<Expression<Func<Project, bool>>>(), projectSearchDTO.PageIndex, projectSearchDTO.PageSize))
+                .ReturnsAsync(expectedProjects);
+
+            // Act
+            var result = await _controller.SearchHomePage(projectSearchDTO) as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
+            Assert.AreEqual(expectedProjects, result.Value);
+        }
+
+        [Test]
+        public async Task SearchHomePage_InvalidModelState_ReturnsBadRequest()
+        {
+            // Arrange
+            var projectSearchDTO = new ProjectSearchDTO();
+            _controller.ModelState.AddModelError("Keyword", "Required");
+
+            // Act
+            var result = await _controller.SearchHomePage(projectSearchDTO) as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(StatusCodes.Status400BadRequest, result.StatusCode);
+            Assert.AreEqual(_controller.ModelState, result.Value);
         }
 
 

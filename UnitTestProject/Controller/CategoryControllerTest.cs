@@ -8,6 +8,7 @@ using Application.DTOs;
 using Application.IServices;
 using Application.Services;
 using Domain.Entities;
+using Domain.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -18,13 +19,15 @@ namespace UnitTestProject.Controller
     public class CategoryControllerTest
     {
         private Mock<ICategoryService> _categoryServiceMock;
+        private Mock<ICategoryRepository> _categoryRepositoryMock;
         private CategoriesController _controller;
+
 
         [SetUp]
         public void Setup()
         {
             _categoryServiceMock = new Mock<ICategoryService>();
-            _controller = new CategoriesController(_categoryServiceMock.Object);
+            _controller = new CategoriesController(_categoryServiceMock.Object, _categoryRepositoryMock.Object);
         }
 
         #region GetAllCategories
@@ -42,7 +45,7 @@ namespace UnitTestProject.Controller
 
             var categoryDTOs = categories.Select(c => new CategoryDTO { Id = c.Id, CategoryName = c.CategoryName }).ToList();
 
-            _categoryServiceMock.Setup(c => c.GetAll()).ReturnsAsync(categoryDTOs);
+            _categoryServiceMock.Setup(c => c.GetAllHomePage()).ReturnsAsync(categoryDTOs);
 
             // Act
             var result = await _controller.Index();
@@ -61,7 +64,7 @@ namespace UnitTestProject.Controller
         public async Task Index_ReturnsInternalServerError_WhenServiceThrowsException()
         {
             // Arrange
-            _categoryServiceMock.Setup(service => service.GetAll()).ThrowsAsync(new Exception("Some error"));
+            _categoryServiceMock.Setup(service => service.GetAllHomePage()).ThrowsAsync(new Exception("Some error"));
 
             // Act
             var result = await _controller.Index();

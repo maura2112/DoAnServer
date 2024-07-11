@@ -41,6 +41,10 @@
         {
             public const string GetAll = "GetAll";
             public const string Add = "AddCategory";
+            public const string Update = "UpdateCategory";
+            public const string Delete = "DeleteCategory";
+            public const string GetByStatus = "GetByStatus";
+
         }
         public static class Rating
         {

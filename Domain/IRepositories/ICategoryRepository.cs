@@ -10,5 +10,8 @@ namespace Domain.IRepositories
     public interface ICategoryRepository : IGenericRepository<Category>
     {
         public Task<int> GetIdCatetegoryOther();
+        public Task<List<Category>> GetAllHomePage();
+        public Task<List<Category>> GetByStatus(bool? isDeleted);
+        
     }
 }

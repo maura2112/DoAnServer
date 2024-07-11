@@ -77,13 +77,6 @@ namespace Application.Services
             project.IsDeleted = false;
             project.Description = request.Description;
 
-
-            //
-
-            
-
-            //media file
-
             try
             {
                 await _projectRepository.AddAsync(project);

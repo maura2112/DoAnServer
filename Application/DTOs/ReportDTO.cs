@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentValidation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,5 +32,14 @@ namespace Application.DTOs
         public string? BidUser { get; set; }
 
         public bool? IsApproved { get; set; }
+    }
+
+    public class ReportDTOValidator : AbstractValidator<ReportDTO>
+    {
+        public ReportDTOValidator()
+        {
+            RuleFor(v => v.Description.Length).LessThan(500).WithMessage("Nội dung không được vượt quá 500 kí tự");
+
+        }
     }
 }

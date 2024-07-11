@@ -31,7 +31,8 @@ namespace Application.DTOs
     {
         public RatingDTOValidator()
         {
-            RuleFor(v => v.Star).NotEmpty().GreaterThan(0).LessThan(6).WithMessage("Sao không hợp lệ");
+            RuleFor(v => v.Star).NotEmpty().GreaterThan(0).LessThan(6).WithMessage("Chỉ được đánh giá từ 1-5 sao");
+            RuleFor(v => v.Comment.Length).LessThan(200).WithMessage("Tối đa 200 kí tự");
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,13 @@ namespace Application.DTOs
         public string State { get; set; }
         public string PostalCode { get; set; }
         public string Country { get; set; }
-
         
+    }
+    public class AddressDTOValidator : AbstractValidator<AddressDTO>
+    {
+        public AddressDTOValidator()
+        {
+           
+        }
     }
 }

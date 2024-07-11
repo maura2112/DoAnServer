@@ -49,8 +49,8 @@ namespace Application.DTOs
     {
         public ProjectSearchDTOValidator()
         {
-            //RuleFor(v => v.Keyword.Length).LessThan(100).WithMessage("Từ khóa không được vượt quá 100 kí tự");
-            
+            RuleFor(v => v.Keyword.Length).LessThan(50).WithMessage("Từ khóa không được vượt quá 50 kí tự");
+
 
 
         }

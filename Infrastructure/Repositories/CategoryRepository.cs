@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Common;
 
 namespace Infrastructure.Repositories
 {
@@ -17,34 +18,58 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
-
-        public async Task<List<Category>> GetAllHomePage()
-        {
-            var items = await _dbSet
-                .Where(x => x.IsDeleted == false)
-                         .AsNoTracking()
-                         .ToListAsync();
-            return items;
-        }
-
-        public async Task<List<Category>> GetByStatus(bool? isDeleted)
+        public async Task<Pagination<Category>> GetByStatus(bool? isDeleted, int pageIndex, int pageSize)
         {
             if (isDeleted != null)
             {
-                var items = await _dbSet
-                               .Where(x => x.IsDeleted == isDeleted)
-                                        .AsNoTracking()
-                                        .ToListAsync();
-                return items;
+                var items = await _dbSet.Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .Where(x => x.IsDeleted == isDeleted)
+                    .AsNoTracking()
+                    .ToListAsync();
+                var result = new Pagination<Category>()
+                {
+                    TotalItemsCount = items.Count,
+                    Items = items,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                };
+
+                return result;
+ 
             }
             else
             {
-                var items = await _dbSet
-                        .AsNoTracking()
-                        .ToListAsync();
-                return items;
+                
+                var items = await _dbSet.Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
+                var result = new Pagination<Category>()
+                {
+                    TotalItemsCount = items.Count,
+                    Items = items,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                };
+
+                return result;
             }
 
+        }
+
+        public async Task<int> GetTotalProjectByCategoryId(int categoryId)
+        {
+            var selectedCategory = await _dbSet.FirstOrDefaultAsync(x => x.Id == categoryId);
+            if (selectedCategory == null)
+            {
+                return 0;
+            }
+            var totalProject = await _context.Projects
+                .Where(p => p.CategoryId == categoryId)
+                .CountAsync();
+
+            return totalProject;
         }
 
         public async Task<int> GetIdCatetegoryOther()

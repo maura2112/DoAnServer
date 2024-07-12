@@ -44,6 +44,7 @@
             public const string Update = "UpdateCategory";
             public const string Delete = "DeleteCategory";
             public const string GetByStatus = "GetByStatus";
+            public const string RestoreDeleted = "RestoreDeleted";
 
         }
         public static class Rating

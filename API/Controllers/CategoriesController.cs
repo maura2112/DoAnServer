@@ -20,11 +20,11 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Category.GetAll)]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageIndex, int pageSize)
         {
             try
             {
-                var categories = await _categoryService.GetAllHomePage();
+                var categories = await _categoryService.GetAllHomePage(pageIndex, pageSize);
                 return Ok(categories);
             }
             catch (Exception ex)
@@ -35,7 +35,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Category.Add)]
-        public async Task<IActionResult> AddAsync(CategoryDTO DTOs)
+        public async Task<IActionResult> AddAsync(UpdateCategoryDTO DTOs)
         {
             if (!ModelState.IsValid)
             {
@@ -101,10 +101,34 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Category.GetByStatus)]
-        public async Task<IActionResult> GetByStatus([FromQuery] bool? isDeleted)
+        public async Task<IActionResult> GetByStatus([FromQuery] bool? isDeleted, int pageIndex, int pageSize)
         {
-            var result = await _categoryService.GetByStatus(isDeleted);
+            var result = await _categoryService.GetByStatus(isDeleted, pageIndex, pageSize);
             return Ok(result);
+        }
+
+        [HttpPut]
+        [Route(Common.Url.Category.RestoreDeleted)]
+        public async Task<IActionResult> RestoreDeleted(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var fetchedProject = await _categoryRepository.GetByIdAsync(id);
+            if (fetchedProject == null)
+            {
+                return NotFound(new { message = "Không tìm thấy danh mục phù hợp!" });
+            }
+
+            await _categoryService.RestoreDeleted(id);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Bạn vừa khôi phục  danh mục thành công"
+            });
         }
 
 

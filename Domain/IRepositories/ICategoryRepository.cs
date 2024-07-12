@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,8 @@ namespace Domain.IRepositories
     public interface ICategoryRepository : IGenericRepository<Category>
     {
         public Task<int> GetIdCatetegoryOther();
-        public Task<List<Category>> GetAllHomePage();
-        public Task<List<Category>> GetByStatus(bool? isDeleted);
-        
+        public Task<Pagination<Category>> GetByStatus(bool? isDeleted, int pageIndex, int pageSize);
+        public Task<int> GetTotalProjectByCategoryId(int categoryId);
+
     }
 }

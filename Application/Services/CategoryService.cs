@@ -27,7 +27,7 @@ namespace Application.Services
             _currentUserService = currentUserService;
         }
 
-        public async Task<CategoryDTO> Add(CategoryDTO request)
+        public async Task<CategoryDTO> Add(UpdateCategoryDTO request)
         {
             var userId = _currentUserService.UserId;
             if (userId == null)
@@ -61,29 +61,49 @@ namespace Application.Services
             return categoryDTO;
         }
 
-        public async Task<List<CategoryDTO>> GetAllHomePage()
-        {
-            try
-            {
-                var categories = await _categoryRepository.GetByStatus(false);
-                var categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
-                return categoryDTOs;
-            }
-            catch (Exception ex)
-            {
-                return new List<CategoryDTO>();
-            }
-        }
-
-        public async Task<List<CategoryDTO>> GetByStatus(bool? IsDeleted)
+        public async Task<CategoryDTO> RestoreDeleted(int id)
         {
             var userId = _currentUserService.UserId;
             if (userId == null)
             {
                 return null;
             }
-            var categories = await _categoryRepository.GetByStatus(IsDeleted);
-            var categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
+            var category = await _categoryRepository.GetByIdAsync(id);
+            if (category == null)
+            {
+                throw new Exception($"Category with ID {id} not found.");
+            }
+            category.IsDeleted = false;
+            _categoryRepository.Update(category);
+            var categoryDTO = _mapper.Map<CategoryDTO>(category);
+            return categoryDTO;
+        }
+
+        public async Task<Pagination<CategoryDTO>> GetAllHomePage(int pageIndex, int pageSize)
+        {
+            
+                var categories = await _categoryRepository.GetByStatus(false, pageIndex, pageSize);
+                var categoryDTOs = _mapper.Map<Pagination<CategoryDTO>>(categories);
+                foreach (var cate in categoryDTOs.Items)
+                {
+                    cate.TotalProjects = await _categoryRepository.GetTotalProjectByCategoryId(cate.Id);
+                }
+                return categoryDTOs;
+        }
+
+        public async Task<Pagination<CategoryDTO>> GetByStatus(bool? IsDeleted, int pageIndex, int pageSize)
+        {
+            var userId = _currentUserService.UserId;
+            if (userId == null)
+            {
+                return null;
+            }
+            var categories = await _categoryRepository.GetByStatus(IsDeleted, pageIndex, pageSize);
+            var categoryDTOs = _mapper.Map<Pagination<CategoryDTO>>(categories);
+            foreach (var cate in categoryDTOs.Items)
+            {
+                cate.TotalProjects = await _categoryRepository.GetTotalProjectByCategoryId(cate.Id);
+            }
             return categoryDTOs;
         }
 

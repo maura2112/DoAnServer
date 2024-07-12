@@ -13,6 +13,7 @@ namespace Application.DTOs
     {
         public string CategoryName { get; set; }
         public string Image { get; set; }
+        public int TotalProjects { get; set; }
     }
     public class UpdateCategoryDTO : BaseEntity
     {

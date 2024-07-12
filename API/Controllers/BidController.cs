@@ -232,7 +232,7 @@ namespace API.Controllers
             {
                 return NotFound(new {message="Không tìm thấy đấu thầu!"});
             }
-            //DTOs.UserId = userId;
+            
             else
             {
                 var bid = await _bidService.Update(DTOs);

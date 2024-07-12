@@ -4,13 +4,14 @@
       "type": "mssql",
       "connectionId": "ConnectionStrings:DefaultConnection"
     },
-    "mssql3": {
-      "type": "mssql",
-      "connectionId": "ConnectionStrings:SQLDatabaseAzure"
-    },
     "mssql2": {
       "type": "mssql",
       "connectionId": "ConnectionStrings:DefaultConnectionString",
+      "dynamicId": null
+    },
+    "mssql3": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:SQLDatabaseAzure",
       "dynamicId": null
     }
   }

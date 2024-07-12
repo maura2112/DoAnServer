@@ -46,6 +46,13 @@
             public const string GetByStatus = "GetByStatus";
 
         }
+
+        public static class Blog
+        {
+            public const string GetAll = "GetAll";
+            public const string Create = "Create";
+
+        }
         public static class Rating
         {
             public const string Rate = "Rate";

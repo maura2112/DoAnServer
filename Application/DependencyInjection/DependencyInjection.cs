@@ -81,6 +81,9 @@ public static class DependencyInjection
         services.AddScoped<IRatingService, RatingService>();
         services.AddScoped<IRatingRepository, RatingRepository>();
 
+        //Blog
+        services.AddScoped<IBlogService, BlogService>();
+
         //RateTransaction
         services.AddScoped<IRateTransactionService, RateTransactionService>();
         services.AddScoped<IRateTransactionRepository, RateTransactionRepository>();

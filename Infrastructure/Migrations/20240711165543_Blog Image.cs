@@ -5,24 +5,25 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddProjectId : Migration
+    public partial class BlogImage : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "ProjectId",
-                table: "RateTransactions",
-                type: "int",
-                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "BlogImage",
+                table: "Blogs",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ProjectId",
-                table: "RateTransactions");
+                name: "BlogImage",
+                table: "Blogs");
         }
     }
 }

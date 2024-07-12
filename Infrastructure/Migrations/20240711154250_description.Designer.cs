@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240627073514_bid and project completed")]
-    partial class bidandprojectcompleted
+    [Migration("20240711154250_description")]
+    partial class description
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,29 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Conversation", b =>
+                {
+                    b.Property<int>("ConversationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConversationId"));
+
+                    b.Property<int?>("User1")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("User2")
+                        .HasColumnType("int");
+
+                    b.HasKey("ConversationId");
+
+                    b.HasIndex("User1");
+
+                    b.HasIndex("User2");
+
+                    b.ToTable("Conversations", (string)null);
+                });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
@@ -260,14 +283,18 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Description")
-                        .HasColumnType("int");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -281,6 +308,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("CreatedBy");
 
@@ -332,9 +361,31 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Domain.Entities.HubConnection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("userId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HubConnection", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.MediaFile", b =>
@@ -399,42 +450,42 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("NotificationId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime?>("Datetime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Link")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Read")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
+                    b.Property<int?>("IsRead")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Link")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("NotificationType")
+                        .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<string>("ProjectName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RecieveId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SendId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SendUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("RecieveId");
+
+                    b.HasIndex("SendId");
 
                     b.ToTable("Notifications", (string)null);
                 });
@@ -591,29 +642,32 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("AcceptedDate")
+                    b.Property<DateTime?>("BidCompletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("BidId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("CompletedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("BidUserId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("ProjectAcceptedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("TransactionCompletedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("ProjectUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Rated")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BidId");
+                    b.HasIndex("BidUserId");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectUserId");
 
                     b.ToTable("RateTransactions");
                 });
@@ -710,6 +764,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ReportCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -867,8 +924,8 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BidId")
-                        .HasColumnType("int");
+                    b.Property<long?>("BidId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
@@ -933,6 +990,44 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserSkills", (string)null);
+                });
+
+            modelBuilder.Entity("Message", b =>
+                {
+                    b.Property<int>("MessagesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessagesId"));
+
+                    b.Property<int?>("ConversationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("File")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("IsRead")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MessageText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MessageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SendDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("SenderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MessagesId");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -1038,6 +1133,21 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Conversation", b =>
+                {
+                    b.HasOne("Domain.Entities.AppUser", "User1Navigation")
+                        .WithMany("User1Navigations")
+                        .HasForeignKey("User1");
+
+                    b.HasOne("Domain.Entities.AppUser", "User2Navigation")
+                        .WithMany("User2Navigations")
+                        .HasForeignKey("User2");
+
+                    b.Navigation("User1Navigation");
+
+                    b.Navigation("User2Navigation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
                     b.HasOne("Domain.Entities.AppUser", "AppUser")
@@ -1079,6 +1189,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Blog", b =>
                 {
+                    b.HasOne("Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.AppUser", "AppUser")
                         .WithMany("Blogs")
                         .HasForeignKey("CreatedBy")
@@ -1086,6 +1202,8 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("AppUser");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Bookmark", b =>
@@ -1120,6 +1238,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("MediaFolder");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("Domain.Entities.AppUser", "RecieveNavigation")
+                        .WithMany("RecieveNavigations")
+                        .HasForeignKey("RecieveId");
+
+                    b.HasOne("Domain.Entities.AppUser", "SendNavigation")
+                        .WithMany("SendNavigations")
+                        .HasForeignKey("SendId");
+
+                    b.Navigation("RecieveNavigation");
+
+                    b.Navigation("SendNavigation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Project", b =>
@@ -1174,17 +1307,17 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.RateTransaction", b =>
                 {
-                    b.HasOne("Domain.Entities.Bid", "Bid")
+                    b.HasOne("Domain.Entities.AppUser", "UserBid")
                         .WithMany()
-                        .HasForeignKey("BidId");
+                        .HasForeignKey("BidUserId");
 
-                    b.HasOne("Domain.Entities.Project", "Project")
+                    b.HasOne("Domain.Entities.AppUser", "UserProject")
                         .WithMany()
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectUserId");
 
-                    b.Navigation("Bid");
+                    b.Navigation("UserBid");
 
-                    b.Navigation("Project");
+                    b.Navigation("UserProject");
                 });
 
             modelBuilder.Entity("Domain.Entities.Rating", b =>
@@ -1300,6 +1433,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("Message", b =>
+                {
+                    b.HasOne("Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId");
+
+                    b.HasOne("Domain.Entities.AppUser", "Sender")
+                        .WithMany("Senders")
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Domain.Entities.Role", null)
@@ -1351,6 +1499,11 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Conversation", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Address");
@@ -1362,6 +1515,16 @@ namespace Infrastructure.Migrations
                     b.Navigation("Bookmarks");
 
                     b.Navigation("MediaFiles");
+
+                    b.Navigation("RecieveNavigations");
+
+                    b.Navigation("SendNavigations");
+
+                    b.Navigation("Senders");
+
+                    b.Navigation("User1Navigations");
+
+                    b.Navigation("User2Navigations");
 
                     b.Navigation("UserProjects");
 

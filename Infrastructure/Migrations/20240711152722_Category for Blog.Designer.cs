@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240703145425_Add_Chat_Entities")]
-    partial class Add_Chat_Entities
+    [Migration("20240711152722_Category for Blog")]
+    partial class CategoryforBlog
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,6 +220,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
+                    b.Property<bool?>("IsCompleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
@@ -280,6 +283,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
@@ -301,6 +307,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("CreatedBy");
 
@@ -351,6 +359,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -532,6 +543,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("EstimateStartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool?>("IsCompleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -619,6 +633,44 @@ namespace Infrastructure.Migrations
                     b.ToTable("ProjectStatus", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.RateTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("BidCompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("BidUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ProjectAcceptedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProjectUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Rated")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BidUserId");
+
+                    b.HasIndex("ProjectUserId");
+
+                    b.ToTable("RateTransactions");
+                });
+
             modelBuilder.Entity("Domain.Entities.Rating", b =>
                 {
                     b.Property<int>("Id")
@@ -634,19 +686,16 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("IsDelete")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<int>("RateToUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Star")
+                    b.Property<int>("RateTransactionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusId")
+                    b.Property<int>("Star")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -657,7 +706,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StatusId");
+                    b.HasIndex("RateTransactionId");
 
                     b.ToTable("Ratings");
                 });
@@ -714,6 +763,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ReportCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -871,8 +923,8 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BidId")
-                        .HasColumnType("int");
+                    b.Property<long?>("BidId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
@@ -1136,6 +1188,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Blog", b =>
                 {
+                    b.HasOne("Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.AppUser", "AppUser")
                         .WithMany("Blogs")
                         .HasForeignKey("CreatedBy")
@@ -1143,6 +1201,8 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("AppUser");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Bookmark", b =>
@@ -1244,15 +1304,30 @@ namespace Infrastructure.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("Domain.Entities.RateTransaction", b =>
+                {
+                    b.HasOne("Domain.Entities.AppUser", "UserBid")
+                        .WithMany()
+                        .HasForeignKey("BidUserId");
+
+                    b.HasOne("Domain.Entities.AppUser", "UserProject")
+                        .WithMany()
+                        .HasForeignKey("ProjectUserId");
+
+                    b.Navigation("UserBid");
+
+                    b.Navigation("UserProject");
+                });
+
             modelBuilder.Entity("Domain.Entities.Rating", b =>
                 {
-                    b.HasOne("Domain.Entities.ProjectStatus", "Status")
+                    b.HasOne("Domain.Entities.RateTransaction", "RateTransaction")
                         .WithMany()
-                        .HasForeignKey("StatusId")
+                        .HasForeignKey("RateTransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Status");
+                    b.Navigation("RateTransaction");
                 });
 
             modelBuilder.Entity("Domain.Entities.RelatedBlog", b =>

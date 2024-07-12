@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "ignored": "true",
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:DefaultConnection"
+    },
+    "mssql2": {
+      "ignored": "true",
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:DefaultConnectionString",
+      "dynamicId": null
+    },
+    "mssql3": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/webapp-doan-2/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsSQLDatabaseAzure_FEB3E67349",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/sv-doan-2/databases/DoAnServer2.0",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:SQLDatabaseAzure",
+      "dynamicId": null
+    }
+  }
+}

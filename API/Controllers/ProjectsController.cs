@@ -188,13 +188,13 @@ namespace API.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPut]
         [Route(Common.Url.Project.AcceptBid)]
-        public async Task<IActionResult> AcceptBid(int bidid)
+        public async Task<IActionResult> AcceptBid(long bidid)
         {
             var userId = _currentUserService.UserId;
             var bid = await _bidRepository.GetByIdAsync(bidid);
-            if (bid == null)
+            if (bid == null && bid.AcceptedDate != null)
             {
                 return BadRequest("Không có dự thầu");
             }

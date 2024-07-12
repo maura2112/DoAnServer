@@ -45,6 +45,8 @@ public class MapProfile : Profile
         CreateMap<string, List<Education>>().ReverseMap();
         CreateMap<string, List<Qualification>>().ReverseMap();
 
+        //Blog
+        CreateMap<BlogCreateDTO, Blog>().ReverseMap();
         //Meida File
         CreateMap<MediaFile, MediaFileDTO>().ReverseMap();
         //Report

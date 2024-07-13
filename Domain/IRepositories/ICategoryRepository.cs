@@ -12,6 +12,7 @@ namespace Domain.IRepositories
     {
         public Task<int> GetIdCatetegoryOther();
         public Task<Pagination<Category>> GetByStatus(bool? isDeleted, int pageIndex, int pageSize);
+        public Task<List<Category>> GetAllNotDeleted();
         public Task<int> GetTotalProjectByCategoryId(int categoryId);
 
     }

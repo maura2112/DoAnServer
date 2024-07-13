@@ -20,11 +20,26 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Category.GetAll)]
-        public async Task<IActionResult> Index(int pageIndex, int pageSize)
+        public async Task<IActionResult> Index()
         {
             try
             {
-                var categories = await _categoryService.GetAllHomePage(pageIndex, pageSize);
+                var categories = await _categoryService.GetAllHomePage();
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Category.GetAllPaginaton)]
+        public async Task<IActionResult> Pagination(int pageIndex, int pageSize)
+        {
+            try
+            {
+                var categories = await _categoryService.GetAllPagination(pageIndex,  pageSize);
                 return Ok(categories);
             }
             catch (Exception ex)

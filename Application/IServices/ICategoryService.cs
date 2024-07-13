@@ -10,7 +10,8 @@ namespace Application.IServices
 {
     public interface ICategoryService
     {
-        Task<Pagination<CategoryDTO>> GetAllHomePage(int pageIndex, int pageSize);
+        Task<List<CategoryDTO>> GetAllHomePage();
+        Task<Pagination<CategoryDTO>> GetAllPagination(int pageIndex, int pageSize);
         //Task<CategoryDTO> GetDetailCategoryById(int id);
         Task<CategoryDTO> Add(UpdateCategoryDTO request);
 

@@ -58,6 +58,15 @@ namespace Infrastructure.Repositories
 
         }
 
+        public async Task<List<Category>> GetAllNotDeleted()
+        {
+            var items = await _dbSet
+                .Where(x=>x.IsDeleted == false)
+                .AsNoTracking()
+                .ToListAsync();
+            return items;
+        }
+
         public async Task<int> GetTotalProjectByCategoryId(int categoryId)
         {
             var selectedCategory = await _dbSet.FirstOrDefaultAsync(x => x.Id == categoryId);

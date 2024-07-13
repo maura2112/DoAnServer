@@ -1,82 +1,95 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using API.Controllers;
-//using Application.DTOs;
-//using Application.IServices;
-//using Application.Services;
-//using Domain.Entities;
-//using Domain.IRepositories;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Moq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using API.Controllers;
+using Application.DTOs;
+using Application.IServices;
+using Application.Services;
+using Domain.Common;
+using Domain.Entities;
+using Domain.IRepositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
-//namespace UnitTestProject.Controller
-//{
-//    [TestFixture]
-//    public class CategoryControllerTest
-//    {
-//        private Mock<ICategoryService> _categoryServiceMock;
-//        private Mock<ICategoryRepository> _categoryRepositoryMock;
-//        private CategoriesController _controller;
-
-
-//        [SetUp]
-//        public void Setup()
-//        {
-//            _categoryServiceMock = new Mock<ICategoryService>();
-//            _controller = new CategoriesController(_categoryServiceMock.Object, _categoryRepositoryMock.Object);
-//        }
-
-//        #region GetAllCategories
-
-//        [Test]
-//        public async Task Index_ReturnsOkWithCategories()
-//        {
-//            // Arrange
-//            var categories = new List<Category>
-//            {
-//                new Category { Id = 1, CategoryName = "Category 1" },
-//                new Category { Id = 2, CategoryName = "Category 2" },
-//                new Category { Id = 3, CategoryName = "Category 3" }
-//            };
-
-//            var categoryDTOs = categories.Select(c => new CategoryDTO { Id = c.Id, CategoryName = c.CategoryName }).ToList();
-
-//            _categoryServiceMock.Setup(c => c.GetAllHomePage()).ReturnsAsync(categoryDTOs);
-
-//            // Act
-//            var result = await _controller.Index();
-
-//            // Assert
-//            Assert.IsInstanceOf<OkObjectResult>(result);
-//            var okResult = result as OkObjectResult;
-//            Assert.IsNotNull(okResult);
-
-//            var model = okResult.Value as List<CategoryDTO>;
-//            Assert.IsNotNull(model);
-//            Assert.AreEqual(categoryDTOs.Count, model.Count);
-//        }
-
-//        [Test]
-//        public async Task Index_ReturnsInternalServerError_WhenServiceThrowsException()
-//        {
-//            // Arrange
-//            _categoryServiceMock.Setup(service => service.GetAllHomePage()).ThrowsAsync(new Exception("Some error"));
-
-//            // Act
-//            var result = await _controller.Index();
-
-//            // Assert
-//            Assert.IsInstanceOf<ObjectResult>(result);
-//            var objectResult = result as ObjectResult;
-//            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-//        }
+namespace UnitTestProject.Controller
+{
+    [TestFixture]
+    public class CategoryControllerTest
+    {
+        private Mock<ICategoryService> _mockCategoryService;
+        private Mock<ICategoryRepository> _categoryRepositoryMock;
+        private CategoriesController _controller;
 
 
-//        #endregion
+        [SetUp]
+        public void Setup()
+        {
+            _mockCategoryService = new Mock<ICategoryService>();
+            _controller = new CategoriesController(_mockCategoryService.Object, _categoryRepositoryMock.Object);
+        }
 
-//    }
-//}
+        #region GetAllCategories
+        [Test]
+        public async Task Index_ReturnsOkResult_WithCategories()
+        {
+            // Arrange
+            int pageIndex = 1;
+            int pageSize = 10;
+            var mockCategories = new Pagination<CategoryDTO>
+            {
+                Items = new List<CategoryDTO>
+                {
+                    new CategoryDTO
+                    {
+                        Id = 1,
+                        CategoryName = "Category1",
+                        Image = "image1.png",
+                        TotalProjects = 5,
+                        IsDeleted = false
+                    }
+                },
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItemsCount = 1
+            };
+
+            _mockCategoryService.Setup(service => service.GetAllHomePage(pageIndex, pageSize))
+                .ReturnsAsync(mockCategories);
+
+            // Act
+            var result = await _controller.Index(pageIndex, pageSize) as OkObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+            Assert.AreEqual(mockCategories, result.Value);
+        }
+
+        [Test]
+        public async Task Index_ReturnsInternalServerError_OnException()
+        {
+            // Arrange
+            int pageIndex = 1;
+            int pageSize = 10;
+
+            _mockCategoryService.Setup(service => service.GetAllHomePage(pageIndex, pageSize))
+                .ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _controller.Index(pageIndex, pageSize) as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(500, result.StatusCode);
+            Assert.AreEqual("Internal server error", (result.Value as dynamic).message);
+        }
+
+
+
+        #endregion
+
+    }
+}

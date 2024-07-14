@@ -113,5 +113,16 @@
             public const string Reports = "Reports";
             public const string Approve = "Approve";
         }
+        public static class Statistic
+        {
+            public const string CategoriesPieChart = "CategoriesPieChartData";
+            public const string ProjectsPieChart = "ProjectsPieChartData";
+            public const string UsersPieChart = "UsersPieChartData";
+            public const string NewUserData = "NewUserData";
+            public const string StatisticProjects = "StatisticProjects";
+            public const string StatisticUsers = "StatisticUsers";
+            public const string StatisticSkills = "StatisticSkills";
+            
+        }
     }
 }

@@ -36,6 +36,7 @@ public class MapProfile : Profile
         CreateMap<BidDTO, UpdateBidDTO>().ReverseMap();
 
         CreateMap<Category, CategoryDTO>().ReverseMap();
+        CreateMap<Category, UpdateCategoryDTO>().ReverseMap();
         CreateMap<Pagination<Category>, Pagination<CategoryDTO>>().ReverseMap();
 
         CreateMap<AppUser, AppUserDTO>().ReverseMap();

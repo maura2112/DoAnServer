@@ -57,8 +57,9 @@ public class CurrentUserService : ICurrentUserService
         string jwtToken = GetJwtToken();
         if (jwtToken == null || jwtToken.IsMissing())
             throw new ("Bạn chưa đăng nhập");
-        return _jwtService.DecodeAccessToken(jwtToken).Claims
-            .Any(claim => claim.Type == nameof(role) && claim.Value == role);
+        var check = _jwtService.DecodeAccessToken(jwtToken).Claims
+            .Any(claim => claim.Type  == "Roles" && claim.Value == role);
+        return check;
     }
 
     public string? GetJwtToken()

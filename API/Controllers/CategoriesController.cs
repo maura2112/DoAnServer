@@ -1,8 +1,10 @@
 ﻿using Application.DTOs;
+using Application.Extensions;
 using Application.IServices;
 using Application.Services;
 using Domain.IRepositories;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
@@ -20,6 +22,7 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Category.GetAll)]
+        [RoleAuthorizeAttribute("Freelancer")]
         public async Task<IActionResult> Index()
         {
             try

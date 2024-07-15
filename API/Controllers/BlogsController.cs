@@ -47,5 +47,46 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
             }
         }
+
+        [HttpPut]
+        [Route(Common.Url.Blog.Update)]
+        public async Task<IActionResult> Update(BlogCreateDTO dto)
+        {
+            try
+            {
+                var id = _currentUserService.UserId;
+                var blogs = await _blogService.UpdateBlog(dto);
+                if(blogs != null)
+                {
+                    var blogDTO = await _blogService.GetBlogDTOAsync((int) dto.Id);
+                    return Ok(blogDTO);
+                }
+                return Conflict("Cập nhật bài viết không thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpDelete]
+        [Route(Common.Url.Blog.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var uid = _currentUserService.UserId;
+                var result = await _blogService.DeleteBlog(id);
+                if (result)
+                {
+                    Ok("Đã xóa bài viết thành công");
+                }
+                return Conflict("Xóa bài viết không thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
+        }
     }
 }

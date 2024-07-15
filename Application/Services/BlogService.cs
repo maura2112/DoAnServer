@@ -38,6 +38,7 @@ namespace Application.Services
             var query = (from b in _context.Blogs
                         join c in _context.Categories on b.CategoryId equals c.Id
                         join u in _context.Users on b.CreatedBy equals u.Id
+                        where b.IsDeleted != true
                         select new BlogDTO
                         {
                             Title = b.Title,
@@ -77,6 +78,55 @@ namespace Application.Services
                 Items = totalItem,
             };
             return result;
+        }
+
+        public async Task<BlogDTO> GetBlogDTOAsync(int id)
+        {
+            var blogDTO = await (from b in _context.Blogs
+                         join c in _context.Categories on b.CategoryId equals c.Id
+                         join u in _context.Users on b.CreatedBy equals u.Id
+                         where b.Id == id
+                         select new BlogDTO
+                         {
+                             Title = b.Title,
+                             Description = b.Description,
+                             CategoryId = b.CategoryId,
+                             UserId = b.CreatedBy,
+                             CategoryName = c.CategoryName,
+                             Author = u.Name,
+                             CreateDate = b.CreatedDate,
+                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
+                         }).FirstOrDefaultAsync();
+            return blogDTO;
+        }
+
+        public async Task<BlogCreateDTO> UpdateBlog(BlogCreateDTO dto)
+        {
+            var blog = await _context.Blogs.FirstOrDefaultAsync(x=>dto.Id == x.Id);
+            if(blog == null)
+            {
+                return null;
+            }
+            blog.UpdatedDate = DateTime.UtcNow;
+            blog.Title = dto.Title;
+            blog.Description = dto.Description;
+            blog.CategoryId = dto.CategoryId;
+            _context.Blogs.Update(blog);
+            await _context.SaveChangesAsync();
+            return dto;
+        }
+
+        public async Task<bool> DeleteBlog(int id)
+        {
+            var blog =await _context.Blogs.FirstOrDefaultAsync(x=>x.Id == id && x.IsDeleted != true);
+            if(blog == null)
+            {
+                return false;
+            }
+            blog.IsDeleted = true;
+            _context.Blogs.Update(blog);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

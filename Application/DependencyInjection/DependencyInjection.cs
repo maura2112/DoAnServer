@@ -122,6 +122,9 @@ public static class DependencyInjection
         services.AddScoped<IUserReportService, UserReportService>();
         services.AddScoped<IReportRepository, ReportRepository>();
 
+        //Statistic
+        services.AddScoped<IStatisticService, StatisticService>();
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;

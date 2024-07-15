@@ -59,7 +59,7 @@ namespace Infrastructure.Repositories
                 .Take(pageSize).ToList();
             var result = new Pagination<Project>()
             {
-                TotalItemsCount = items.Count(),
+                TotalItemsCount = await _dbSet.CountAsync(x => x.IsDeleted == false && x.StatusId == 2),
                 Items = totalItem,
                 PageIndex = pageIndex,
                 PageSize = pageSize
@@ -79,7 +79,7 @@ namespace Infrastructure.Repositories
             {
                 PageSize = pageSize,
                 PageIndex = pageIndex,
-                TotalItemsCount = items.Count(),
+                TotalItemsCount = await CountAsync(x => x.IsDeleted == false && x.StatusId == 2),
                 Items = totalItem,
             };
 
@@ -97,7 +97,7 @@ namespace Infrastructure.Repositories
             {
                 PageSize = pageSize,
                 PageIndex = pageIndex,
-                TotalItemsCount = items.Count(),
+                TotalItemsCount = await _dbSet.CountAsync(x => x.IsDeleted == false),
                 Items = totalItem,
             };
 

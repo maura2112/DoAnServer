@@ -29,7 +29,7 @@ namespace Infrastructure.Repositories
                     .ToListAsync();
                 var result = new Pagination<Category>()
                 {
-                    TotalItemsCount = items.Count,
+                    TotalItemsCount = await _dbSet.CountAsync(x => x.IsDeleted == isDeleted),
                     Items = items,
                     PageIndex = pageIndex,
                     PageSize = pageSize
@@ -47,7 +47,7 @@ namespace Infrastructure.Repositories
                     .ToListAsync();
                 var result = new Pagination<Category>()
                 {
-                    TotalItemsCount = items.Count,
+                    TotalItemsCount = await _dbSet.CountAsync(),
                     Items = items,
                     PageIndex = pageIndex,
                     PageSize = pageSize

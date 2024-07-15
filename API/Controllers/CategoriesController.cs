@@ -22,7 +22,7 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Category.GetAll)]
-        [RoleAuthorizeAttribute("Freelancer")]
+        //[RoleAuthorizeAttribute("Freelancer")]
         public async Task<IActionResult> Index()
         {
             try

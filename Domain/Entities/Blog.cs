@@ -16,6 +16,8 @@ namespace Domain.Entities
         [ForeignKey("Category")]
         public int CategoryId { get;set;}
         public string BlogImage { get;set;}
+
+        public bool IsPublished { get; set; }
         public Category Category { get;set;}
         public DateTime CreatedDate { get;set;}
         public DateTime? UpdatedDate { get;set;}

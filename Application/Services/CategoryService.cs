@@ -105,11 +105,7 @@ namespace Application.Services
 
         public async Task<Pagination<CategoryDTO>> GetByStatus(bool? IsDeleted, int pageIndex, int pageSize)
         {
-            var userId = _currentUserService.UserId;
-            if (userId == null)
-            {
-                return null;
-            }
+           
             var categories = await _categoryRepository.GetByStatus(IsDeleted, pageIndex, pageSize);
             var categoryDTOs = _mapper.Map<Pagination<CategoryDTO>>(categories);
             foreach (var cate in categoryDTOs.Items)

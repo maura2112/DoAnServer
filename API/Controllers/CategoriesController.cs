@@ -33,20 +33,20 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet]
-        [Route(Common.Url.Category.GetAllPaginaton)]
-        public async Task<IActionResult> Pagination(int pageIndex, int pageSize)
-        {
-            try
-            {
-                var categories = await _categoryService.GetAllPagination(pageIndex,  pageSize);
-                return Ok(categories);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
-            }
-        }
+        //[HttpGet]
+        //[Route(Common.Url.Category.GetAllPaginaton)]
+        //public async Task<IActionResult> Pagination(int pageIndex, int pageSize)
+        //{
+        //    try
+        //    {
+        //        var categories = await _categoryService.GetAllPagination(pageIndex,  pageSize);
+        //        return Ok(categories);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+        //    }
+        //}
 
         [HttpPost]
         [Route(Common.Url.Category.Add)]

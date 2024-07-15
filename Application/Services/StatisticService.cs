@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs.Statistic;
 using AutoMapper;
+using Domain.Common;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
@@ -18,7 +19,7 @@ namespace Application.Services
         public StatisticService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
-            
+
         }
         public async Task<List<CategoriesPieChart>> GetCategoryPieChartData()
         {
@@ -26,7 +27,7 @@ namespace Application.Services
                 .Select(c => new CategoriesPieChart
                 {
                     CategoryName = c.CategoryName,
-                    TotalProjects = c.Projects.Count()
+                    TotalProjects = c.Projects.Count(x => x.StatusId == 2)
                 })
                 .ToListAsync();
 
@@ -87,7 +88,6 @@ namespace Application.Services
                 })
                 .ToListAsync();
 
-            // Tổng số user là tổng của freelancerCount và recruiterCount
             foreach (var userCount in newUserCounts)
             {
                 userCount.TotalUserCount = userCount.FreelancerCount + userCount.RecruiterCount;
@@ -95,6 +95,150 @@ namespace Application.Services
 
             return newUserCounts;
         }
-        
+
+        public async Task<Pagination<StatisticProjects>> GetProjectStatisticData(int pageIndex, int pageSize)
+        {
+            var query =
+                from c in _context.Categories
+                join p in _context.Projects on c.Id equals p.CategoryId into projectGroup
+                from pg in projectGroup.DefaultIfEmpty()
+                join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
+                from bg in bidGroup.DefaultIfEmpty()
+                where !c.IsDeleted && (pg == null || !pg.IsDeleted)
+                group new { c, pg, bg } by c.CategoryName into g
+                select new StatisticProjects
+                {
+                    CategoryName = g.Key,
+                    MinimumBudget = g.Min(x => x.pg != null ? x.pg.MinBudget : (int?)null) ?? 0,
+                    MaximumBudget = g.Max(x => x.pg != null ? x.pg.MaxBudget : (int?)null) ?? 0,
+                    AverageBudget = (float)(g.Average(x => x.pg != null ? (x.pg.MinBudget + x.pg.MaxBudget) / 2.0 : (double?)null) ?? 0),
+                    MinimumDuration = g.Min(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
+                    MaximumDuration = g.Max(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
+                    AverageDuration = (float)(g.Average(x => x.pg != null ? x.pg.Duration : (double?)null) ?? 0),
+                    MinimumBid = g.Min(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
+                    MaximumBid = g.Max(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
+                    AverageBid = (int)Math.Ceiling(g.Average(x => x.bg != null ? (double?)x.bg.Budget : null) ?? 0),
+                    TotalProjects = g.Count(x => x.pg != null)  // Count the total number of projects
+                };
+
+            var totalCount = await query.CountAsync();
+
+            var paginatedResult = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new Pagination<StatisticProjects>
+            {
+                TotalItemsCount = totalCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = paginatedResult
+            };
+        }
+
+        public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int type, int pageIndex, int pageSize)
+        {
+            var query = from u in _context.Users
+                join ur in _context.UserRoles on u.Id equals ur.UserId
+                join r in _context.Roles on ur.RoleId equals r.Id
+                join p in _context.Projects on u.Id equals p.CreatedBy into projects
+                from p in projects.DefaultIfEmpty()
+                join rt in _context.Ratings on u.Id equals rt.RateToUserId into ratings
+                from rt in ratings.DefaultIfEmpty()
+                where p == null || p.StatusId == 6
+                group new { User = u, Role = r, Project = p, Rating = rt } by new { UserName = u.Name, RoleName = r.Name } into g
+                select new StatisticUsers
+                {
+                    UserName = g.Key.UserName,
+                    Role = g.Key.RoleName,
+                    TotalCompletedProjects = g.Count(x => x.Project != null),
+                    TotalPositiveRatings = g.Sum(x => x.Rating != null && x.Rating.Star >= 3 && x.Rating.Star <= 5 ? 1 : 0),
+                    TotalNegativeRatings = g.Sum(x => x.Rating != null && x.Rating.Star >= 1 && x.Rating.Star <= 2 ? 1 : 0)
+                };
+
+            IQueryable<StatisticUsers> orderedQuery;
+
+            if (type == 1)
+            {
+                orderedQuery = query.OrderByDescending(x => x.TotalPositiveRatings);
+            }
+            else if (type == 2)
+            {
+                orderedQuery = query.OrderByDescending(x => x.TotalNegativeRatings);
+            }
+            else
+            {
+                return null; 
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var paginatedResult = await orderedQuery
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new Pagination<StatisticUsers>
+            {
+                TotalItemsCount = totalCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = paginatedResult
+            };
+        }
+
+
+        public async Task<Pagination<StatisticSkills>> GetSkillStatisticData(int type, int pageIndex, int pageSize)
+        {
+            var query =
+                from c in _context.Categories
+                join s in _context.Skills on c.Id equals s.CategoryId
+                join ps in _context.ProjectSkills on s.Id equals ps.SkillId into projectSkills
+                from ps in projectSkills.DefaultIfEmpty()
+                join p in _context.Projects.Where(p => p.StatusId == 2) on ps.ProjectId equals p.Id into projects
+                from p in projects.DefaultIfEmpty()
+                join us in _context.UserSkills on s.Id equals us.SkillId into userSkills
+                from us in userSkills.DefaultIfEmpty()
+                group new { CategoryName = c.CategoryName, SkillName = s.SkillName, Project = p, UserSkill = us }
+                    by new { c.CategoryName, s.SkillName } into g
+                select new StatisticSkills
+                {
+                    CategoryName = g.Key.CategoryName,
+                    SkillName = g.Key.SkillName,
+                    TotalApprovedProject = g.Count(x => x.Project != null), // Số lượng dự án đã được duyệt
+                    TotalUsers = g.Select(x => x.UserSkill.UserId).Distinct().Count() // Số lượng người dùng với kỹ năng này
+                };
+
+            IQueryable<StatisticSkills> orderedQuery = null;
+
+            if (type == 1)
+            {
+                orderedQuery = query.OrderByDescending(x => x.TotalApprovedProject);
+            }
+            else if (type == 2)
+            {
+                orderedQuery = query.OrderByDescending(x => x.TotalUsers);
+            }
+            else
+            {
+                return null; 
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var paginatedResult = await orderedQuery
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new Pagination<StatisticSkills>
+            {
+                TotalItemsCount = totalCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = paginatedResult
+            };
+        }
     }
 }

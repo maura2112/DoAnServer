@@ -221,6 +221,11 @@ namespace Application.Services
             {
                 return null;
             }
+
+            if (project.IsDeleted == true)
+            {
+                return null;
+            }
             var projectDTO = _mapper.Map<ProjectDTO>(project);
 
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);

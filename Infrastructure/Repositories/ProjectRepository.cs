@@ -97,7 +97,7 @@ namespace Infrastructure.Repositories
             {
                 PageSize = pageSize,
                 PageIndex = pageIndex,
-                TotalItemsCount = await _dbSet.CountAsync(x => x.IsDeleted == false),
+                TotalItemsCount = items.Count(x => x.IsDeleted == false),
                 Items = totalItem,
             };
 

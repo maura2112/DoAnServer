@@ -16,10 +16,9 @@ namespace Application.Services
     public class StatisticService : IStatisticService
     {
         private readonly ApplicationDbContext _context;
-        public StatisticService(ApplicationDbContext context, IMapper mapper)
+        public StatisticService(ApplicationDbContext context)
         {
             _context = context;
-
         }
         public async Task<List<CategoriesPieChart>> GetCategoryPieChartData()
         {

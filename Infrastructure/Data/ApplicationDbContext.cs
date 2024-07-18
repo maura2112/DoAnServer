@@ -45,6 +45,7 @@ namespace Infrastructure.Data
             }
         }
         public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<FavoriteProject> FavoriteProjects { get; set; }
         public virtual DbSet<Rating> Ratings { get; set; }
         public virtual DbSet<RateTransaction> RateTransactions { get; set; }
         public virtual DbSet<MediaFolder> MediaFolders { get; set; }

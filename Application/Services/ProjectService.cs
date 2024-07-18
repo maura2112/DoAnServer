@@ -457,6 +457,7 @@ namespace Application.Services
             return projectDto;
         }
 
+        // Project in sig cho Freelancer
         public async Task<Pagination<ProjectBidDTO>> GetByStatus(ProjectStatusFilter search)
         {
             var query = from b in _context.Bids

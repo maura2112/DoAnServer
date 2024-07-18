@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
@@ -7,8 +8,10 @@ using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +24,7 @@ namespace Application.Services
 {
     public class SkillService : ISkillService
     {
+        private readonly ApplicationDbContext _context;
         private readonly ISkillRepository _skillRepository;
         private readonly IUserSkillRepository _userSkillRepository;
         private readonly ICategoryRepository _categoryRepository;
@@ -28,7 +32,7 @@ namespace Application.Services
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectSkillRepository _projectSkillRepository;
         private readonly IMapper _mapper;
-        public SkillService(ISkillRepository skillRepository, IUserSkillRepository userSkillRepository, IMapper mapper, ICategoryRepository categoryRepository, IUrlRepository urlRepository, IProjectRepository projectRepository, IProjectSkillRepository projectSkillRepository)
+        public SkillService(ISkillRepository skillRepository, IUserSkillRepository userSkillRepository, IMapper mapper, ICategoryRepository categoryRepository, IUrlRepository urlRepository, IProjectRepository projectRepository, IProjectSkillRepository projectSkillRepository, ApplicationDbContext context)
         {
             _skillRepository = skillRepository;
             _userSkillRepository = userSkillRepository;
@@ -37,6 +41,7 @@ namespace Application.Services
             _urlRepository = urlRepository;
             _projectRepository = projectRepository;
             _projectSkillRepository = projectSkillRepository;
+            _context = context;
         }
 
         public async Task<int> Add(SkillDTO request)
@@ -45,10 +50,29 @@ namespace Application.Services
             skill.CategoryId = request.CategoryId;
             skill.SkillName = request.SkillName;
             skill.IsDeleted = request.IsDeleted;
+            if(request.CreatedBy != null)
+            {
+                skill.CreatedBy = request.CreatedBy;
+            }
+            skill.CreatedDate = DateTime.Now;
             //media file
             await _skillRepository.AddAsync(skill);
-            var urlRecord = skill.CreateUrlRecordAsync("ky-nang-nguoi-dung", skill.SkillName);
-            await _urlRepository.AddAsync(urlRecord);
+            return skill.Id;
+        }
+
+        public async Task<int> UpdateAsync(SkillDTO request)
+        {
+            var skill = await _skillRepository.GetByIdAsync(request.Id);
+            if(skill == null)
+            {
+                return 0;
+            }
+            skill.CategoryId = request.CategoryId;
+            skill.SkillName = request.SkillName;
+            skill.IsDeleted = request.IsDeleted;
+            skill.UpdatedDate = DateTime.Now;
+            //media file
+            _skillRepository.Update(skill);
             return skill.Id;
         }
 
@@ -133,6 +157,7 @@ namespace Application.Services
             }
             return skillDTos;
         }
+
         public async Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize)
         {
             var skills = await _skillRepository.GetAsync(filter, pageIndex, pageSize);
@@ -150,6 +175,57 @@ namespace Application.Services
             }
             skillDTOs =  _mapper.Map<List<SkillDTO>>(skills);
             return skillDTOs;
+        }
+
+        public async Task<Pagination<SkillDTO>> Gets(SkillSearchDTO search)
+        {
+            var query = from s in _context.Skills
+                        join c in _context.Categories on s.CategoryId equals c.Id
+                        join u in _context.Users on s.CreatedBy equals u.Id
+                        where s.IsDeleted != true 
+                        select new SkillDTO
+                        {
+                            Id = s.Id,
+                            SkillName = s.SkillName,
+                            CreatedBy = (u != null) ? u.Id : 0,
+                            CreatedByName = (u != null)?u.Name:"",
+                            CreatedTime = (s.CreatedDate != null) ? DateTimeHelper.ToVietnameseDateString(s.CreatedDate): "---",
+                            UpdatedTime = (s.UpdatedDate != null) ? DateTimeHelper.ToVietnameseDateString(s.UpdatedDate) : "---",
+                            CategoryId = s.CategoryId,
+                            CategoryName = c.CategoryName,
+                        };
+
+            var filter = PredicateBuilder.True<SkillDTO>();
+            if(search.SkillName != null)
+            {
+                filter = filter.And(item => item.SkillName.ToLower().Contains(search.SkillName.ToLower()));
+            }
+            if (search.CategoryId != null)
+            {
+                filter = filter.And(item => item.CategoryId == search.CategoryId);
+            }
+            query = query.Where(filter);
+            var totalItem = await query.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
+            var result = new Pagination<SkillDTO>()
+            {
+                PageSize = search.PageSize,
+                PageIndex = search.PageIndex,
+                TotalItemsCount = query.Count(),
+                Items = totalItem,
+            };
+            return result;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var skill = await _skillRepository.GetByIdAsync(id);
+            if(skill == null)
+            {
+                return false;
+            }
+            skill.IsDeleted = true;
+            _skillRepository.Update(skill);
+            return true;
         }
     }
 }

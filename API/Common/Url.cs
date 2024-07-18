@@ -55,6 +55,7 @@
             public const string Create = "Create";
             public const string Update = "Update";
             public const string Delete = "Delete";
+            public const string Detail = "Detail";
 
         }
         public static class Rating
@@ -78,6 +79,7 @@
             public const string UpdateStatus = "UpdateStatus";
             public const string AcceptBid = "AcceptBid";
             public const string GetByStatus = "GetByStatus";
+            public const string Favorite = "Favorite";
 
         }
 
@@ -102,7 +104,11 @@
 
         public static class Skill
         {
+            public const string AddSkill = "AddSkill";
             public const string Add = "Add";
+            public const string Update = "Update";
+            public const string Delete = "Delete";
+            public const string Gets = "Gets";
             public const string All = "GetAll";
             public const string GetByCategoryId = "GetByCategoryId";
 

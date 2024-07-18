@@ -36,6 +36,7 @@ namespace Domain.Entities
         public virtual ICollection<UserProject> UserProjects { get; set; }
         public virtual ICollection<ProjectSkill> ProjectSkills { get; set; }
         public virtual ICollection<UserReport> UserReports { get; set; }
+        public virtual ICollection<FavoriteProject> FavoriteProjects { get; set; }
 
     }
 }

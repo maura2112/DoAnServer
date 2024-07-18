@@ -27,7 +27,7 @@ namespace Domain.Entities
         [JsonIgnore]
         public virtual ICollection<Conversation> User1Navigations { get; set; }
         [JsonIgnore]
-
+        public virtual ICollection<FavoriteProject> FavoriteProjects { get; set; }
         public virtual ICollection<Conversation> User2Navigations { get; set; }
         public virtual ICollection<Message> Senders { get; set; }
 

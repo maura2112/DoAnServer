@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Infrastructure.Data;
+using Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -41,12 +42,14 @@ namespace Application.Services
                         where b.IsDeleted != true
                         select new BlogDTO
                         {
+                            BlogId = b.Id,
                             Title = b.Title,
                             Description = b.Description,
                             CategoryId = b.CategoryId,
                             UserId = b.CreatedBy,
                             CategoryName = c.CategoryName,
                             Author = u.Name,
+                            BlogImage = b.BlogImage,
                             CreateDate = b.CreatedDate,
                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
                         });
@@ -88,12 +91,14 @@ namespace Application.Services
                          where b.Id == id
                          select new BlogDTO
                          {
+                             BlogId = b.Id,
                              Title = b.Title,
                              Description = b.Description,
                              CategoryId = b.CategoryId,
                              UserId = b.CreatedBy,
                              CategoryName = c.CategoryName,
                              Author = u.Name,
+                             BlogImage = b.BlogImage,
                              CreateDate = b.CreatedDate,
                              CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
                          }).FirstOrDefaultAsync();

@@ -18,7 +18,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Blog.GetAll)]
-        public async Task<IActionResult> GetAll(BlogSearch search)
+        public async Task<IActionResult> GetAll([FromQuery]BlogSearch search)
         {
             try
             {
@@ -41,6 +41,22 @@ namespace API.Controllers
                 dto.CreatedBy = _currentUserService.UserId;
                 var blogs = await _blogService.CreateBlog(dto);
                 return Ok(blogs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Blog.Detail)]
+        public async Task<IActionResult> Detail([FromQuery] int id)
+        {
+            try
+            {
+                var uid = _currentUserService.UserId;
+                var blogDTO = await _blogService.GetBlogDTOAsync(id);
+                return Ok(blogDTO);
             }
             catch (Exception ex)
             {
@@ -79,7 +95,7 @@ namespace API.Controllers
                 var result = await _blogService.DeleteBlog(id);
                 if (result)
                 {
-                    Ok("Đã xóa bài viết thành công");
+                    return Ok("Đã xóa bài viết thành công");
                 }
                 return Conflict("Xóa bài viết không thành công");
             }

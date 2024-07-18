@@ -26,6 +26,9 @@ namespace Application.IServices
         Task<Pagination<SkillDTO>> GetWithFilter(Expression<Func<Skill, bool>> filter, int pageIndex, int pageSize);
         Task<int> Add(SkillDTO request);
 
+        Task<bool> DeleteAsync(int id);
+        Task<int> UpdateAsync(SkillDTO request);
+        Task<Pagination<SkillDTO>> Gets(SkillSearchDTO search);
         //Task<List<SkillDTO>> GetByProjectId(int pId);
 
     }

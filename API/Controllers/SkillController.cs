@@ -4,6 +4,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using static API.Common.Url;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace API.Controllers
@@ -37,7 +38,7 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            Expression<Func<Skill, bool>> filter = null;
+            Expression<Func<Domain.Entities.Skill, bool>> filter = null;
             if (skills != null)
             {
                 filter = item => item.CategoryId == skills.CategoryId;
@@ -49,6 +50,57 @@ namespace API.Controllers
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _skillService.GetAll());
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Skill.Gets)]
+        public async Task<IActionResult> Gets([FromQuery] SkillSearchDTO search)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            var skills = await _skillService.Gets(search);
+            return Ok(skills);
+        }
+
+        [HttpPut]
+        [Route(Common.Url.Skill.Update)]
+        public async Task<IActionResult> UpdateAsync([FromBody]SkillDTO DTOs)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            await _skillService.UpdateAsync(DTOs);
+            return Ok(DTOs);
+        }
+
+        [HttpDelete]
+        [Route(Common.Url.Skill.Delete)]
+        public async Task<IActionResult> DeleteAsync([FromBody] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            await _skillService.DeleteAsync(id);
+            return Ok("Đã xóa kĩ năng  thành công");
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Skill.AddSkill)]
+        public async Task<IActionResult> AddSkillAsync(SkillDTO DTOs)
+        {
+            if (!ModelState.IsValid)
+            {
+                
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            var uid = _currentUserService.UserId;
+            DTOs.CreatedBy = uid;
+            await _skillService.Add(DTOs);
+            return NoContent();
         }
     }
 }

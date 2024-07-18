@@ -16,7 +16,7 @@ namespace Application.DTOs
         public string Description { get; set; }
         public int CategoryId { get; set; }
         public string BlogImage { get; set; }
-
+        public bool IsPublished { get; set; }
         public string? CategoryName { get; set; }
     }
 
@@ -25,7 +25,8 @@ namespace Application.DTOs
         public BlogCreateDTOValidator()
         {
             RuleFor(v => v.Title)
-                .NotEmpty().WithMessage("Tiêu đề không được để trống");
+                .NotEmpty().WithMessage("Tiêu đề không được để trống")
+                .MaximumLength(200).WithMessage("Tiêu đề không vượt quá 200 kí tự");
             RuleFor(v => v.Description)
                 .NotEmpty().WithMessage("Mô tả chi tiết không được để trống");
             RuleFor(v => v.CategoryId)

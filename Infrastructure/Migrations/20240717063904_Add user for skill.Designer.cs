@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240717063904_Add user for skill")]
+    partial class Adduserforskill
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -371,35 +374,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("Domain.Entities.FavoriteProject", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SavedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("FavoriteProjects");
                 });
 
             modelBuilder.Entity("Domain.Entities.HubConnection", b =>
@@ -1269,25 +1243,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("Domain.Entities.FavoriteProject", b =>
-                {
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithMany("FavoriteProjects")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Project", "Project")
-                        .WithMany("FavoriteProjects")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Domain.Entities.MediaFile", b =>
                 {
                     b.HasOne("Domain.Entities.MediaFolder", "MediaFolder")
@@ -1583,8 +1538,6 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Bookmarks");
 
-                    b.Navigation("FavoriteProjects");
-
                     b.Navigation("MediaFiles");
 
                     b.Navigation("RecieveNavigations");
@@ -1636,8 +1589,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Bids");
 
                     b.Navigation("Bookmarks");
-
-                    b.Navigation("FavoriteProjects");
 
                     b.Navigation("ProjectSkills");
 

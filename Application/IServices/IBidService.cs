@@ -24,6 +24,8 @@ namespace Application.IServices
         Task<BidDTO> AcceptBidding(long id);
         Task<BidDTO> GetBidById(long id);
 
+        Task<BidDTO> GetBidByProjectId(int projectId);
+
 
 
     }

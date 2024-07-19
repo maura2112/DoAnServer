@@ -74,6 +74,7 @@ namespace Application.Services
             // createdBy
             project.CreatedBy = userId;
             project.CreatedDate = DateTime.Now;
+            project.UpdatedDate = DateTime.Now;
             project.StatusId = 1;
             project.IsDeleted = false;
             project.Description = request.Description;
@@ -215,6 +216,49 @@ namespace Application.Services
             return projectDTOs;
         }
 
+        public async Task<Pagination<ProjectDTO>> GetWithFilterForRecruiter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
+        {
+            var userId = _currentUserService.UserId;
+            if (userId == null)
+            {
+                return null;
+            }
+            var projects = await _projectRepository.GetAsyncForRecruiter(filter, userId, pageIndex, pageSize);
+            var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
+            var updatedItems = new List<ProjectDTO>();
+
+            foreach (var x in projectDTOs.Items)
+            {
+                var model = _mapper.Map<ProjectDTO>(x);
+
+                var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
+                model.AppUser = _mapper.Map<AppUserDTO>(user);
+                var address = await _addressRepository.GetAddressByUserId((int)x.CreatedBy);
+                model.AppUser.Address = _mapper.Map<AddressDTO>(address);
+
+                var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
+                model.Category = _mapper.Map<CategoryDTO>(category);
+
+                var status = await _statusRepository.GetByIdAsync(x.StatusId);
+                model.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
+
+                var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
+                foreach (var skill in listSkills)
+                {
+                    model.Skill.Add(skill.SkillName);
+                }
+                model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
+                model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
+                model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
+                model.CreatedDateString = DateTimeHelper.ToVietnameseDateString(model.CreatedDate);
+                model.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(model.UpdatedDate);
+                updatedItems.Add(model);
+            }
+
+            projectDTOs.Items = updatedItems;
+            return projectDTOs;
+        }
+
         public async Task<ProjectDTO> GetDetailProjectById(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
@@ -230,10 +274,35 @@ namespace Application.Services
             var projectDTO = _mapper.Map<ProjectDTO>(project);
 
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
-            projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
+            projectDTO.AppUser2 = _mapper.Map<AppUserDTO2>(user);
 
+
+            var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == projectDTO.Id || x.ProjectUserId == projectDTO.Id);
+            var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
+            int avgRate;
+            if (totalRate != 0)
+            {
+                avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
+                          totalRate;
+            }
+            else
+            {
+                avgRate = 0;
+            }
+            projectDTO.AppUser2.CreatedDate = user.CreatedDate;
+            projectDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
+            projectDTO.AppUser2.AvgRate = avgRate;
+            projectDTO.AppUser2.TotalRate = totalRate;
+            projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
             var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
-            projectDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
+            if (address != null)
+            {
+                projectDTO.AppUser2.Country = address.Country;
+                projectDTO.AppUser2.City = address.City;
+            }
+            
+
+            
 
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDTO.Category = _mapper.Map<CategoryDTO>(category);

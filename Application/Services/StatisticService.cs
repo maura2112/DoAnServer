@@ -26,7 +26,7 @@ namespace Application.Services
                 .Select(c => new CategoriesPieChart
                 {
                     CategoryName = c.CategoryName,
-                    TotalProjects = c.Projects.Count(x => x.StatusId == 2)
+                    TotalProjects = c.Projects.Count(p => p.StatusId != 1  && p.IsDeleted == false)
                 })
                 .ToListAsync();
 
@@ -35,7 +35,8 @@ namespace Application.Services
 
         public async Task<ProjectsPieChart> GetProjectPieChartData()
         {
-            var totalProjects = await _context.Projects.CountAsync(p => p.StatusId == 2);
+            var totalProjects =
+                await _context.Projects.CountAsync(p => p.StatusId != 1  && p.IsDeleted == false);
             var completedProjects = await _context.Projects.CountAsync(p => p.StatusId == 6);
 
             var result = new ProjectsPieChart
@@ -138,23 +139,28 @@ namespace Application.Services
 
         public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int type, int pageIndex, int pageSize)
         {
-            var query = from u in _context.Users
-                join ur in _context.UserRoles on u.Id equals ur.UserId
-                join r in _context.Roles on ur.RoleId equals r.Id
-                join p in _context.Projects on u.Id equals p.CreatedBy into projects
+            var query = from r in _context.Roles
+                join ur in _context.UserRoles on r.Id equals ur.RoleId
+                join u in _context.Users on ur.UserId equals u.Id
+                from rt in _context.RateTransactions
+                    .Where(rt => rt.ProjectUserId == u.Id || rt.BidUserId == u.Id)
+                    .DefaultIfEmpty()
+                join p in _context.Projects on rt.ProjectId equals p.Id into projects
                 from p in projects.DefaultIfEmpty()
-                join rt in _context.Ratings on u.Id equals rt.RateToUserId into ratings
-                from rt in ratings.DefaultIfEmpty()
-                where p == null || p.StatusId == 6
-                group new { User = u, Role = r, Project = p, Rating = rt } by new { UserName = u.Name, RoleName = r.Name } into g
+                where u != null &&
+                      (rt == null ||
+                       (rt.ProjectAcceptedDate != null && rt.BidCompletedDate != null))
+                group new { User = u, Role = r, RateTransaction = rt, Project = p } by new { UserName = u.Name, RoleName = r.Name } into g
                 select new StatisticUsers
                 {
                     UserName = g.Key.UserName,
                     Role = g.Key.RoleName,
                     TotalCompletedProjects = g.Count(x => x.Project != null),
-                    TotalPositiveRatings = g.Sum(x => x.Rating != null && x.Rating.Star >= 3 && x.Rating.Star <= 5 ? 1 : 0),
-                    TotalNegativeRatings = g.Sum(x => x.Rating != null && x.Rating.Star >= 1 && x.Rating.Star <= 2 ? 1 : 0)
+                    TotalPositiveRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == true && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0),
+                    TotalNegativeRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == false && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0)
                 };
+
+
 
             IQueryable<StatisticUsers> orderedQuery;
 
@@ -168,7 +174,7 @@ namespace Application.Services
             }
             else
             {
-                return null; 
+                return null;
             }
 
             var totalCount = await query.CountAsync();
@@ -195,18 +201,17 @@ namespace Application.Services
                 join s in _context.Skills on c.Id equals s.CategoryId
                 join ps in _context.ProjectSkills on s.Id equals ps.SkillId into projectSkills
                 from ps in projectSkills.DefaultIfEmpty()
-                join p in _context.Projects.Where(p => p.StatusId == 2) on ps.ProjectId equals p.Id into projects
+                join p in _context.Projects.Where(p => p.StatusId != 1 && p.StatusId != 5 && !p.IsDeleted) on ps.ProjectId equals p.Id into projects
                 from p in projects.DefaultIfEmpty()
                 join us in _context.UserSkills on s.Id equals us.SkillId into userSkills
                 from us in userSkills.DefaultIfEmpty()
-                group new { CategoryName = c.CategoryName, SkillName = s.SkillName, Project = p, UserSkill = us }
-                    by new { c.CategoryName, s.SkillName } into g
+                group new { c.CategoryName, s.SkillName, Project = p, UserSkill = us } by new { c.CategoryName, s.SkillName } into g
                 select new StatisticSkills
                 {
                     CategoryName = g.Key.CategoryName,
                     SkillName = g.Key.SkillName,
-                    TotalApprovedProject = g.Count(x => x.Project != null), // Số lượng dự án đã được duyệt
-                    TotalUsers = g.Select(x => x.UserSkill.UserId).Distinct().Count() // Số lượng người dùng với kỹ năng này
+                    TotalApprovedProject = g.Select(x => x.Project.Id).Distinct().Count(id => id != null),
+                    TotalUsers = g.Select(x => x.UserSkill.UserId).Distinct().Count()
                 };
 
             IQueryable<StatisticSkills> orderedQuery = null;
@@ -221,7 +226,7 @@ namespace Application.Services
             }
             else
             {
-                return null; 
+                return null;
             }
 
             var totalCount = await query.CountAsync();

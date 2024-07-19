@@ -34,6 +34,25 @@ namespace Application.DTOs
         public string? Avatar { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? ResetTokenExpires { get; set; }
+        public float? AvgRate { get; set; }
+        public int? TotalRate { get; set; }
+        public int? TotalCompleteProject { get; set; }
+    }
+    public class AppUserDTO2
+    {
+        public int Id { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public bool? EmailConfirmed { get; set; }
+
+        public float? AvgRate { get; set; }
+        public int? TotalRate { get; set; }
+        public int? TotalCompleteProject { get; set; }
+        public string? Country { get; set; }
+        public string? City { get; set; }
+        public List<string> Skill { get; set; } = new();
+        //public string? CompletedProjectRate { get; set; }
     }
 
 }

@@ -75,8 +75,9 @@
             public const string Update = "UpdateProject";
             public const string Delete = "DeleteProject";
             public const string Filter = "Filter";
-            public const string Search = "Search";
+            public const string Search = "SearchAdmin";
             public const string SearchHomePage = "SearchHomePage";
+            public const string SearchRecruiter = "SearchRecruiter";
             public const string AllStatus = "AllStatus";
             public const string UpdateStatus = "UpdateStatus";
             public const string AcceptBid = "AcceptBid";
@@ -92,7 +93,7 @@
             public const string GetBiddingListByProjectId = "GetBiddingListByProjectId";
 
             public const string Bidding = "Bidding";
-            //public const string GetDetailBidById = "GetDetailBidById";
+            public const string GetBidByProjectLoggedUser = "GetBidByProjectLoggedUser";
             public const string Update = "UpdateBidding";
             public const string Delete = "DeleteBidding";
             public const string AcceptBidding = "AcceptBidding";

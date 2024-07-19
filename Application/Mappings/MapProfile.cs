@@ -40,6 +40,7 @@ public class MapProfile : Profile
         CreateMap<Pagination<Category>, Pagination<CategoryDTO>>().ReverseMap();
 
         CreateMap<AppUser, AppUserDTO>().ReverseMap();
+        CreateMap<AppUser, AppUserDTO2>().ReverseMap();
 
         CreateMap<Rating, RatingDTO>().ReverseMap();
 

@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Common;
 
 namespace Infrastructure.Repositories
 {
@@ -37,6 +39,24 @@ namespace Infrastructure.Repositories
             {
                 return false;
             }
+        }
+
+        public async Task<Pagination<Bid>> GetAsyncBid(Expression<Func<Bid, bool>> filter, int pageIndex, int pageSize)
+        {
+            var items = await _dbSet.Where(filter)
+                .AsNoTracking()
+                .OrderBy(x=>x.UpdatedDate)
+                .ToListAsync();
+            var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            var result = new Pagination<Bid>()
+            {
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                TotalItemsCount = items.Count(),
+                Items = totalItem,
+            };
+
+            return result;
         }
     }
 }

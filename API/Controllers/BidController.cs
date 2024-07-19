@@ -59,7 +59,7 @@ namespace API.Controllers
                 Expression<Func<Domain.Entities.Bid, bool>> filter = null;
                 if (bids != null)
                 {
-                    filter = item => item.UserId == bids.UserId;
+                    filter = item => item.UserId == bids.UserId ;
                 }
 
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
@@ -100,7 +100,6 @@ namespace API.Controllers
                 {
                     filter = item => item.ProjectId == bids.ProjectId;
                 }
-
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
                 string msg = null;
                 if (result.TotalItemsCount <= 0)
@@ -235,13 +234,23 @@ namespace API.Controllers
             
             else
             {
-                var bid = await _bidService.Update(DTOs);
-                return Ok(new
+                var bids = await _context.Bids.FirstOrDefaultAsync(x => x.Id == DTOs.Id);
+                var project = await _projectRepository.GetByIdAsync(bids.ProjectId);
+                if (project.StatusId == 2)
                 {
-                    success = true,
-                    message = "Bạn vừa cập nhật đấu thầu thành công",
-                    data = bid
-                });
+                    var bid = await _bidService.Update(DTOs);
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Bạn vừa cập nhật đấu thầu thành công",
+                        data = bid
+                    });
+                }
+                else
+                {
+                    return BadRequest(new {message ="Dự án này không thể đấu thầu"});
+                }
+                
             }
             
         }
@@ -268,6 +277,20 @@ namespace API.Controllers
                     data = bid
                 });
             }
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Bid.GetBidByProjectLoggedUser)]
+        public async Task<IActionResult> GetBidByProjectLoggedUser(int projectId)
+        {
+
+            var result = _bidService.GetBidByProjectId(projectId);
+                return Ok(new
+                {
+                    
+                    data = result
+                });
+            
         }
     }
 }

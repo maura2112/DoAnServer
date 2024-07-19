@@ -27,6 +27,7 @@ namespace Application.DTOs
         List<ProjectStatus> ListStatus { get; set; }
 
         public virtual AppUserDTO? AppUser { get; set; } = null!;
+        public virtual AppUserDTO2? AppUser2 { get; set; } = null!;
         public virtual CategoryDTO? Category { get; set; } = null!;
 
         public List<string> Skill { get; set; } = new();
@@ -43,6 +44,8 @@ namespace Application.DTOs
 
 
     }
+
+    
 
     public class AddProjectDTO 
     {

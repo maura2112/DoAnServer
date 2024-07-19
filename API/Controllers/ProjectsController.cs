@@ -88,6 +88,10 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.MinBudget >= projects.MinBudget);
             }
+            if (projects.Duration.HasValue && projects.Duration > 0)
+            {
+                filter = filter.And(item => item.Duration == projects.Duration);
+            }
 
             if (projects.MaxBudget.HasValue && projects.MaxBudget > 0)
             {
@@ -138,7 +142,10 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skill.Contains(skill.Skill.SkillName)));
             }
-
+            if (projects.Duration.HasValue && projects.Duration > 0)
+            {
+                filter = filter.And(item => item.Duration == projects.Duration);
+            }
 
             if (projects.MinBudget.HasValue && projects.MinBudget > 0)
             {
@@ -161,6 +168,68 @@ namespace API.Controllers
             }
 
             var result = await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Project.SearchRecruiter)]
+        public async Task<IActionResult> SearchRecruiter([FromQuery] ProjectSearchDTO projects)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+
+            Expression<Func<Domain.Entities.Project, bool>> filter = PredicateBuilder.True<Domain.Entities.Project>();
+
+            if (!string.IsNullOrWhiteSpace(projects.Keyword))
+            {
+                var keyword = projects.Keyword.ToLower().Trim();
+                filter = filter.And(item => item.Title.Contains(keyword));
+            }
+
+            if (projects.CategoryId.HasValue && projects.CategoryId > 0)
+            {
+                filter = filter.And(item => item.CategoryId == projects.CategoryId.Value);
+            }
+            if (projects.StatusId.HasValue && projects.StatusId != 0)
+            {
+                filter = filter.And(item => item.StatusId == projects.StatusId.Value);
+            }
+
+            if (projects.Skill != null && projects.Skill.Any())
+            {
+                filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skill.Contains(skill.Skill.SkillName)));
+            }
+            if (projects.Duration.HasValue && projects.Duration > 0)
+            {
+                filter = filter.And(item => item.Duration == projects.Duration);
+            }
+
+            if (projects.MinBudget.HasValue && projects.MinBudget > 0)
+            {
+                filter = filter.And(item => item.MinBudget >= projects.MinBudget);
+            }
+
+            if (projects.MaxBudget.HasValue && projects.MaxBudget > 0)
+            {
+                filter = filter.And(item => item.MaxBudget <= projects.MaxBudget);
+            }
+
+            if (projects.CreatedFrom.HasValue)
+            {
+                filter = filter.And(item => item.CreatedDate >= projects.CreatedFrom);
+            }
+
+            if (projects.CreatedTo.HasValue)
+            {
+                filter = filter.And(item => item.CreatedDate <= projects.CreatedTo);
+            }
+            if (projects.IsDeleted.HasValue)
+            {
+                filter = filter.And(item => item.IsDeleted == projects.IsDeleted.Value);
+            }
+            var result = await _projectService.GetWithFilterForRecruiter(filter, projects.PageIndex, projects.PageSize);
             return Ok(result);
         }
 
@@ -226,54 +295,54 @@ namespace API.Controllers
 
 
 
-        [HttpPost]
-        [Route(Common.Url.Project.Filter)]
-        public async Task<IActionResult> Filter(ProjectFilter projects)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new SerializableError(ModelState));
-            }
-            Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
-            if (projects != null)
-            {
-                if (!string.IsNullOrWhiteSpace(projects.Keyword))
-                {
-                    var keyword = projects.Keyword.ToLower().Trim();
-                    filter = filter.And(item => item.Title.Contains(keyword));
-                }
-                if (projects.CategoryId > 0)
-                {
-                    filter = filter.And(item => item.CategoryId == projects.CategoryId);
-                }
+        //[HttpPost]
+        //[Route(Common.Url.Project.Filter)]
+        //public async Task<IActionResult> Filter(ProjectFilter projects)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(new SerializableError(ModelState));
+        //    }
+        //    Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
+        //    if (projects != null)
+        //    {
+        //        if (!string.IsNullOrWhiteSpace(projects.Keyword))
+        //        {
+        //            var keyword = projects.Keyword.ToLower().Trim();
+        //            filter = filter.And(item => item.Title.Contains(keyword));
+        //        }
+        //        if (projects.CategoryId > 0)
+        //        {
+        //            filter = filter.And(item => item.CategoryId == projects.CategoryId);
+        //        }
 
-                if (projects.CategoryId > 0)
-                {
-                    filter = filter.And(item => item.CategoryId == projects.CategoryId);
-                }
+        //        if (projects.CategoryId > 0)
+        //        {
+        //            filter = filter.And(item => item.CategoryId == projects.CategoryId);
+        //        }
 
-                if (projects.SkillIds != null && projects.SkillIds.Any())
-                {
-                    filter = filter.And(item => item.ProjectSkills.Any(skill => projects.SkillIds.Contains(skill.SkillId)));
-                }
+        //        if (projects.SkillIds != null && projects.SkillIds.Any())
+        //        {
+        //            filter = filter.And(item => item.ProjectSkills.Any(skill => projects.SkillIds.Contains(skill.SkillId)));
+        //        }
 
-                if (projects.Duration > 0)
-                {
-                    filter = filter.And(item => item.Duration <= projects.Duration);
-                }
+        //        if (projects.Duration > 0)
+        //        {
+        //            filter = filter.And(item => item.Duration <= projects.Duration);
+        //        }
 
-                if (projects.MinBudget > 0)
-                {
-                    filter = filter.And(item => item.MinBudget >= projects.MinBudget);
-                }
+        //        if (projects.MinBudget > 0)
+        //        {
+        //            filter = filter.And(item => item.MinBudget >= projects.MinBudget);
+        //        }
 
-                if (projects.MaxBudget > 0)
-                {
-                    filter = filter.And(item => item.MaxBudget <= projects.MaxBudget);
-                }
-            }
-            return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
-        }
+        //        if (projects.MaxBudget > 0)
+        //        {
+        //            filter = filter.And(item => item.MaxBudget <= projects.MaxBudget);
+        //        }
+        //    }
+        //    return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
+        //}
 
         [HttpGet]
         [Route(Common.Url.Project.GetProjectsByUserId)]

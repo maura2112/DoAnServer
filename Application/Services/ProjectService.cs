@@ -279,11 +279,11 @@ namespace Application.Services
 
             var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == projectDTO.Id || x.ProjectUserId == projectDTO.Id);
             var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
-            int avgRate;
+            decimal avgRate;
             if (totalRate != 0)
             {
-                avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
-                          totalRate;
+                float sumStars = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star);
+                avgRate = Math.Round((decimal)sumStars / totalRate, 1);
             }
             else
             {
@@ -291,7 +291,7 @@ namespace Application.Services
             }
             projectDTO.AppUser2.CreatedDate = user.CreatedDate;
             projectDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
-            projectDTO.AppUser2.AvgRate = avgRate;
+            projectDTO.AppUser2.AvgRate =(float) avgRate;
             projectDTO.AppUser2.TotalRate = totalRate;
             projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
             var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);

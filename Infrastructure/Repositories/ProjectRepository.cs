@@ -53,6 +53,7 @@ namespace Infrastructure.Repositories
             
             var items = await _context.Projects
                 .Where(x => x.IsDeleted == false && x.StatusId == 2)
+                .OrderBy(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize)
@@ -71,7 +72,7 @@ namespace Infrastructure.Repositories
         public async Task<Pagination<Project>> ProjectGetAsync(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
         {
             var items = await _dbSet.Where(filter)
-                .Where(x => x.IsDeleted == false && x.StatusId == 2)
+                .Where(x => x.IsDeleted == false && x.StatusId == 2).OrderBy(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
@@ -79,7 +80,7 @@ namespace Infrastructure.Repositories
             {
                 PageSize = pageSize,
                 PageIndex = pageIndex,
-                TotalItemsCount = await CountAsync(x => x.IsDeleted == false && x.StatusId == 2),
+                TotalItemsCount = items.Count(),
                 Items = totalItem,
             };
 
@@ -90,6 +91,7 @@ namespace Infrastructure.Repositories
         {
             var items = await _dbSet.Where(filter)
                 .Where(x => x.IsDeleted == false )
+                .OrderBy(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();

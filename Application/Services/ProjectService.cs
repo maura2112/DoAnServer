@@ -73,6 +73,7 @@ namespace Application.Services
             // createdBy
             project.CreatedBy = userId;
             project.CreatedDate = DateTime.Now;
+            project.UpdatedDate = DateTime.Now;
             project.StatusId = 1;
             project.IsDeleted = false;
             project.Description = request.Description;
@@ -229,10 +230,31 @@ namespace Application.Services
             var projectDTO = _mapper.Map<ProjectDTO>(project);
 
             var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
-            projectDTO.AppUser = _mapper.Map<AppUserDTO>(user);
+            projectDTO.AppUser2 = _mapper.Map<AppUserDTO2>(user);
 
+
+            var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == projectDTO.Id || x.ProjectUserId == projectDTO.Id);
+            var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
+            int avgRate;
+            if (totalRate != 0)
+            {
+                avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
+                          totalRate;
+            }
+            else
+            {
+                avgRate = 0;
+            }
+            projectDTO.AppUser2.CreatedDate = user.CreatedDate;
+            projectDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
+            projectDTO.AppUser2.AvgRate = avgRate;
+            projectDTO.AppUser2.TotalRate = totalRate;
+            projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
             var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
-            projectDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
+            projectDTO.AppUser2.Country = address.Country;
+            projectDTO.AppUser2.City = address.City;
+
+            
 
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDTO.Category = _mapper.Map<CategoryDTO>(category);

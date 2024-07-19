@@ -6,8 +6,10 @@ using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
 using FluentValidation;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,9 +31,10 @@ namespace Application.Services
         private readonly ICurrentUserService _currentUserService;
         private readonly IStatusRepository _statusRepository;
         private readonly IAddressRepository _addressRepository;
+        private readonly ApplicationDbContext _context;
 
 
-        public BidService(IMapper mapper, IBidRepository bidRepository, IUrlRepository urlRepository, IProjectRepository projectRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IStatusRepository statusRepository, IAddressRepository addressRepository)
+        public BidService(IMapper mapper, IBidRepository bidRepository, IUrlRepository urlRepository, IProjectRepository projectRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IStatusRepository statusRepository, IAddressRepository addressRepository, ApplicationDbContext applicationDbContext)
         {
             _mapper = mapper;
             _bidRepository = bidRepository;
@@ -44,6 +47,7 @@ namespace Application.Services
             _currentUserService = currentUserService;
             _statusRepository = statusRepository;
             _addressRepository = addressRepository;
+            _context = applicationDbContext;
         }
 
         public async Task<BidDTO> GetBidById(long id)
@@ -51,6 +55,21 @@ namespace Application.Services
             var bid = await _bidRepository.GetByIdAsync(id);
             var bidDTO = _mapper.Map<BidDTO>(bid);
             return bidDTO;
+        }
+
+        public async Task<BidDTO> GetBidByProjectId(int projectId)
+        {
+            var userId = _currentUserService.UserId;
+            if (userId == null)
+            {
+                return null;
+            }
+            else
+            {
+                var bid = await _context.Bids.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.UserId == userId);
+                var bidDTO = _mapper.Map<BidDTO>(bid);
+                return bidDTO;
+            }
         }
 
 
@@ -67,6 +86,7 @@ namespace Application.Services
             bid.Duration = request.Duration;
             bid.Budget = request.Budget;
             bid.CreatedDate = DateTime.Now;
+            bid.UpdatedDate = DateTime.Now;
 
             var bidDTO = _mapper.Map<BidDTO>(bid);
 
@@ -74,27 +94,27 @@ namespace Application.Services
             
             await _bidRepository.AddAsync(bid);
 
-            var user = await _appUserRepository.GetByIdAsync(userId);
-            bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
-            var address = await _addressRepository.GetAddressByUserId(userId);
-            bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
+            //var user = await _appUserRepository.GetByIdAsync(userId);
+            //bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
+            //var address = await _addressRepository.GetAddressByUserId(userId);
+            //bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
 
-            //var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
-            //bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
+            ////var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
+            ////bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
-            var project = await _projectRepository.GetByIdAsync(request.ProjectId);
-            bidDTO.Project = _mapper.Map<ProjectDTO>(project);
+            //var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+            //bidDTO.Project = _mapper.Map<ProjectDTO>(project);
 
-            //var category = await _categoryRepository.GetByIdAsync(request.Project.CategoryId);
-            //bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
+            ////var category = await _categoryRepository.GetByIdAsync(request.Project.CategoryId);
+            ////bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
 
-            var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
-            foreach (var skill in listSkills)
-            {
-                bidDTO.Project.Skill.Add(skill.SkillName);
-            }
-            //var urlRecord = bid.CreateUrlRecordAsync("du-an", bid.ProjectId.ToString());
-            //await _urlRepository.AddAsync(urlRecord);
+            //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            //foreach (var skill in listSkills)
+            //{
+            //    bidDTO.Project.Skill.Add(skill.SkillName);
+            //}
+            ////var urlRecord = bid.CreateUrlRecordAsync("du-an", bid.ProjectId.ToString());
+            ////await _urlRepository.AddAsync(urlRecord);
             return bidDTO;
         }
 
@@ -108,9 +128,31 @@ namespace Application.Services
             {
                 var bidDTO = _mapper.Map<BidDTO>(bid);
                 var user = await _appUserRepository.GetByIdAsync(bid.UserId);
-                bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
+
+                bidDTO.AppUser2 = _mapper.Map<AppUserDTO2>(user);
+
+
+                var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == bidDTO.ProjectId || x.ProjectUserId == bidDTO.ProjectId);
+                var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
+                int avgRate;
+                if (totalRate != 0)
+                {
+                    avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
+                              totalRate;
+                }
+                else
+                {
+                    avgRate = 0;
+                }
+                bidDTO.AppUser2.CreatedDate = user.CreatedDate;
+                bidDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
+                bidDTO.AppUser2.AvgRate = avgRate;
+                bidDTO.AppUser2.TotalRate = totalRate;
+                bidDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
                 var address = await _addressRepository.GetAddressByUserId((int)bid.UserId);
-                bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
+                bidDTO.AppUser2.Country = address.Country;
+                bidDTO.AppUser2.City = address.City;
+
                 updatedItems.Add(bidDTO);
             }
 
@@ -132,36 +174,10 @@ namespace Application.Services
             bid.Budget = request.Budget;
             bid.UpdatedDate = DateTime.Now;
 
-            // Update the project in the repository
             _bidRepository.Update(bid);
 
-            // Handle URL record update
-            //var urlRecord = project.CreateUrlRecordAsync("chinh-sua-du-an", project.Title);
-            //await _urlRepository.AddAsync(urlRecord); // assuming there's a method for updating URLs
-
-            // Map the updated project back to a DTO
             var bidDTO = _mapper.Map<BidDTO>(bid);
 
-            // Retrieve and map the user who created the project
-            var user = await _appUserRepository.GetByIdAsync(bid.UserId);
-            bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
-            var address = await _addressRepository.GetAddressByUserId((int)bid.UserId);
-            bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
-
-            //var project = await _projectRepository.GetByIdAsync(bid.ProjectId);
-            //bidDTO.Project = _mapper.Map<ProjectDTO>(project);
-
-            //var category = await _categoryRepository.GetByIdAsync(bid.Project.CategoryId);
-            //bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
-
-            //var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
-            //bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
-
-            //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
-            //foreach (var skill in listSkills)
-            //{
-            //    bidDTO.Project.Skill.Add(skill.SkillName);
-            //}
             
             return bidDTO;
         }

@@ -30,7 +30,7 @@ namespace Application.DTOs
         public virtual ProjectDTO? Project { get; set; } = null!;
         public virtual AppUserDTO? AppUser { get; set; } = null!;
 
-        
+        public virtual AppUserDTO2? AppUser2 { get; set; } = null!;
     }
 
     public class BidAccepted

@@ -89,7 +89,7 @@
             public const string GetBiddingListByProjectId = "GetBiddingListByProjectId";
 
             public const string Bidding = "Bidding";
-            //public const string GetDetailBidById = "GetDetailBidById";
+            public const string GetBidByProjectLoggedUser = "GetBidByProjectLoggedUser";
             public const string Update = "UpdateBidding";
             public const string Delete = "DeleteBidding";
             public const string AcceptBidding = "AcceptBidding";

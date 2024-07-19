@@ -267,7 +267,7 @@ namespace Application.Services
                 return null;
             }
 
-            if (project.IsDeleted == true)
+            if (project.IsDeleted ==true || project.StatusId !=2)
             {
                 return null;
             }

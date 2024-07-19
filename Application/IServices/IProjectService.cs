@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Favorite;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
@@ -42,6 +43,14 @@ namespace Application.IServices
         Task<ProjectDTO> Delete(int id);
 
         Task<ProjectDTO> UpdateStatus(int projectId, int statusId);
+
+        //Favortite
+
+        Task<Pagination<FavoriteDTO>> GetFavorites(FavoriteSearch search);
+
+        Task<FavoriteDTO> GetFavoriteById(int uid, int pid);
+
+        Task<bool> CreateFavorite(FavoriteCreate create);
 
 
         //Task<int> CreateAsync(Project request);

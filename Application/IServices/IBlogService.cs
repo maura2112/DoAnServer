@@ -13,10 +13,14 @@ namespace Application.IServices
     {
         public Task<Blog> CreateBlog(BlogCreateDTO dto);
         public Task<BlogCreateDTO> UpdateBlog(BlogCreateDTO dto);
+
+        public Task<List<BlogDTO>> GetBlogList(int top);
         public Task<Pagination<BlogDTO>> GetBlogs(BlogSearch search);
 
         public Task<BlogDTO> GetBlogDTOAsync(int id);
 
-        public Task<bool> DeleteBlog(int id); 
+        public Task<bool> DeleteBlog(int id);
+        
+        public Task<int> PublishBlog(int id);
     }
 }

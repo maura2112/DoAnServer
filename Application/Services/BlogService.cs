@@ -49,6 +49,7 @@ namespace Application.Services
                             UserId = b.CreatedBy,
                             CategoryName = c.CategoryName,
                             Author = u.Name,
+                            IsPublished = b.IsPublished,
                             BlogImage = b.BlogImage,
                             CreateDate = b.CreatedDate,
                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
@@ -96,6 +97,7 @@ namespace Application.Services
                              Description = b.Description,
                              CategoryId = b.CategoryId,
                              UserId = b.CreatedBy,
+                             IsPublished = b.IsPublished,
                              CategoryName = c.CategoryName,
                              Author = u.Name,
                              BlogImage = b.BlogImage,
@@ -114,6 +116,8 @@ namespace Application.Services
             }
             blog.UpdatedDate = DateTime.UtcNow;
             blog.Title = dto.Title;
+            blog.BlogImage = dto.BlogImage;
+            blog.IsPublished = dto.IsPublished;
             blog.Description = dto.Description;
             blog.CategoryId = dto.CategoryId;
             _context.Blogs.Update(blog);
@@ -132,6 +136,45 @@ namespace Application.Services
             _context.Blogs.Update(blog);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<int> PublishBlog(int id)
+        {
+            var blog = await _context.Blogs.FirstOrDefaultAsync(x=>x.Id == id);
+            if(blog == null)
+            {
+                return 0;
+            }
+            blog.IsPublished = !blog.IsPublished;
+            _context.Blogs.Update(blog);
+            await _context.SaveChangesAsync();
+            return blog.Id;
+        }
+
+        public async Task<List<BlogDTO>> GetBlogList(int top)
+        {
+            var query = (from b in _context.Blogs
+                         join c in _context.Categories on b.CategoryId equals c.Id
+                         join u in _context.Users on b.CreatedBy equals u.Id
+                         where b.IsDeleted != true && b.IsPublished == true
+                         select new BlogDTO
+                         {
+                             BlogId = b.Id,
+                             Title = b.Title,
+                             Description = b.Description,
+                             CategoryId = b.CategoryId,
+                             UserId = b.CreatedBy,
+                             CategoryName = c.CategoryName,
+                             Author = u.Name,
+                             IsPublished = b.IsPublished,
+                             BlogImage = b.BlogImage,
+                             CreateDate = b.CreatedDate,
+                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
+                         });
+
+            query = query.OrderByDescending(x=>x.CreateDate).Take(top);
+            var list = await query.ToListAsync();
+            return list;
         }
     }
 }

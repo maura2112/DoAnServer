@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs;
+using Application.DTOs.Favorite;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
@@ -7,12 +8,15 @@ using Azure.Core;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Application.Common.ProjectStatus;
 
 namespace Application.Services
 {
@@ -21,11 +25,13 @@ namespace Application.Services
         private readonly IMapper _mapper ;
         private readonly IProductRepository _productRepository;
         private readonly IUrlRepository _urlRepository;
-        public ProductService(IMapper mapper, IProductRepository productRepository, IUrlRepository urlRepository)
+        private readonly ApplicationDbContext _context;
+        public ProductService(IMapper mapper, IProductRepository productRepository, IUrlRepository urlRepository, ApplicationDbContext context)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _urlRepository = urlRepository;
+            _context = context;
         }
 
         public async Task<int> Add(ProductDTO request)
@@ -45,6 +51,9 @@ namespace Application.Services
             _productRepository.Delete(product);
             return product.Id;
         }
+
+
+
 
 
 

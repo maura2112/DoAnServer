@@ -32,6 +32,21 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route(Common.Url.Blog.Gets)]
+        public async Task<IActionResult> Gets([FromQuery] int top)
+        {
+            try
+            {
+                var blogs = await _blogService.GetBlogList(top);
+                return Ok(blogs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
+        }
+
         [HttpPost]
         [Route(Common.Url.Blog.Create)]
         public async Task<IActionResult> Create(BlogCreateDTO dto)
@@ -98,6 +113,26 @@ namespace API.Controllers
                     return Ok("Đã xóa bài viết thành công");
                 }
                 return Conflict("Xóa bài viết không thành công");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpPut]
+        [Route(Common.Url.Blog.Publish)]
+        public async Task<IActionResult> Publish(int id)
+        {
+            try
+            {
+                var uid = _currentUserService.UserId;
+                var result = await _blogService.PublishBlog(id);
+                if (result !=  0)
+                {
+                    return Ok("Bạn đã công khai bài viết thành công");
+                }
+                return Conflict("Bạn đã không công khai bài viết thành công");
             }
             catch (Exception ex)
             {

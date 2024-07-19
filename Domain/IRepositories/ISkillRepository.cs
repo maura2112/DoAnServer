@@ -10,6 +10,7 @@ namespace Domain.IRepositories
     public interface ISkillRepository : IGenericRepository<Skill>
     {
         public  Task<Skill> GetByNameAsync(string skillName);
+        public  Task<List<Skill>> GetsByNameAsync(string skillName);
 
         public Task<List<Skill>> GetSkillByUser(int UserId);
 

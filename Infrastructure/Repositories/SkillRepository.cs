@@ -24,6 +24,12 @@ namespace Infrastructure.Repositories
             return skill;
         }
 
+        public async Task<List<Skill>> GetsByNameAsync(string skillName)
+        {
+            var Skills = await _context.Skills.Where(x => x.SkillName.ToLower().Contains(skillName.ToLower())).ToListAsync();
+            return Skills;
+                }
+
         public async Task<List<Skill>> GetSkillByUser(int UserId)
         {
             var skillids =await _context.UserSkills.Where(x=>x.UserId == UserId).Select(x=>x.SkillId).ToListAsync();

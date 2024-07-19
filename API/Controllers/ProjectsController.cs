@@ -1,5 +1,7 @@
 ﻿using API.Utilities;
 using Application.DTOs;
+using Application.DTOs.Favorite;
+using Application.Extensions;
 using Application.IServices;
 
 using Domain.Entities;
@@ -338,6 +340,20 @@ namespace API.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Project.AddFavorite)]
+        [RoleAuthorizeAttribute("Freelancer")]
+        public async Task<IActionResult> AddFavorite(FavoriteCreate dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            dto.UserId = _currentUserService.UserId;
+            var project = await _projectService.CreateFavorite(dto);
+            return Ok(project);
         }
 
 

@@ -9,5 +9,7 @@ namespace Application.DTOs.Favorite
     public class FavoriteSearch : SearchDTO
     {
         public int? StatusId { get; set; }
+
+        public int? UserId { get;  set; }
     }
 }

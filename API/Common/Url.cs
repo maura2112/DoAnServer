@@ -56,6 +56,8 @@
             public const string Update = "Update";
             public const string Delete = "Delete";
             public const string Detail = "Detail";
+            public const string Publish = "Publish";
+            public const string Gets = "Gets";
 
         }
         public static class Rating
@@ -80,6 +82,7 @@
             public const string AcceptBid = "AcceptBid";
             public const string GetByStatus = "GetByStatus";
             public const string Favorite = "Favorite";
+            public const string AddFavorite = "AddFavorite";
 
         }
 
@@ -110,6 +113,7 @@
             public const string Delete = "Delete";
             public const string Gets = "Gets";
             public const string All = "GetAll";
+            public const string AllPublish = "AllPublish";
             public const string GetByCategoryId = "GetByCategoryId";
 
         }

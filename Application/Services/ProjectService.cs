@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Favorite;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
@@ -494,6 +495,94 @@ namespace Application.Services
             };
 
             return result;
+        }
+
+        public async Task<bool> CreateFavorite(FavoriteCreate create)
+        {
+            var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x=>x.AppUserId == create.UserId && x.ProjectId == create.ProjectId);
+            if(favorite != null)
+            {
+                return false;
+            }
+            var fa = new FavoriteProject()
+            {
+                AppUserId = (int)create.UserId,
+                ProjectId = create.ProjectId,
+                SavedDate = DateTime.Now,
+            };
+            await _context.FavoriteProjects.AddAsync(fa);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        //public async Task<int> Delete Favorite(FavoriteCreate create)
+        //{
+        //    var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x => x.AppUserId == create.UserId && x.ProjectId == create.ProjectId);
+        //    if (favorite == null)
+        //    {
+        //        return 0;
+        //    }
+        //    var favoriteId = favorite.Id;
+        //    _context.FavoriteProjects.Remove(favorite);
+        //    await _context.SaveChangesAsync();
+        //    return favoriteId;
+        //}
+
+        public async Task<Pagination<FavoriteDTO>> GetFavorites(FavoriteSearch search)
+        {
+            var query = from f in _context.FavoriteProjects
+                        join p in _context.Projects on f.ProjectId equals p.Id
+                        join u in _context.Users on f.AppUserId equals u.Id
+                        join s in _context.ProjectStatus on p.StatusId equals s.Id
+                        where u.Id == search.UserId
+                        select new FavoriteDTO
+                        {
+                            Id = f.Id,
+                            ProjectId = f.ProjectId,
+                            UserId = u.Id,
+                            ProjectName = p.Title,
+                            Description = p.Description,
+                            Status = s.StatusName,
+                            StatusColor = s.StatusColor,
+                            StatusId = s.Id,
+                            CreatedProject = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
+                            SavedTime = DateTimeHelper.ToVietnameseDateString(f.SavedDate),
+                        };
+            if (search.StatusId != null)
+            {
+                query = query.Where(x => x.StatusId == search.StatusId);
+            }
+            var totalItem = await query.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
+            var result = new Pagination<FavoriteDTO>()
+            {
+                PageSize = search.PageSize,
+                PageIndex = search.PageIndex,
+                TotalItemsCount = query.Count(),
+                Items = totalItem,
+            };
+            return result;
+        }
+
+        public async Task<FavoriteDTO> GetFavoriteById(int uid, int pid)
+        {
+            var query = await (from f in _context.FavoriteProjects
+                               join p in _context.Projects on f.ProjectId equals p.Id
+                               join u in _context.Users on f.AppUserId equals u.Id
+                               join s in _context.ProjectStatus on p.StatusId equals s.Id
+                               where u.Id == uid && p.Id == pid
+                               select new FavoriteDTO
+                               {
+                                   Id = f.Id,
+                                   ProjectId = f.ProjectId,
+                                   UserId = u.Id,
+                                   ProjectName = p.Title,
+                                   Description = p.Description,
+                                   Status = s.StatusName,
+                                   StatusColor = s.StatusColor,
+                                   CreatedProject = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
+                                   SavedTime = DateTimeHelper.ToVietnameseDateString(f.SavedDate),
+                               }).FirstOrDefaultAsync();
+            return query;
         }
 
         public  async Task<Pagination<ProjectDTO>> GetByUserId(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)

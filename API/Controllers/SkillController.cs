@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Domain.Entities;
+using Domain.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -13,9 +14,11 @@ namespace API.Controllers
     {
         private readonly ISkillService _skillService;
         private readonly ICurrentUserService _currentUserService;
-        public SkillController(ISkillService skillService, ICurrentUserService currentUserService)
+        private readonly ISkillRepository _skillRepository;
+        public SkillController(ISkillService skillService, ICurrentUserService currentUserService, ISkillRepository skillRepository)
         {
             _skillService = skillService;
+            _skillRepository = skillRepository;
             _currentUserService = currentUserService;
         }
 
@@ -50,6 +53,21 @@ namespace API.Controllers
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _skillService.GetAll());
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Skill.AllPublish)]
+        public async Task<IActionResult> AllPublish([FromQuery] string skillname)
+        {
+            var skills = new List<Domain.Entities.Skill>();
+            if(skillname == null)
+            {
+                skills = await _skillRepository.GetAll();
+            }else
+            {
+                skills = await _skillRepository.GetsByNameAsync(skillname);
+            }
+            return Ok(skills);
         }
 
         [HttpGet]

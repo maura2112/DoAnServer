@@ -165,9 +165,8 @@ namespace API.Controllers
                             Datetime = DateTime.Now,
                             NotificationType = 1,
                             IsRead = 0,
-                            Link = "details/"+bid.ProjectId
+                            Link = "detail/"+bid.ProjectId
                         };
-
                             bool x = await _notificationService.AddNotification(notificationDto);
                         if (x)
                         {

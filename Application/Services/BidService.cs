@@ -134,36 +134,26 @@ namespace Application.Services
 
                 var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == bidDTO.ProjectId || x.ProjectUserId == bidDTO.ProjectId);
                 var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
-                int avgRate;
+                decimal avgRate;
                 if (totalRate != 0)
                 {
-                    avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
-                              totalRate;
+                    float sumStars = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star);
+                    avgRate = Math.Round((decimal)sumStars / totalRate, 1);
                 }
                 else
                 {
                     avgRate = 0;
                 }
-                var listSkillId = await _context.UserSkills.Where(x => x.UserId == user.Id).ToListAsync();
-                foreach (var s in listSkillId)
-                {
-                    var skill = await _context.Skills
-                        .Where(x => x.Id == s.SkillId)
-                        .Select(x => x.SkillName)
-                        .FirstOrDefaultAsync();
-                    bidDTO.AppUser2.Skill.Add(skill.ToString());
-                }
+
                 bidDTO.AppUser2.CreatedDate = user.CreatedDate;
                 bidDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
-                bidDTO.AppUser2.AvgRate = avgRate;
+                bidDTO.AppUser2.AvgRate = (float)avgRate;
                 bidDTO.AppUser2.TotalRate = totalRate;
                 bidDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
                 var address = await _addressRepository.GetAddressByUserId((int)bid.UserId);
-                if(address != null)
-                {
-                    bidDTO.AppUser2.Country = address.Country;
-                    bidDTO.AppUser2.City = address.City;
-                }
+                bidDTO.AppUser2.Country = address.Country;
+                bidDTO.AppUser2.City = address.City;
+
                 updatedItems.Add(bidDTO);
             }
 

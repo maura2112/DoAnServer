@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories
         {
             var items = await _dbSet.Where(filter)
                 .AsNoTracking()
-                .OrderBy(x=>x.UpdatedDate)
+                .OrderByDescending(x=>x.UpdatedDate)
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
             var result = new Pagination<Bid>()

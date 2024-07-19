@@ -300,10 +300,6 @@ namespace Application.Services
                 projectDTO.AppUser2.Country = address.Country;
                 projectDTO.AppUser2.City = address.City;
             }
-            
-
-            
-
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDTO.Category = _mapper.Map<CategoryDTO>(category);
 
@@ -312,6 +308,59 @@ namespace Application.Services
 
             var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
             projectDTO.Skill = listSkills.Select(x=>x.SkillName).ToList();
+            projectDTO.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDTO.CreatedDate);
+            projectDTO.AverageBudget = await _projectRepository.GetAverageBudget(projectDTO.Id);
+            projectDTO.TotalBids = await _projectRepository.GetTotalBids(projectDTO.Id);
+            projectDTO.CreatedDateString = DateTimeHelper.ToVietnameseDateString(projectDTO.CreatedDate);
+            projectDTO.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(projectDTO.UpdatedDate);
+            return projectDTO;
+        }
+
+        //not check delete
+        public async Task<ProjectDTO> GetDetailProjectForId(int id)
+        {
+            var project = await _projectRepository.GetByIdAsync(id);
+            if (project == null)
+            {
+                return null;
+            }
+            var projectDTO = _mapper.Map<ProjectDTO>(project);
+
+            var user = await _appUserRepository.GetByIdAsync(project.CreatedBy);
+            projectDTO.AppUser2 = _mapper.Map<AppUserDTO2>(user);
+
+
+            var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == projectDTO.Id || x.ProjectUserId == projectDTO.Id);
+            var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
+            int avgRate;
+            if (totalRate != 0)
+            {
+                avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
+                          totalRate;
+            }
+            else
+            {
+                avgRate = 0;
+            }
+            projectDTO.AppUser2.CreatedDate = user.CreatedDate;
+            projectDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
+            projectDTO.AppUser2.AvgRate = avgRate;
+            projectDTO.AppUser2.TotalRate = totalRate;
+            projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
+            var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
+            if (address != null)
+            {
+                projectDTO.AppUser2.Country = address.Country;
+                projectDTO.AppUser2.City = address.City;
+            }
+            var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
+            projectDTO.Category = _mapper.Map<CategoryDTO>(category);
+
+            var status = await _statusRepository.GetByIdAsync(project.StatusId);
+            projectDTO.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
+
+            var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
+            projectDTO.Skill = listSkills.Select(x => x.SkillName).ToList();
             projectDTO.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDTO.CreatedDate);
             projectDTO.AverageBudget = await _projectRepository.GetAverageBudget(projectDTO.Id);
             projectDTO.TotalBids = await _projectRepository.GetTotalBids(projectDTO.Id);

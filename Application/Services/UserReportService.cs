@@ -24,6 +24,7 @@ namespace Application.Services
         private readonly IProjectService _projectService;
         private readonly IBidService _bidService;
 
+
         public UserReportService(IReportRepository repository, IMapper mapper, PaginationService<ReportDTO> paginationService, IReportCategoryRepository categoryRepository, UserManager<AppUser> userManager, IProjectService projectService, IBidService bidService)
         {
             _repository = repository;
@@ -60,7 +61,7 @@ namespace Application.Services
                     var userBid = _userManager.FindByIdAsync(Bid.Result.UserId.ToString());
                     reportDTO.BidUser = userBid.Result.Name;
                 }else if(report.ProjectId != null) {
-                    var project = _projectService.GetDetailProjectById((int)report.ProjectId);
+                    var project = _projectService.GetDetailProjectForId((int)report.ProjectId);
                     reportDTO.ProjectName = project.Result.Title;
                     var userProject = _userManager.FindByIdAsync(project.Result.CreatedBy.ToString());
                     reportDTO.ProjectUser = userProject.Result.Name;

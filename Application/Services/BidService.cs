@@ -144,15 +144,26 @@ namespace Application.Services
                 {
                     avgRate = 0;
                 }
+                var listSkillId = await _context.UserSkills.Where(x => x.UserId == user.Id).ToListAsync();
+                foreach (var s in listSkillId)
+                {
+                    var skill = await _context.Skills
+                        .Where(x => x.Id == s.SkillId)
+                        .Select(x => x.SkillName)
+                        .FirstOrDefaultAsync();
+                    bidDTO.AppUser2.Skill.Add(skill.ToString());
+                }
                 bidDTO.AppUser2.CreatedDate = user.CreatedDate;
                 bidDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
                 bidDTO.AppUser2.AvgRate = avgRate;
                 bidDTO.AppUser2.TotalRate = totalRate;
                 bidDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
                 var address = await _addressRepository.GetAddressByUserId((int)bid.UserId);
-                bidDTO.AppUser2.Country = address.Country;
-                bidDTO.AppUser2.City = address.City;
-
+                if(address != null)
+                {
+                    bidDTO.AppUser2.Country = address.Country;
+                    bidDTO.AppUser2.City = address.City;
+                }
                 updatedItems.Add(bidDTO);
             }
 

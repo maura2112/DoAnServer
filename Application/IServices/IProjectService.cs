@@ -37,6 +37,9 @@ namespace Application.IServices
 
         Task<ProjectDTO> GetDetailProjectById(int id);
 
+        // not check delete
+        Task<ProjectDTO> GetDetailProjectForId(int id);
+
         Task<ProjectDTO> Add(AddProjectDTO request);
 
         Task<ProjectDTO> Update(UpdateProjectDTO request);

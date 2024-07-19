@@ -294,8 +294,12 @@ namespace Application.Services
             projectDTO.AppUser2.TotalRate = totalRate;
             projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
             var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
-            projectDTO.AppUser2.Country = address.Country;
-            projectDTO.AppUser2.City = address.City;
+            if (address != null)
+            {
+                projectDTO.AppUser2.Country = address.Country;
+                projectDTO.AppUser2.City = address.City;
+            }
+            
 
             
 

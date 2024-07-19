@@ -100,7 +100,6 @@ namespace API.Controllers
                 {
                     filter = item => item.ProjectId == bids.ProjectId;
                 }
-
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
                 string msg = null;
                 if (result.TotalItemsCount <= 0)

@@ -72,7 +72,8 @@ namespace Infrastructure.Repositories
         public async Task<Pagination<Project>> ProjectGetAsync(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
         {
             var items = await _dbSet.Where(filter)
-                .Where(x => x.IsDeleted == false && x.StatusId == 2).OrderBy(x=>x.UpdatedDate)
+                .Where(x => x.IsDeleted == false && x.StatusId == 2)
+                .OrderBy(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();

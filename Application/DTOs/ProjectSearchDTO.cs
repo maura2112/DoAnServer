@@ -14,8 +14,8 @@ namespace Application.DTOs
         public string? Keyword { get; set; }
 
         public List<string>? Skill { get; set; }
-        
 
+        public int? Duration { get; set; }
         public int? StatusId { get; set; }
 
         public int? MinBudget { get; set; }

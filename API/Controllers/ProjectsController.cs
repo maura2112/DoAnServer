@@ -86,6 +86,10 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.MinBudget >= projects.MinBudget);
             }
+            if (projects.Duration.HasValue && projects.Duration > 0)
+            {
+                filter = filter.And(item => item.Duration == projects.Duration);
+            }
 
             if (projects.MaxBudget.HasValue && projects.MaxBudget > 0)
             {
@@ -136,7 +140,10 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skill.Contains(skill.Skill.SkillName)));
             }
-
+            if (projects.Duration.HasValue && projects.Duration > 0)
+            {
+                filter = filter.And(item => item.Duration == projects.Duration);
+            }
 
             if (projects.MinBudget.HasValue && projects.MinBudget > 0)
             {
@@ -192,7 +199,10 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skill.Contains(skill.Skill.SkillName)));
             }
-
+            if (projects.Duration.HasValue && projects.Duration > 0)
+            {
+                filter = filter.And(item => item.Duration == projects.Duration);
+            }
 
             if (projects.MinBudget.HasValue && projects.MinBudget > 0)
             {

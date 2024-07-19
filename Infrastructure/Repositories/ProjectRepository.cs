@@ -53,7 +53,7 @@ namespace Infrastructure.Repositories
             
             var items = await _context.Projects
                 .Where(x => x.IsDeleted == false && x.StatusId == 2)
-                .OrderBy(x=>x.UpdatedDate)
+                .OrderByDescending(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize)
@@ -73,7 +73,7 @@ namespace Infrastructure.Repositories
         {
             var items = await _dbSet.Where(filter)
                 .Where(x => x.IsDeleted == false && x.StatusId == 2)
-                .OrderBy(x=>x.UpdatedDate)
+                .OrderByDescending(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
@@ -92,7 +92,7 @@ namespace Infrastructure.Repositories
         {
             var items = await _dbSet.Where(filter)
                 .Where(x => x.IsDeleted == false )
-                .OrderBy(x=>x.UpdatedDate)
+                .OrderByDescending(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
@@ -111,7 +111,7 @@ namespace Infrastructure.Repositories
         {
             var items = await _dbSet.Where(filter)
                 .Where(x=>x.CreatedBy == userId)
-                .OrderBy(x => x.UpdatedDate)
+                .OrderByDescending(x => x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
             var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();

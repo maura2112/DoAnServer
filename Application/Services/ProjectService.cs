@@ -215,6 +215,49 @@ namespace Application.Services
             return projectDTOs;
         }
 
+        public async Task<Pagination<ProjectDTO>> GetWithFilterForRecruiter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
+        {
+            var userId = _currentUserService.UserId;
+            if (userId == null)
+            {
+                return null;
+            }
+            var projects = await _projectRepository.GetAsyncForRecruiter(filter, userId, pageIndex, pageSize);
+            var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
+            var updatedItems = new List<ProjectDTO>();
+
+            foreach (var x in projectDTOs.Items)
+            {
+                var model = _mapper.Map<ProjectDTO>(x);
+
+                var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
+                model.AppUser = _mapper.Map<AppUserDTO>(user);
+                var address = await _addressRepository.GetAddressByUserId((int)x.CreatedBy);
+                model.AppUser.Address = _mapper.Map<AddressDTO>(address);
+
+                var category = await _categoryRepository.GetByIdAsync(x.CategoryId);
+                model.Category = _mapper.Map<CategoryDTO>(category);
+
+                var status = await _statusRepository.GetByIdAsync(x.StatusId);
+                model.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
+
+                var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(x.Id);
+                foreach (var skill in listSkills)
+                {
+                    model.Skill.Add(skill.SkillName);
+                }
+                model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
+                model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
+                model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
+                model.CreatedDateString = DateTimeHelper.ToVietnameseDateString(model.CreatedDate);
+                model.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(model.UpdatedDate);
+                updatedItems.Add(model);
+            }
+
+            projectDTOs.Items = updatedItems;
+            return projectDTOs;
+        }
+
         public async Task<ProjectDTO> GetDetailProjectById(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);

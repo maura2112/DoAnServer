@@ -105,5 +105,24 @@ namespace Infrastructure.Repositories
 
             return result;
         }
+
+        public async Task<Pagination<Project>> GetAsyncForRecruiter(Expression<Func<Project, bool>> filter, int userId, int pageIndex, int pageSize)
+        {
+            var items = await _dbSet.Where(filter)
+                .Where(x=>x.CreatedBy == userId)
+                .OrderBy(x => x.UpdatedDate)
+                .AsNoTracking()
+                .ToListAsync();
+            var totalItem = items.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            var result = new Pagination<Project>()
+            {
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                TotalItemsCount = items.Count(x => x.IsDeleted == false),
+                Items = totalItem,
+            };
+
+            return result;
+        }
     }
 }

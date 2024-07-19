@@ -22,6 +22,10 @@ namespace Domain.IRepositories
             Expression<Func<Project, bool>> filter,
             int pageIndex,
             int pageSize);
+        public Task<Pagination<Project>> GetAsyncForRecruiter(
+            Expression<Func<Project, bool>> filter, int userId,
+            int pageIndex,
+            int pageSize);
 
     }
 }

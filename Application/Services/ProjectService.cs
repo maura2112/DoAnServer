@@ -1,13 +1,17 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Application.DTOs.Favorite;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
 using Azure.Core;
+using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.InkML;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
 using Infrastructure.Data;
+using Infrastructure.Migrations;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -463,10 +467,74 @@ namespace Application.Services
             return DTO;
         }
 
-        public async Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
+        public async Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, ProjectSearchDTO dto , int pageIndex, int pageSize)
         {
-            var projects = await _projectRepository.ProjectGetAsync(filter, pageIndex, pageSize);
-            var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
+            var result = new Pagination<Project>();
+            if (dto.Keyword != null)
+            {
+                var query = from p in _context.Projects
+                            join ps in _context.ProjectSkills on p.Id equals ps.ProjectId into psGroup
+                            from ps in psGroup.DefaultIfEmpty()
+                            join s in _context.Skills on ps.SkillId equals s.Id into sGroup
+                            from s in sGroup.DefaultIfEmpty()
+                            join c in _context.Categories on p.CategoryId equals c.Id into cGroup
+                            from c in cGroup.DefaultIfEmpty()
+                            group new { p, s, c } by p into g
+                            orderby g.Key.CreatedDate descending
+                            select new
+                            {
+                                Project = g.Key, // Lấy toàn bộ thông tin của đối tượng p từ nhóm
+                                Title = g.Key.Title,
+                                Description = g.Key.Description,
+                                Skills = string.Join(", ", g.Select(x => x.s != null ? x.s.SkillName : null).Where(skillName => skillName != null)),
+                                CategoryName = g.Select(x => x.c != null ? x.c.CategoryName : null).FirstOrDefault()
+                            };
+                query = query.Where(x => x.Title.ToLower().Contains(dto.Keyword.ToLower()) || x.Description.ToLower().Contains(dto.Keyword.ToLower()) || x.Skills.ToLower().Contains(dto.Keyword.ToLower())|| x.CategoryName.ToLower().Contains(dto.Keyword.ToLower()));
+                var totalItem = await query.Select(x=>x.Project).Skip((dto.PageIndex - 1) * dto.PageSize).Take(dto.PageSize).ToListAsync();
+                result = new Pagination<Project>()
+                {
+                    PageSize = dto.PageSize,
+                    PageIndex = dto.PageIndex,
+                    TotalItemsCount = query.Count(),
+                    Items = totalItem,
+                };
+            }else
+            {
+                if (dto.CategoryId.HasValue && dto.CategoryId > 0)
+                {
+                    filter = filter.And(item => item.CategoryId == dto.CategoryId.Value);
+                }
+
+                if (dto.Skill != null && dto.Skill.Any())
+                {
+                    filter = filter.And(item => item.ProjectSkills.Any(skill => dto.Skill.Contains(skill.Skill.SkillName)));
+                }
+                if (dto.Duration.HasValue && dto.Duration > 0)
+                {
+                    filter = filter.And(item => item.Duration == dto.Duration);
+                }
+
+                if (dto.MinBudget.HasValue && dto.MinBudget > 0)
+                {
+                    filter = filter.And(item => item.MinBudget >= dto.MinBudget);
+                }
+
+                if (dto.MaxBudget.HasValue && dto.MaxBudget > 0)
+                {
+                    filter = filter.And(item => item.MaxBudget <= dto.MaxBudget);
+                }
+
+                if (dto.CreatedFrom.HasValue)
+                {
+                    filter = filter.And(item => item.CreatedDate >= dto.CreatedFrom);
+                }
+                if (dto.CreatedTo.HasValue)
+                {
+                    filter = filter.And(item => item.CreatedDate <= dto.CreatedTo);
+                }
+                result = await _projectRepository.ProjectGetAsync(filter, pageIndex, pageSize);
+            }
+            var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(result);
             var updatedItems = new List<ProjectDTO>();
 
             foreach (var x in projectDTOs.Items)
@@ -553,9 +621,6 @@ namespace Application.Services
             projectDto.TotalBids = await _projectRepository.GetTotalBids(projectDto.Id);
             projectDto.CreatedDateString = DateTimeHelper.ToVietnameseDateString(projectDto.CreatedDate);
             projectDto.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(projectDto.UpdatedDate);
-
-
-
             return projectDto;
         }
 

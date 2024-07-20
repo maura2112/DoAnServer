@@ -107,13 +107,21 @@ namespace Application.DTOs
     {
         public UpdateBidDTOValidator()
         {
+            RuleFor(v => v.Id)
+                .NotEmpty().WithMessage("Không được để trống");
             RuleFor(v => v.Budget)
                 .NotEmpty().WithMessage("Ngân sách không được để trống")
-                .GreaterThan(0).WithMessage("Ngân sách phải lớn hơn 0");
+                .GreaterThan(0).WithMessage("Ngân sách phải lớn hơn 0").LessThan(2000000000)
+                .WithMessage("Ngân sách phải nhỏ hơn 2B");
+
             RuleFor(v => v.Duration)
-                .NotEmpty().WithMessage("Ngân sách không được để trống")
-                .GreaterThan(0).WithMessage("Thời lượng lớn hơn 0"); ;
-            RuleFor(v => v.Proposal).NotEmpty().WithMessage("Không được để trống");
+                .NotEmpty().WithMessage("Thời lượng không được để trống")
+                .GreaterThan(0).WithMessage("Thời lượng lớn hơn 0")
+                .LessThan(100).WithMessage("Thời lượng phải nhỏ hơn 100");
+            RuleFor(v => v.Proposal)
+                .NotEmpty().WithMessage("Đề xuất không được để trống");
+            RuleFor(v => v.Proposal.Length)
+                .LessThan(1000).WithMessage("Đề xuất không được lớn hơn 1000 kí tự");
         }
     }
 

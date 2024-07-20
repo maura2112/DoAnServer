@@ -125,6 +125,9 @@ public static class DependencyInjection
         //Statistic
         services.AddScoped<IStatisticService, StatisticService>();
 
+        //Export
+        services.AddScoped<IExportService, ExportService>();
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;

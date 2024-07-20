@@ -138,5 +138,10 @@
             public const string StatisticSkills = "StatisticSkills";
             
         }
+
+        public static class Export
+        {
+            public const string ExportStatistic = "ExportStatistic";
+        }
     }
 }

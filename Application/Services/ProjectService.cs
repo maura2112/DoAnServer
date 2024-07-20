@@ -633,18 +633,18 @@ namespace Application.Services
             return true;
         }
 
-        //public async Task<int> Delete Favorite(FavoriteCreate create)
-        //{
-        //    var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x => x.AppUserId == create.UserId && x.ProjectId == create.ProjectId);
-        //    if (favorite == null)
-        //    {
-        //        return 0;
-        //    }
-        //    var favoriteId = favorite.Id;
-        //    _context.FavoriteProjects.Remove(favorite);
-        //    await _context.SaveChangesAsync();
-        //    return favoriteId;
-        //}
+        public async Task<int> DeleteFavorite(FavoriteCreate create)
+        {
+            var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x => x.AppUserId == create.UserId && x.ProjectId == create.ProjectId);
+            if (favorite == null)
+            {
+                return 0;
+            }
+            var favoriteId = favorite.Id;
+            _context.FavoriteProjects.Remove(favorite);
+            await _context.SaveChangesAsync();
+            return favoriteId;
+        }
 
         public async Task<Pagination<FavoriteDTO>> GetFavorites(FavoriteSearch search)
         {

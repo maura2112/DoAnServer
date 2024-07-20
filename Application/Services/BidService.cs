@@ -94,27 +94,25 @@ namespace Application.Services
             
             await _bidRepository.AddAsync(bid);
 
-            //var user = await _appUserRepository.GetByIdAsync(userId);
-            //bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
-            //var address = await _addressRepository.GetAddressByUserId(userId);
-            //bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
+            var user = await _appUserRepository.GetByIdAsync(userId);
+            bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
+            var address = await _addressRepository.GetAddressByUserId(userId);
+            bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
 
-            ////var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
-            ////bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
+            //var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
+            //bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
 
-            //var project = await _projectRepository.GetByIdAsync(request.ProjectId);
-            //bidDTO.Project = _mapper.Map<ProjectDTO>(project);
+            var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+            bidDTO.Project = _mapper.Map<ProjectDTO>(project);
 
-            ////var category = await _categoryRepository.GetByIdAsync(request.Project.CategoryId);
-            ////bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
+            //var category = await _categoryRepository.GetByIdAsync(request.Project.CategoryId);
+            //bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
 
             //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
             //foreach (var skill in listSkills)
             //{
             //    bidDTO.Project.Skill.Add(skill.SkillName);
             //}
-            ////var urlRecord = bid.CreateUrlRecordAsync("du-an", bid.ProjectId.ToString());
-            ////await _urlRepository.AddAsync(urlRecord);
             return bidDTO;
         }
 
@@ -144,19 +142,19 @@ namespace Application.Services
                 {
                     avgRate = 0;
                 }
-
                 bidDTO.AppUser2.CreatedDate = user.CreatedDate;
                 bidDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
                 bidDTO.AppUser2.AvgRate = (float)avgRate;
                 bidDTO.AppUser2.TotalRate = totalRate;
                 bidDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
                 var address = await _addressRepository.GetAddressByUserId((int)bid.UserId);
-                bidDTO.AppUser2.Country = address.Country;
-                bidDTO.AppUser2.City = address.City;
-
+                if (address != null)
+                {
+                    bidDTO.AppUser2.Country = address.Country;
+                    bidDTO.AppUser2.City = address.City;
+                }
                 updatedItems.Add(bidDTO);
             }
-
             bidDTOs.Items = updatedItems;
             return bidDTOs;
         }

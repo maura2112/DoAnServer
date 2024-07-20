@@ -414,15 +414,59 @@ namespace API.Controllers
         [HttpPost]
         [Route(Common.Url.Project.AddFavorite)]
         [RoleAuthorizeAttribute("Freelancer")]
-        public async Task<IActionResult> AddFavorite(FavoriteCreate dto)
+        public async Task<IActionResult> AddFavorite([FromBody] FavoriteCreate dto)
         {
             if (!ModelState.IsValid)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
             dto.UserId = _currentUserService.UserId;
-            var project = await _projectService.CreateFavorite(dto);
-            return Ok(project);
+            var result = await _projectService.CreateFavorite(dto);
+            if (!result)
+            {
+                return Conflict("Thêm yêu thích không thành công");
+            }
+            return Ok(new
+            {
+                message = "Thêm yêu thích thành công",
+                data = result
+            });
+        }
+
+        [HttpDelete]
+        [Route(Common.Url.Project.DeleteFavorite)]
+        [RoleAuthorizeAttribute("Freelancer")]
+        public async Task<IActionResult> DeleteFavorite([FromBody]FavoriteCreate dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            dto.UserId = _currentUserService.UserId;
+            var result = await _projectService.DeleteFavorite(dto);
+            if (result == 0)
+            {
+                return Conflict("Xóa yêu thích không thành công");
+            }
+            return Ok(new
+            {
+                message = "Xóa yêu thích thành công",
+                data = result
+            });
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Project.Favorite)]
+        [RoleAuthorizeAttribute("Freelancer")]
+        public async Task<IActionResult> Favorite([FromQuery]FavoriteSearch dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            dto.UserId = _currentUserService.UserId;
+            var result = await _projectService.GetFavorites(dto);
+            return Ok(result);
         }
 
 

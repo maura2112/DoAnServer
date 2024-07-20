@@ -54,6 +54,8 @@ namespace Application.IServices
 
         Task<FavoriteDTO> GetFavoriteById(int uid, int pid);
 
+        Task<int> DeleteFavorite(FavoriteCreate create);
+
         Task<bool> CreateFavorite(FavoriteCreate create);
 
 

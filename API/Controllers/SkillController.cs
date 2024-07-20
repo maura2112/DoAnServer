@@ -108,7 +108,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Skill.AddSkill)]
-        public async Task<IActionResult> AddSkillAsync(SkillDTO DTOs)
+        public async Task<IActionResult> AddSkillAsync([FromBody] SkillDTO DTOs)
         {
             if (!ModelState.IsValid)
             {

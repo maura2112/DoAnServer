@@ -12,12 +12,15 @@ namespace Domain.Entities
     {
         public int CreatedBy {get;set;}
         public string Title { get;set;}
+        public string ShortDescription { get;set;}
         public string Description { get;set;}
         [ForeignKey("Category")]
         public int CategoryId { get;set;}
         public string BlogImage { get;set;}
 
         public bool IsPublished { get; set; }
+        public bool IsHot { get; set; }
+        public bool IsHomePage { get; set; }
         public Category Category { get;set;}
         public DateTime CreatedDate { get;set;}
         public DateTime? UpdatedDate { get;set;}

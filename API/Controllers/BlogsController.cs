@@ -34,11 +34,11 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Blog.Gets)]
-        public async Task<IActionResult> Gets([FromQuery] int top)
+        public async Task<IActionResult> Gets([FromQuery] BlogFilter filter)
         {
             try
             {
-                var blogs = await _blogService.GetBlogList(top);
+                var blogs = await _blogService.GetBlogList(filter);
                 return Ok(blogs);
             }
             catch (Exception ex)

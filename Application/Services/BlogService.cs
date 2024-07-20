@@ -44,11 +44,14 @@ namespace Application.Services
                         {
                             BlogId = b.Id,
                             Title = b.Title,
+                            ShortDesction = b.ShortDescription,
                             Description = b.Description,
                             CategoryId = b.CategoryId,
                             UserId = b.CreatedBy,
                             CategoryName = c.CategoryName,
                             Author = u.Name,
+                            IsHomePage = b.IsHomePage,
+                            IsHot = b.IsHot,
                             IsPublished = b.IsPublished,
                             BlogImage = b.BlogImage,
                             CreateDate = b.CreatedDate,
@@ -94,10 +97,13 @@ namespace Application.Services
                          {
                              BlogId = b.Id,
                              Title = b.Title,
+                             ShortDesction = b.ShortDescription,
                              Description = b.Description,
                              CategoryId = b.CategoryId,
                              UserId = b.CreatedBy,
                              IsPublished = b.IsPublished,
+                             IsHomePage = b.IsHomePage,
+                             IsHot= b.IsHot,
                              CategoryName = c.CategoryName,
                              Author = u.Name,
                              BlogImage = b.BlogImage,
@@ -119,6 +125,9 @@ namespace Application.Services
             blog.BlogImage = dto.BlogImage;
             blog.IsPublished = dto.IsPublished;
             blog.Description = dto.Description;
+            blog.ShortDescription = dto.ShortDescription;
+            blog.IsHomePage = dto.IsHomePage;
+            blog.IsHot = dto.IsHot;
             blog.CategoryId = dto.CategoryId;
             _context.Blogs.Update(blog);
             await _context.SaveChangesAsync();
@@ -151,7 +160,7 @@ namespace Application.Services
             return blog.Id;
         }
 
-        public async Task<List<BlogDTO>> GetBlogList(int top)
+        public async Task<List<BlogDTO>> GetBlogList(BlogFilter filter)
         {
             var query = (from b in _context.Blogs
                          join c in _context.Categories on b.CategoryId equals c.Id
@@ -162,17 +171,29 @@ namespace Application.Services
                              BlogId = b.Id,
                              Title = b.Title,
                              Description = b.Description,
+                             ShortDesction = b.ShortDescription,
                              CategoryId = b.CategoryId,
                              UserId = b.CreatedBy,
                              CategoryName = c.CategoryName,
                              Author = u.Name,
                              IsPublished = b.IsPublished,
+                             IsHomePage = b.IsHomePage,
+                             IsHot = b.IsHot,
                              BlogImage = b.BlogImage,
                              CreateDate = b.CreatedDate,
                              CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
                          });
+            if(filter.IsHot != null)
+            {
+                query = query.Where(x=>x.IsHot == filter.IsHot);
+            }
 
-            query = query.OrderByDescending(x=>x.CreateDate).Take(top);
+            if (filter.IsHomePage != null)
+            {
+                query = query.Where(x => x.IsHomePage == filter.IsHomePage);
+            }
+
+            query = query.OrderByDescending(x=>x.CreateDate).Take(filter.Top);
             var list = await query.ToListAsync();
             return list;
         }

@@ -11,9 +11,13 @@ namespace Application.DTOs
         public int BlogId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string ShortDesction { get; set; }
+
         public int UserId { get; set; }
 
         public bool IsPublished { get; set; }
+        public bool IsHot { get; set; }
+        public bool IsHomePage { get; set; }
         public string Author { get; set; }
         public int CategoryId { get; set; }
         public string BlogImage { get; set; }

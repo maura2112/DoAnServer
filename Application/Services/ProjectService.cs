@@ -481,6 +481,7 @@ namespace Application.Services
                             from c in cGroup.DefaultIfEmpty()
                             group new { p, s, c } by p into g
                             orderby g.Key.CreatedDate descending
+                            where g.Key.StatusId == 2 && g.Key.IsDeleted != true
                             select new
                             {
                                 Project = g.Key, // Lấy toàn bộ thông tin của đối tượng p từ nhóm

@@ -115,10 +115,10 @@ namespace API.Controllers
                 
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            var uid = _currentUserService.UserId;
+            var uid =  _currentUserService.UserId;
             DTOs.CreatedBy = uid;
             await _skillService.Add(DTOs);
-            return NoContent();
+            return Ok();
         }
     }
 }

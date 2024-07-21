@@ -142,6 +142,21 @@ namespace Application.Services
                 {
                     avgRate = 0;
                 }
+
+                var userSkills = await _context.UserSkills
+                    .Where(x => x.UserId == bidDTO.AppUser2.Id) // Assuming UserId is the correct field
+                    .ToListAsync();
+
+                var skillIds = userSkills.Select(us => us.SkillId).ToList();
+
+                var skills = await _context.Skills
+                    .Where(s => skillIds.Contains(s.Id))
+                    .ToListAsync();
+
+                foreach (var skill in skills)
+                {
+                    bidDTO.AppUser2.Skill.Add(skill.SkillName);
+                }
                 bidDTO.AppUser2.CreatedDate = user.CreatedDate;
                 bidDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
                 bidDTO.AppUser2.AvgRate = (float)avgRate;

@@ -333,11 +333,14 @@ namespace API.Controllers
             }
 
             var projectDetail = await _projectService.GetDetailProjectById(id);
+            if (projectDetail.IsDeleted == true)
+            {
+                return BadRequest(new { message = "Dự án không còn tồn tại nữa!" });
+            }
             if (projectDetail == null)
             {
-                return NotFound();
+                    return NotFound();
             }
-
             return Ok(projectDetail);
         }
 

@@ -271,9 +271,13 @@ namespace Application.Services
                 return null;
             }
 
-            if (project.IsDeleted ==true || project.StatusId !=2)
+            if (project.IsDeleted ==true || project.StatusId == 1 || project.StatusId == 5 || project.StatusId == 6)
             {
-                return null;
+                
+                if (project.CreatedBy != _currentUserService.UserId)
+                {
+                    return null;
+                }
             }
             var projectDTO = _mapper.Map<ProjectDTO>(project);
 

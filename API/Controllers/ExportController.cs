@@ -1,5 +1,6 @@
 ﻿using API.Hubs;
 using Application.DTOs;
+using Application.Extensions;
 using Application.IServices;
 using Application.Services;
 using Domain.IRepositories;
@@ -22,7 +23,8 @@ namespace API.Controllers
         [Route(Common.Url.Export.ExportStatistic)]
         public async Task<IActionResult> GenerateExcel()
         {
-            var fileName = "Statistic.xlsx";
+            var currentDate = DateTime.Now;
+            var fileName = $"Báo cáo thống kê ({DateTimeHelper.ToVietnameseOnlyDateString(currentDate)}).xlsx";
             var filePath = await _exportService.GenerateExcelFilePath(fileName);
 
             if (System.IO.File.Exists(filePath))
@@ -33,6 +35,17 @@ namespace API.Controllers
             {
                 return StatusCode(500, new { message = "Failed to save the file." });
             }
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Export.AskingChatGPT)]
+        public async Task<IActionResult> AskChat(string question)
+        {
+            var chat = await _exportService.GetChatGPTAnswer(question);
+            return Ok(new
+            {
+                message = chat
+            });
         }
     }
 }

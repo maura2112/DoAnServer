@@ -2,6 +2,7 @@
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
@@ -186,8 +187,13 @@ namespace Application.Services
             bid.Proposal = request.Proposal;
             bid.Duration = request.Duration;
             bid.Budget = request.Budget;
-            bid.UpdatedDate = DateTime.Now;
-
+            
+            var oldAcceptedDate = bid.AcceptedDate;
+            if (bid.AcceptedDate == oldAcceptedDate)
+            {
+                bid.UpdatedDate = DateTime.Now;
+            }
+            
             _bidRepository.Update(bid);
 
             var bidDTO = _mapper.Map<BidDTO>(bid);

@@ -8,8 +8,13 @@ using Application.IServices;
 using ClosedXML.Excel;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml;
+using OpenAI_API;
+using OpenAI_API.Completions;
+using OfficeOpenXml.Style;
+
 
 namespace Application.Services
 {
@@ -47,35 +52,85 @@ namespace Application.Services
             }
 
             // Định nghĩa đường dẫn lưu file
-            var desktopPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                fileName);
+            var desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
 
             // Tạo file Excel và worksheet
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
-                // Thêm các hàng tiêu đề vào worksheet
                 worksheet.Cells[1, 1].Value = "Báo cáo về thống kê tổng số dự án trên mỗi danh mục";
+                worksheet.Cells[1, 1, 1, 20].Merge = true; // Merge các ô từ A1 đến cột cuối cùng của hàng 1
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Căn giữa
+                worksheet.Cells[1, 1].Style.Font.Size = 15; // Chỉnh kích thước chữ
+                worksheet.Cells[1, 1].Style.Font.Bold = true; // Tô đậm chữ
+
                 worksheet.Cells[2, 1].Value = $"Ngày tạo: {DateTime.Now}";
-                worksheet.Cells[3, 1].Value = "Mục tiêu: Đánh giá số lượng dự án theo các danh mục để xác định xu hướng và các danh mục cần chú ý";
-                worksheet.Cells[4, 1].Value = ""; // Ô trống nếu không cần dữ liệu
+                worksheet.Cells[2, 1, 2, 20].Merge = true; // Merge các ô từ A2 đến cột cuối cùng của hàng 2
+                worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Căn giữa
+                worksheet.Cells[2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet.Cells[2, 1].Style.Font.Bold = true; // Tô đậm chữ
 
-                // Thêm tiêu đề cột vào worksheet
-                worksheet.Cells[5, 1].Value = "Tên danh mục";
-                worksheet.Cells[5, 2].Value = "Tổng số dự án";
+                // Tạo các Task song song cho các yêu cầu API
+                var targetTask = GetChatGPTAnswer(
+                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                    worksheet.Cells[1, 1].Value);
 
-                // Thêm dữ liệu vào worksheet
-                int currentRow = 6; // Dữ liệu bắt đầu từ hàng 6
+                string dataTableContent = "Danh sách các danh mục và tổng số dự án:\n";
                 foreach (DataRow row in dataTable1.Rows)
                 {
-                    worksheet.Cells[currentRow, 1].Value = row["Tên danh mục"];
-                    worksheet.Cells[currentRow, 2].Value = row["Tổng số dự án"];
+                    dataTableContent += $"{row["Tên danh mục"]}: {row["Tổng số dự án"]} dự án\n";
+                }
+
+                var commentTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy ghi ngắn gọn:" + dataTableContent);
+                var proposeTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy ghi ngắn gọn:" + dataTableContent);
+
+                // Chờ tất cả các Task hoàn thành
+                await Task.WhenAll(targetTask, commentTask, proposeTask);
+
+                // Lấy kết quả từ các Task
+                string target = await targetTask;
+                string comment = await commentTask;
+                string propose = await proposeTask;
+
+                // Thêm mục tiêu vào worksheet
+                worksheet.Cells[4, 1].Value = "Mục tiêu: ";
+                worksheet.Cells[4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                worksheet.Cells[4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                worksheet.Cells[4, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet.Cells[4, 1].Style.Font.Italic = true; // Tô đậm chữ
+                worksheet.Cells[5, 1].Value = target;
+                worksheet.Cells[5, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet.Cells[5, 1].Style.WrapText = true;
+                worksheet.Cells[5, 1, 6, 20].Merge = true;
+                worksheet.Cells[7, 1].Value = "";
+
+                // Thêm tiêu đề cho bảng
+                int startRow = 9; // Hàng bắt đầu vẽ bảng
+                int startColumn = 1; // Cột bắt đầu vẽ bảng
+
+                worksheet.Cells[startRow, startColumn].Value = "Tên danh mục";
+                worksheet.Cells[startRow, startColumn + 1].Value = "Tổng số dự án";
+                var headerRange = worksheet.Cells[startRow, startColumn, startRow, startColumn + 1];
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                headerRange.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
+                // Thêm dữ liệu vào bảng
+                int currentRow = startRow + 1;
+                foreach (DataRow row in dataTable1.Rows)
+                {
+                    worksheet.Cells[currentRow, startColumn].Value = row["Tên danh mục"];
+                    worksheet.Cells[currentRow, startColumn + 1].Value = row["Tổng số dự án"];
                     currentRow++;
                 }
 
-                var maxRowCountForChart = currentRow;
+                // Tính lại vị trí kết thúc cột và hàng bảng
+                int endRow = currentRow - 1;
+                int endColumn = startColumn + 1;
+
+                // Format lại bảng
+                worksheet.Cells[startRow, startColumn, endRow, endColumn].AutoFitColumns();
 
                 // Thêm các hàng bổ sung
                 var maxProjectsRow = categoryPieChartData.OrderByDescending(d => d.TotalProjects).FirstOrDefault();
@@ -87,45 +142,45 @@ namespace Application.Services
                     .ToList();
 
                 worksheet.Cells[currentRow + 2, 1].Value = "Tóm tắt";
+                worksheet.Cells[currentRow + 2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet.Cells[currentRow + 2, 1].Style.Font.Italic = true; // Tô đậm chữ
                 worksheet.Cells[currentRow + 2, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 worksheet.Cells[currentRow + 2, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
                 worksheet.Cells[currentRow + 3, 1].Value = $"Tổng số danh mục: {totalCategory} danh mục";
-                worksheet.Cells[currentRow + 3, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[currentRow + 3, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
-
                 worksheet.Cells[currentRow + 4, 1].Value = $"Danh mục có nhiều dự án nhất: {maxProjectsCategory} - {maxProjectsCount} dự án";
-                worksheet.Cells[currentRow + 4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[currentRow + 4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGreen);
 
                 worksheet.Cells[currentRow + 6, 1].Value = "Kết luận";
+                worksheet.Cells[currentRow + 6, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet.Cells[currentRow + 6, 1].Style.Font.Italic = true; // Tô đậm chữ
                 worksheet.Cells[currentRow + 6, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 worksheet.Cells[currentRow + 6, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                worksheet.Cells[currentRow + 7, 1].Value = $"Báo cáo chỉ ra rằng danh mục {maxProjectsCategory} có số lượng dự án cao nhất, trong khi các danh mục dưới đây chưa có dự án nào:";
+                worksheet.Cells[currentRow + 7, 1].Value = comment;
+                worksheet.Cells[currentRow + 7, 1].Style.WrapText = true;
+                worksheet.Cells[currentRow + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet.Cells[currentRow + 7, 1, currentRow + 8, 20].Merge = true;
+                
 
-                worksheet.Cells[currentRow + 8, 1].Value = "Những danh mục cần cân nhắc";
-                worksheet.Cells[currentRow + 8, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[currentRow + 8, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightCoral);
-                currentRow += 9; // Bỏ qua các hàng tiêu đề và dữ liệu trước đó
-                foreach (var category in zeroProjectsCategories)
-                {
-                    worksheet.Cells[currentRow, 1].Value = category.CategoryName;
-                    worksheet.Cells[currentRow, 2].Value = category.TotalProjects;
-                    currentRow++;
-                }
+                worksheet.Cells[currentRow + 10, 1].Value = "Đề xuất: ";
+                worksheet.Cells[currentRow + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet.Cells[currentRow + 10, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet.Cells[currentRow + 10, 1].Style.Font.Italic = true; // Tô đậm chữ
+                worksheet.Cells[currentRow + 10, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                worksheet.Cells[currentRow + 10, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
 
-                worksheet.Cells[currentRow, 1].Value = "Đề xuất: Tạo thêm Blog cho các danh mục trên, hoặc sau 1 tháng báo cáo lại, nếu vẫn chưa có dự án nào thì xem xét đến việc xóa danh mục trên ";
-                worksheet.Cells[currentRow, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[currentRow, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
+                worksheet.Cells[currentRow + 11, 1].Value = propose;
+                worksheet.Cells[currentRow + 11, 1].Style.WrapText = true;
+                worksheet.Cells[currentRow + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet.Cells[currentRow + 11, 1, currentRow + 18, 20].Merge = true;
 
                 // Thêm biểu đồ tròn (pie chart)
                 var chart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie);
                 chart.Title.Text = "Biểu đồ phân phối dự án theo danh mục";
-                chart.SetPosition(5, 0, 4, 0); // Vị trí của biểu đồ
-                chart.SetSize(450, 300); // Kích thước của biểu đồ
+                chart.SetPosition(7, 0, 4, 0); // Vị trí của biểu đồ
+                chart.SetSize(800, 400); // Kích thước của biểu đồ
 
-                var series = chart.Series.Add(worksheet.Cells[$"B6:B{maxRowCountForChart - 1}"], worksheet.Cells[$"A6:A{maxRowCountForChart - 1}"]);
+                var series = chart.Series.Add(worksheet.Cells[$"B{startRow + 1}:B{endRow}"], worksheet.Cells[$"A{startRow + 1}:A{endRow}"]);
                 series.Header = "Tổng số dự án";
 
                 // Lưu file
@@ -138,5 +193,42 @@ namespace Application.Services
 
 
 
+        public async Task<string> GetChatGPTAnswer(string questionText)
+        {
+            //sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
+            var chatGPTAPIkey = "";
+            string answer = string.Empty;
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {chatGPTAPIkey}");
+
+            var requestBody = new
+            {
+                model = "gpt-3.5-turbo",
+                messages = new[]
+                {
+                    new { role = "user", content = questionText }
+                }
+            };
+
+            var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
+            var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = JsonConvert.DeserializeObject<dynamic>(responseString);
+                answer = responseJson.choices[0].message.content.ToString();
+            }
+            else
+            {
+                throw new Exception($"Error: {response.StatusCode}, Content: {responseString}");
+            }
+
+            return answer;
+
+        }
     }
 }

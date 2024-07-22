@@ -142,6 +142,7 @@
         public static class Export
         {
             public const string ExportStatistic = "ExportStatistic";
+            public const string AskingChatGPT = "AskingChatGPT";
         }
     }
 }

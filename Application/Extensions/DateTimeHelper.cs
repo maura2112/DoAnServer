@@ -20,5 +20,18 @@ namespace Application.Extensions
                 return string.Empty; 
             }
         }
+
+        public static string ToVietnameseOnlyDateString(DateTime? dateTime)
+        {
+
+            if (dateTime.HasValue)
+            {
+                return dateTime.Value.ToString("dd-MM-yyyy");
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
     }
 }

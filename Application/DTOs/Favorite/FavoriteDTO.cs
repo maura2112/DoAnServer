@@ -16,7 +16,6 @@ namespace Application.DTOs.Favorite
         public string CreatedProject { get; set; }
 
         public string ProjectName { get; set; }
-        public string ProjectDescription { get; set; }
 
         public string SavedTime { get; set; }
 
@@ -26,6 +25,12 @@ namespace Application.DTOs.Favorite
 
         public string Status { get; set; }
         public string StatusColor { get; set; }
+
+        public int MinBudget { get; set; }
+
+        public int MaxBudget { get; set; }
+
+        public int Duration { get; set; }
 
         public int StatusId { get; set; }   
     }

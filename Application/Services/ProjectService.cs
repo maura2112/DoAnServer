@@ -473,75 +473,51 @@ namespace Application.Services
 
         public async Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, ProjectSearchDTO dto , int pageIndex, int pageSize)
         {
-            var result = new Pagination<Project>();
+            var query = from p in _context.Projects
+                        join ps in _context.ProjectSkills on p.Id equals ps.ProjectId into psGroup
+                        from ps in psGroup.DefaultIfEmpty()
+                        join s in _context.Skills on ps.SkillId equals s.Id into sGroup
+                        from s in sGroup.DefaultIfEmpty()
+                        join c in _context.Categories on p.CategoryId equals c.Id into cGroup
+                        from c in cGroup.DefaultIfEmpty()
+                        group new { p, s, c } by p into g
+                        orderby g.Key.CreatedDate descending
+                        where g.Key.StatusId == 2 && g.Key.IsDeleted != true
+                        select new
+                        {
+                            Project = g.Key,
+                            Title = g.Key.Title,
+                            Description = g.Key.Description,
+                            Skills = string.Join(", ", g.Select(x => x.s != null ? x.s.SkillName : null).Where(skillName => skillName != null)),
+                            CategoryName = g.Select(x => x.c != null ? x.c.CategoryName : null).FirstOrDefault()
+                        };
             if (dto.Keyword != null)
             {
-                var query = from p in _context.Projects
-                            join ps in _context.ProjectSkills on p.Id equals ps.ProjectId into psGroup
-                            from ps in psGroup.DefaultIfEmpty()
-                            join s in _context.Skills on ps.SkillId equals s.Id into sGroup
-                            from s in sGroup.DefaultIfEmpty()
-                            join c in _context.Categories on p.CategoryId equals c.Id into cGroup
-                            from c in cGroup.DefaultIfEmpty()
-                            group new { p, s, c } by p into g
-                            orderby g.Key.CreatedDate descending
-                            where g.Key.StatusId == 2 && g.Key.IsDeleted != true
-                            select new
-                            {
-                                Project = g.Key, // Lấy toàn bộ thông tin của đối tượng p từ nhóm
-                                Title = g.Key.Title,
-                                Description = g.Key.Description,
-                                Skills = string.Join(", ", g.Select(x => x.s != null ? x.s.SkillName : null).Where(skillName => skillName != null)),
-                                CategoryName = g.Select(x => x.c != null ? x.c.CategoryName : null).FirstOrDefault()
-                            };
-                query = query.Where(x => x.Title.ToLower().Contains(dto.Keyword.ToLower()) || x.Description.ToLower().Contains(dto.Keyword.ToLower()) || x.Skills.ToLower().Contains(dto.Keyword.ToLower())|| x.CategoryName.ToLower().Contains(dto.Keyword.ToLower()));
-                var totalItem = await query.Select(x=>x.Project).Skip((dto.PageIndex - 1) * dto.PageSize).Take(dto.PageSize).ToListAsync();
-                result = new Pagination<Project>()
-                {
-                    PageSize = dto.PageSize,
-                    PageIndex = dto.PageIndex,
-                    TotalItemsCount = query.Count(),
-                    Items = totalItem,
-                };
-            }else
-            {
-                if (dto.CategoryId.HasValue && dto.CategoryId > 0)
-                {
-                    filter = filter.And(item => item.CategoryId == dto.CategoryId.Value);
-                }
-
-                if (dto.Skill != null && dto.Skill.Any())
-                {
-                    filter = filter.And(item => item.ProjectSkills.Any(skill => dto.Skill.Contains(skill.Skill.SkillName)));
-                }
-                if (dto.Duration.HasValue && dto.Duration > 0)
-                {
-                    filter = filter.And(item => item.Duration == dto.Duration);
-                }
-
-                if (dto.MinBudget.HasValue && dto.MinBudget > 0)
-                {
-                    filter = filter.And(item => item.MinBudget >= dto.MinBudget);
-                }
-
-                if (dto.MaxBudget.HasValue && dto.MaxBudget > 0)
-                {
-                    filter = filter.And(item => item.MaxBudget <= dto.MaxBudget);
-                }
-
-                if (dto.CreatedFrom.HasValue)
-                {
-                    filter = filter.And(item => item.CreatedDate >= dto.CreatedFrom);
-                }
-                if (dto.CreatedTo.HasValue)
-                {
-                    filter = filter.And(item => item.CreatedDate <= dto.CreatedTo);
-                }
-                result = await _projectRepository.ProjectGetAsync(filter, pageIndex, pageSize);
+                query = query.Where(x => x.Title.ToLower().Contains(dto.Keyword.ToLower()) || x.Description.ToLower().Contains(dto.Keyword.ToLower()) || x.Skills.ToLower().Contains(dto.Keyword.ToLower()) || x.CategoryName.ToLower().Contains(dto.Keyword.ToLower()));
             }
+            if(dto.CategoryId != null)
+            {
+                query = query.Where(x=>x.Project.CategoryId ==  dto.CategoryId);
+            }
+            if(dto.MinBudget !=  null) {
+                query = query.Where(x => x.Project.MinBudget >= dto.MinBudget);
+            }
+            if (dto.MaxBudget != null)
+            {
+                query = query.Where(x => x.Project.MaxBudget >= dto.MaxBudget);
+            }
+
+            var totalItem = await query.Select(x => x.Project).Skip((dto.PageIndex - 1) * dto.PageSize).Take(dto.PageSize).ToListAsync();
+
+            var result = new Pagination<Project>()
+            {
+                PageSize = dto.PageSize,
+                PageIndex = dto.PageIndex,
+                TotalItemsCount = query.Count(),
+                Items = totalItem,
+            };
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(result);
             var updatedItems = new List<ProjectDTO>();
-
             foreach (var x in projectDTOs.Items)
             {
                 var model = _mapper.Map<ProjectDTO>(x);
@@ -728,6 +704,9 @@ namespace Application.Services
                             Id = f.Id,
                             ProjectId = f.ProjectId,
                             UserId = u.Id,
+                            MinBudget = p.MinBudget,
+                            MaxBudget = p.MaxBudget,
+                            Duration = p.Duration,
                             ProjectName = p.Title,
                             Description = p.Description,
                             Status = s.StatusName,
@@ -764,6 +743,9 @@ namespace Application.Services
                                    ProjectId = f.ProjectId,
                                    UserId = u.Id,
                                    ProjectName = p.Title,
+                                   MinBudget = p.MinBudget,
+                                   MaxBudget = p.MaxBudget,
+                                   Duration = p.Duration,
                                    Description = p.Description,
                                    Status = s.StatusName,
                                    StatusColor = s.StatusColor,

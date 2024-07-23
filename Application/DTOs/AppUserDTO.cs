@@ -34,9 +34,7 @@ namespace Application.DTOs
         public string? Avatar { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? ResetTokenExpires { get; set; }
-        public float? AvgRate { get; set; }
-        public int? TotalRate { get; set; }
-        public int? TotalCompleteProject { get; set; }
+        
     }
     public class AppUserDTO2
     {

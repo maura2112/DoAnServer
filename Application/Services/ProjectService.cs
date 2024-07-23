@@ -338,7 +338,7 @@ namespace Application.Services
             projectDTO.AppUser2 = _mapper.Map<AppUserDTO2>(user);
 
 
-            var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == projectDTO.Id || x.ProjectUserId == projectDTO.Id);
+            var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == user.Id || x.ProjectUserId == user.Id);
             var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
             int avgRate;
             if (totalRate != 0)

@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,8 @@ namespace Application.Services
         private readonly IRateTransactionService _transactionService;
         private readonly IProjectRepository _projectRepository;
         private readonly IBidRepository _bidRepository;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository)
+        private readonly ApplicationDbContext _context ;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository, ApplicationDbContext applicationDbContext)
         {
             _repository = repository;
             _mapper = mapper;
@@ -48,6 +50,7 @@ namespace Application.Services
             _transactionService = transactionService;
             _projectRepository = projectRepository;
             _bidRepository = bidRepository;
+            _context = applicationDbContext;
         }
 
         public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
@@ -163,6 +166,22 @@ namespace Application.Services
                         userDTO.IsRated = true;
                     }
                 }
+                var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == user.Id || x.ProjectUserId == user.Id);
+                var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
+                int avgRate;
+                if (totalRate != 0)
+                {
+                    avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
+                              totalRate;
+                }
+                else
+                {
+                    avgRate = 0;
+                }
+                userDTO.AvgRate = avgRate;
+                userDTO.TotalRate = totalRate;
+                userDTO.TotalProject = totalCompleteProject;
+
             }
             return userDTO;
         }

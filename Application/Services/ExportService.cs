@@ -195,7 +195,7 @@ namespace Application.Services
         public async Task<string> GetChatGPTAnswer(string questionText)
         {
             //sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
-            var chatGPTAPIkey = "";
+            var chatGPTAPIkey = "sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki";
             string answer = string.Empty;
 
             var httpClient = new HttpClient();
@@ -203,7 +203,7 @@ namespace Application.Services
 
             var requestBody = new
             {
-                model = "gpt-3.5-turbo",
+                model = "gpt-4-turbo",
                 messages = new[]
                 {
                     new { role = "user", content = questionText }

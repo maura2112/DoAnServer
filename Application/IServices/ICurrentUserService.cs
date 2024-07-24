@@ -9,6 +9,8 @@ namespace Application.IServices
     public interface ICurrentUserService
     {
         int UserId { get; }
+
+        int UserIdCan0 { get; }
         string Email { get; }
         bool HasRole(string role);
         string? GetJwtToken();

@@ -36,7 +36,24 @@ public class CurrentUserService : ICurrentUserService
         }
     }
 
-    
+    public int UserIdCan0
+    {
+        get
+        {
+            string jwtToken = GetJwtToken();
+            if (jwtToken == null || jwtToken.IsMissing())
+                return 0;
+
+            var id = _jwtService.DecodeAccessToken(jwtToken).Claims.First(c => c.Type == "Id").Value;
+            if (id == null)
+            {
+                return 0;
+            }
+            return int.Parse(id);
+        }
+    }
+
+
 
     public string Email
     {

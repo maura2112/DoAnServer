@@ -7,6 +7,7 @@ using AutoMapper;
 using Azure.Core;
 using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
@@ -14,6 +15,7 @@ using Infrastructure.Data;
 using Infrastructure.Migrations;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -41,9 +43,10 @@ namespace Application.Services
         private readonly IStatusRepository _statusRepository;
         private readonly PaginationService<ProjectDTO> _paginationService;
         private readonly ApplicationDbContext _context;
+        private readonly INotificationRepository _notificationRepository;
 
 
-        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IAddressRepository addressRepository, IStatusRepository statusRepository, PaginationService<ProjectDTO> paginationService, ApplicationDbContext context)
+        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IAddressRepository addressRepository, IStatusRepository statusRepository, PaginationService<ProjectDTO> paginationService, ApplicationDbContext context, INotificationRepository notificationRepository)
         {
             _mapper = mapper;
             _projectRepository = projectRepository;
@@ -56,6 +59,7 @@ namespace Application.Services
             _statusRepository = statusRepository;
             _paginationService = paginationService;
             _context = context;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<ProjectDTO> Add(AddProjectDTO request)
@@ -69,7 +73,7 @@ namespace Application.Services
             var existedCategory = await _categoryRepository.GetByIdAsync(request.CategoryId);
             if (existedCategory == null)
             {
-                return null; 
+                return null;
             }
             project.CategoryId = request.CategoryId;
             project.MinBudget = request.MinBudget;
@@ -91,7 +95,7 @@ namespace Application.Services
             {
                 throw new Exception("Tạo dự án mới thất bại", ex);
             }
-            
+
             //var urlRecord = project.CreateUrlRecordAsync("tao-du-an", project.Title);
             //await _urlRepository.AddAsync(urlRecord);
 
@@ -131,7 +135,7 @@ namespace Application.Services
                 throw new Exception($"Project with ID {id} not found.");
             }
             project.IsDeleted = true;
-             _projectRepository.Update(project);
+            _projectRepository.Update(project);
             var projectDto = _mapper.Map<ProjectDTO>(project);
             return projectDto;
         }
@@ -266,14 +270,14 @@ namespace Application.Services
         public async Task<ProjectDTO> GetDetailProjectById(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
-            if(project == null)
+            if (project == null)
             {
                 return null;
             }
 
-            if (project.IsDeleted ==true || project.StatusId == 1 || project.StatusId == 5 || project.StatusId == 6)
+            if (project.IsDeleted == true || project.StatusId == 1 || project.StatusId == 5 || project.StatusId == 6)
             {
-                
+
                 if (project.CreatedBy != _currentUserService.UserId)
                 {
                     return null;
@@ -299,7 +303,7 @@ namespace Application.Services
             }
             projectDTO.AppUser2.CreatedDate = user.CreatedDate;
             projectDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
-            projectDTO.AppUser2.AvgRate =(float) avgRate;
+            projectDTO.AppUser2.AvgRate = (float)avgRate;
             projectDTO.AppUser2.TotalRate = totalRate;
             projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;
             var address = await _addressRepository.GetAddressByUserId((int)project.CreatedBy);
@@ -310,12 +314,12 @@ namespace Application.Services
             }
             var category = await _categoryRepository.GetByIdAsync(project.CategoryId);
             projectDTO.Category = _mapper.Map<CategoryDTO>(category);
-
+            var userId = _currentUserService.UserIdCan0;
             var status = await _statusRepository.GetByIdAsync(project.StatusId);
             projectDTO.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
-
+            projectDTO.IsFavorite = await IsFavorite(userId, id);
             var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
-            projectDTO.Skill = listSkills.Select(x=>x.SkillName).ToList();
+            projectDTO.Skill = listSkills.Select(x => x.SkillName).ToList();
             projectDTO.TimeAgo = TimeAgoHelper.CalculateTimeAgo(projectDTO.CreatedDate);
             projectDTO.AverageBudget = await _projectRepository.GetAverageBudget(projectDTO.Id);
             projectDTO.TotalBids = await _projectRepository.GetTotalBids(projectDTO.Id);
@@ -381,27 +385,27 @@ namespace Application.Services
         {
             var projects = await _projectRepository.GetAll();
             var res = projects.AsQueryable();
-            var projectDTOs =   projects.Select(project => ProcessProjectAsync(project).Result).ToList();
+            var projectDTOs = projects.Select(project => ProcessProjectAsync(project).Result).ToList();
 
             var projectDTOList = projectDTOs.AsQueryable();
             if (search.Keyword != null)
             {
                 projectDTOList = projectDTOList.Where(x => x.Title.ToLower().Contains(search.Keyword.ToLower()) || x.Description.ToLower().Contains(search.Keyword.ToLower()));
             }
-            if (search.Skill != null)
+            if (search.Skills != null)
             {
-                foreach (var skill in search.Skill)
+                foreach (var skill in search.Skills)
                 {
-                    projectDTOList = projectDTOList.Where(x=>x.Skill.Contains(skill));
+                    projectDTOList = projectDTOList.Where(x => x.Skill.Contains(skill));
                 }
             }
-            if(search.StatusId != null)
+            if (search.StatusId != null)
             {
                 projectDTOList = projectDTOList.Where(x => x.StatusId == search.StatusId);
             }
-            if(search.MinBudget !=null)
+            if (search.MinBudget != null)
             {
-                projectDTOList = projectDTOList.Where(x => x.MinBudget >=  search.MinBudget);
+                projectDTOList = projectDTOList.Where(x => x.MinBudget >= search.MinBudget);
             }
             if (search.MaxBudget != null)
             {
@@ -419,7 +423,7 @@ namespace Application.Services
             {
                 projectDTOList = projectDTOList.Where(x => x.CreatedDate <= search.CreatedTo);
             }
-            return await _paginationService.ToPagination(projectDTOList.ToList(), search.PageIndex, search.PageSize) ;
+            return await _paginationService.ToPagination(projectDTOList.ToList(), search.PageIndex, search.PageSize);
         }
 
         public async Task<ProjectDTO> ProcessProjectAsync(Project project)
@@ -459,11 +463,16 @@ namespace Application.Services
             return statuseDTO;
         }
 
-        public async Task<ProjectDTO> UpdateProjectStatus(int statusId, int projectId)
+        public async Task<ProjectDTO> UpdateProjectStatus(ProjectStatusUpdate update)
         {
-            var project = await _projectRepository.GetByIdAsync(projectId);
-            project.StatusId = statusId;
+            var project = await _projectRepository.GetByIdAsync(update.ProjectId);
+            project.StatusId = update.StatusId;
             project.UpdatedDate = DateTime.Now;
+            var userId = _currentUserService.UserId;
+            if (update.StatusId == 5 && project.StatusId == 1)
+            {
+                project.RejectReason = update.RejectReason;
+            } // reject 
             _projectRepository.Update(project);
             var DTO = _mapper.Map<ProjectDTO>(project);
             var status = await _statusRepository.GetByIdAsync(DTO.StatusId);
@@ -471,7 +480,7 @@ namespace Application.Services
             return DTO;
         }
 
-        public async Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, ProjectSearchDTO dto , int pageIndex, int pageSize)
+        public async Task<Pagination<ProjectDTO>> GetWithFilter( ProjectSearchDTO dto, int pageIndex, int pageSize)
         {
             var query = from p in _context.Projects
                         join ps in _context.ProjectSkills on p.Id equals ps.ProjectId into psGroup
@@ -481,43 +490,54 @@ namespace Application.Services
                         join c in _context.Categories on p.CategoryId equals c.Id into cGroup
                         from c in cGroup.DefaultIfEmpty()
                         group new { p, s, c } by p into g
-                        orderby g.Key.CreatedDate descending
                         where g.Key.StatusId == 2 && g.Key.IsDeleted != true
+                        orderby g.Key.CreatedDate descending
                         select new
                         {
                             Project = g.Key,
                             Title = g.Key.Title,
                             Description = g.Key.Description,
+                            SkillNames = g.Select(x => x.s != null ? x.s.SkillName : (string?)null).Where(skillName => skillName != null).ToList(),
                             Skills = string.Join(", ", g.Select(x => x.s != null ? x.s.SkillName : null).Where(skillName => skillName != null)),
                             CategoryName = g.Select(x => x.c != null ? x.c.CategoryName : null).FirstOrDefault()
                         };
+
+            var queryFilter = query.AsEnumerable(); // Chuyển phần còn lại của truy vấn sang client-side
+
             if (dto.Keyword != null)
             {
-                query = query.Where(x => x.Title.ToLower().Contains(dto.Keyword.ToLower()) || x.Description.ToLower().Contains(dto.Keyword.ToLower()) || x.Skills.ToLower().Contains(dto.Keyword.ToLower()) || x.CategoryName.ToLower().Contains(dto.Keyword.ToLower()));
+                queryFilter = queryFilter.Where(x => x.Title.ToLower().Contains(dto.Keyword.ToLower()) || x.Description.ToLower().Contains(dto.Keyword.ToLower()) || x.Skills.ToLower().Contains(dto.Keyword.ToLower()) || x.CategoryName.ToLower().Contains(dto.Keyword.ToLower()));
             }
-            if(dto.CategoryId != null)
+            if (dto.CategoryId != null)
             {
-                query = query.Where(x=>x.Project.CategoryId ==  dto.CategoryId);
+                queryFilter = queryFilter.Where(x => x.Project.CategoryId == dto.CategoryId);
             }
-            if(dto.MinBudget !=  null) {
-                query = query.Where(x => x.Project.MinBudget >= dto.MinBudget);
+            if (dto.Skills != null && dto.Skills.Any())
+            {
+                queryFilter = queryFilter.Where(x => x.SkillNames.Any(skill => dto.Skills.Contains(skill)));
+            }
+            if (dto.MinBudget != null)
+            {
+                queryFilter = queryFilter.Where(x => x.Project.MinBudget >= dto.MinBudget);
             }
             if (dto.MaxBudget != null)
             {
-                query = query.Where(x => x.Project.MaxBudget >= dto.MaxBudget);
+                queryFilter = queryFilter.Where(x => x.Project.MaxBudget <= dto.MaxBudget);
             }
 
-            var totalItem = await query.Select(x => x.Project).Skip((dto.PageIndex - 1) * dto.PageSize).Take(dto.PageSize).ToListAsync();
+            var selectProject = queryFilter.Select(x => x.Project);
+            var totalItem = selectProject.Skip((dto.PageIndex - 1) * dto.PageSize).Take(dto.PageSize).ToList();
 
             var result = new Pagination<Project>()
             {
                 PageSize = dto.PageSize,
                 PageIndex = dto.PageIndex,
-                TotalItemsCount = query.Count(),
+                TotalItemsCount = selectProject.Count(),
                 Items = totalItem,
             };
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(result);
             var updatedItems = new List<ProjectDTO>();
+            var userid = _currentUserService.UserIdCan0;
             foreach (var x in projectDTOs.Items)
             {
                 var model = _mapper.Map<ProjectDTO>(x);
@@ -538,6 +558,8 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
+
+                model.IsFavorite = await IsFavorite(userid, model.Id);
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
@@ -630,7 +652,7 @@ namespace Application.Services
                         join s in _context.ProjectStatus on p.StatusId equals s.Id
                         join u in _context.Users on p.CreatedBy equals u.Id
                         where b.UserId == search.userId
-                       select new ProjectBidDTO
+                        select new ProjectBidDTO
                         {
                             ProjectName = p.Title,
                             ProjectId = b.ProjectId,
@@ -638,12 +660,12 @@ namespace Application.Services
                             BidId = b.Id,
                             StatusId = s.Id,
                             Status = s.StatusName,
-                            ProjectOwner  = u.Name,
+                            ProjectOwner = u.Name,
                             ProjectOwnerId = u.Id,
                             TimeBid = b.CreatedDate,
                             Duration = b.Duration,
-                            Deadline = (p.EstimateStartDate!= null)? (DateTime)p.EstimateStartDate + TimeSpan.FromDays(p.Duration): null,
-                            CanMakeDone = (p.StatusId == (int)Application.Common.ProjectStatus.StatusId.Close)?true : false,
+                            Deadline = (p.EstimateStartDate != null) ? (DateTime)p.EstimateStartDate + TimeSpan.FromDays(p.Duration) : null,
+                            CanMakeDone = (p.StatusId == (int)Application.Common.ProjectStatus.StatusId.Close) ? true : false,
                         };
             if (search.statusId.HasValue)
             {
@@ -663,8 +685,8 @@ namespace Application.Services
 
         public async Task<bool> CreateFavorite(FavoriteCreate create)
         {
-            var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x=>x.AppUserId == create.UserId && x.ProjectId == create.ProjectId);
-            if(favorite != null)
+            var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x => x.AppUserId == create.UserId && x.ProjectId == create.ProjectId);
+            if (favorite != null)
             {
                 return false;
             }
@@ -755,7 +777,7 @@ namespace Application.Services
             return query;
         }
 
-        public  async Task<Pagination<ProjectDTO>> GetByUserId(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
+        public async Task<Pagination<ProjectDTO>> GetByUserId(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
         {
             var projects = await _projectRepository.RecruiterGetAsync(filter, pageIndex, pageSize);
             var projectDTOs = _mapper.Map<Pagination<ProjectDTO>>(projects);
@@ -791,6 +813,21 @@ namespace Application.Services
 
             projectDTOs.Items = updatedItems;
             return projectDTOs;
+        }
+
+        public async Task<bool?> IsFavorite(int userId, int projectId)
+        {
+            if(userId == 0)
+            {
+                return null;
+            }
+            var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x => x.AppUserId == userId && projectId == x.ProjectId);
+
+            if(favorite == null)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

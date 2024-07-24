@@ -27,6 +27,8 @@ namespace Domain.Entities
         [ForeignKey("MediaFile")]
         public long? MediaFileId { get; set; }
 
+        public string? RejectReason { get; set; }
+
         public virtual AppUser? AppUser { get; set; } = null!;
         public virtual Category? Category { get; set; } = null!;
         public virtual MediaFile? MediaFile { get; set; } = null!;

@@ -19,4 +19,10 @@ namespace Application.DTOs
         public int? IsRead { get; set; }
         public string? Link { get; set; }
     }
+
+    public enum NotificationType
+    {
+        BiddingType = 1,
+        Accept = 2,
+    }
 }

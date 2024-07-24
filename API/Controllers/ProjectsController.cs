@@ -1,4 +1,5 @@
-﻿using API.Utilities;
+﻿using API.Hubs;
+using API.Utilities;
 using Application.DTOs;
 using Application.DTOs.Favorite;
 using Application.Extensions;
@@ -6,12 +7,17 @@ using Application.IServices;
 
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static API.Common.Url;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace API.Controllers
 {
@@ -23,13 +29,21 @@ namespace API.Controllers
         private readonly ISkillService _skillService;
         private readonly IProjectRepository _projectRepository;
         private readonly IBidRepository _bidRepository;
-        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository, IBidRepository bidRepository)
+        private readonly INotificationService _notificationService;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _chatHubContext;
+        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository, IBidRepository bidRepository, INotificationService notificationService, INotificationRepository notificationRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext)
         {
             _projectService = projectService;
             _currentUserService = currentUserService;
             _skillService = skillService;
             _projectRepository = projectRepository;
             _bidRepository = bidRepository;
+            _notificationService = notificationService;
+            _notificationRepository = notificationRepository;
+            _context = context;
+            _chatHubContext = chatHubContext;
         }
 
         [HttpGet]
@@ -74,9 +88,9 @@ namespace API.Controllers
                 filter = filter.And(item => item.CategoryId == projects.CategoryId.Value);
             }
 
-            if (projects.Skill != null && projects.Skill.Any())
+            if (projects.Skills != null && projects.Skills.Any())
             {
-                filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skill.Contains(skill.Skill.SkillName)));
+                filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skills.Contains(skill.Skill.SkillName)));
             }
 
             if (projects.StatusId.HasValue && projects.StatusId != 0)
@@ -125,8 +139,7 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
 
-            Expression<Func<Domain.Entities.Project, bool>> filter = PredicateBuilder.True<Domain.Entities.Project>();
-            var result = await _projectService.GetWithFilter(filter, projects, projects.PageIndex, projects.PageSize);
+            var result = await _projectService.GetWithFilter( projects, projects.PageIndex, projects.PageSize);
             return Ok(result);
         }
 
@@ -156,9 +169,9 @@ namespace API.Controllers
                 filter = filter.And(item => item.StatusId == projects.StatusId.Value);
             }
 
-            if (projects.Skill != null && projects.Skill.Any())
+            if (projects.Skills != null && projects.Skills.Any())
             {
-                filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skill.Contains(skill.Skill.SkillName)));
+                filter = filter.And(item => item.ProjectSkills.Any(skill => projects.Skills.Contains(skill.Skill.SkillName)));
             }
             if (projects.Duration.HasValue && projects.Duration > 0)
             {
@@ -200,12 +213,38 @@ namespace API.Controllers
             var projectDTOs = await _projectService.GetProjectDTOs(projects);
             return Ok(projectDTOs); 
         }
-
-        [HttpPost]
+        //đang dùng cái này
+        [HttpPut]
         [Route(Common.Url.Project.UpdateStatus)]
-        public async Task<IActionResult> UpdateStatus([FromQuery] int statusId, [FromQuery] int projectId)
+        public async Task<IActionResult> UpdateStatus([FromBody] ProjectStatusUpdate update)
         {
-            var projectDTOs = await _projectService.UpdateProjectStatus(statusId , projectId);
+            var userId = _currentUserService.UserId;
+            var projectDTOs = await _projectService.UpdateProjectStatus(update);
+            if(projectDTOs.StatusId == 5) {
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                    SendId = userId,
+                    SendUserName = "Hệ thống GoodJob",
+                    ProjectName = projectDTOs.Title,//k can cx dc
+                    RecieveId = projectDTOs.CreatedBy,
+                    Description = "đã từ chối dự án của bạn",
+                    Datetime = DateTime.Now,
+                    NotificationType = 2,
+                    IsRead = 0,
+                    Link = "detail/" + projectDTOs.Id
+                };
+                bool x = await _notificationService.AddNotification(notificationDto);
+                if (x)
+                {
+                    var hubConnections = await _context.HubConnections
+                                .Where(con => con.userId == projectDTOs.CreatedBy).ToListAsync();
+                    foreach (var hubConnection in hubConnections)
+                    {
+                        await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                    }
+                }
+            }
             return Ok(projectDTOs);
         }
 
@@ -251,57 +290,6 @@ namespace API.Controllers
             var result = await _projectService.GetByStatus(statusFilter);
             return Ok(result);
         }
-
-
-
-        //[HttpPost]
-        //[Route(Common.Url.Project.Filter)]
-        //public async Task<IActionResult> Filter(ProjectFilter projects)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(new SerializableError(ModelState));
-        //    }
-        //    Expression<Func<Domain.Entities.Project, bool>> filter = item => true;
-        //    if (projects != null)
-        //    {
-        //        if (!string.IsNullOrWhiteSpace(projects.Keyword))
-        //        {
-        //            var keyword = projects.Keyword.ToLower().Trim();
-        //            filter = filter.And(item => item.Title.Contains(keyword));
-        //        }
-        //        if (projects.CategoryId > 0)
-        //        {
-        //            filter = filter.And(item => item.CategoryId == projects.CategoryId);
-        //        }
-
-        //        if (projects.CategoryId > 0)
-        //        {
-        //            filter = filter.And(item => item.CategoryId == projects.CategoryId);
-        //        }
-
-        //        if (projects.SkillIds != null && projects.SkillIds.Any())
-        //        {
-        //            filter = filter.And(item => item.ProjectSkills.Any(skill => projects.SkillIds.Contains(skill.SkillId)));
-        //        }
-
-        //        if (projects.Duration > 0)
-        //        {
-        //            filter = filter.And(item => item.Duration <= projects.Duration);
-        //        }
-
-        //        if (projects.MinBudget > 0)
-        //        {
-        //            filter = filter.And(item => item.MinBudget >= projects.MinBudget);
-        //        }
-
-        //        if (projects.MaxBudget > 0)
-        //        {
-        //            filter = filter.And(item => item.MaxBudget <= projects.MaxBudget);
-        //        }
-        //    }
-        //    return Ok(await _projectService.GetWithFilter(filter, projects.PageIndex, projects.PageSize));
-        //}
 
         [HttpGet]
         [Route(Common.Url.Project.GetProjectsByUserId)]
@@ -489,37 +477,5 @@ namespace API.Controllers
                 Message = "Bạn vừa xóa dự án thành công"
             });
         }
-
-        [HttpPut]
-        [Route(Common.Url.Project.UpdateStatus)]
-        public async Task<IActionResult> UpdateStatus(Application.DTOs.ProjectStatus DTOs, CancellationToken token)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var fetchedProject = await _projectRepository.GetByIdAsync(DTOs.Id);
-            if (fetchedProject == null)
-            {
-                return NotFound(new ProjectResponse { Success = false, Message = "Không tìm thấy dự án phù hợp!" });
-            }
-
-            var project = await _projectService.UpdateStatus(DTOs.Id, DTOs.StatusId);
-
-            if (project == null)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ProjectResponse { Success = false, Message = "Failed to update project status." });
-            }
-
-            return Ok(new ProjectResponse
-            {
-                Success = true,
-                Message = "Bạn vừa thay đổi trạng thái dự án thành công",
-                Data = project
-            });
-        }
-
-
     }
 }

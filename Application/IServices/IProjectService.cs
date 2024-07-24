@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Migrations;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,13 +25,13 @@ namespace Application.IServices
 
         Task<Pagination<ProjectDTO>> GetProjectDTOs(ProjectSearchDTO search);
 
-        Task<ProjectDTO> UpdateProjectStatus(int statusId, int projectId);
+        Task<ProjectDTO> UpdateProjectStatus(ProjectStatusUpdate update);
 
         Task<Pagination<ProjectBidDTO>> GetByStatus(ProjectStatusFilter search);
 
         Task<List<ProjectStatusDTO>> GetAllStatus();
 
-        Task<Pagination<ProjectDTO>> GetWithFilter(Expression<Func<Project, bool>> filter, ProjectSearchDTO dto, int pageIndex, int pageSize);
+        Task<Pagination<ProjectDTO>> GetWithFilter( ProjectSearchDTO dto, int pageIndex, int pageSize);
         Task<Pagination<ProjectDTO>> GetWithFilterRecruiter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
         Task<Pagination<ProjectDTO>> GetWithFilterForRecruiter(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
         Task<Pagination<ProjectDTO>> GetByUserId(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize);
@@ -57,6 +58,8 @@ namespace Application.IServices
         Task<int> DeleteFavorite(FavoriteCreate create);
 
         Task<bool> CreateFavorite(FavoriteCreate create);
+
+        Task<bool?> IsFavorite(int userId, int projectId);
 
 
         //Task<int> CreateAsync(Project request);

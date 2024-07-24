@@ -23,12 +23,15 @@ namespace Application.DTOs
         public DateTime? UpdatedDate { get; set; }
         public int StatusId { get; set; }
         public long? MediaFileId { get; set; }
+
+        public bool? IsFavorite { get; set; }
         
         List<ProjectStatus> ListStatus { get; set; }
 
         public virtual AppUserDTO? AppUser { get; set; } = null!;
         public virtual AppUserDTO2? AppUser2 { get; set; } = null!;
         public virtual CategoryDTO? Category { get; set; } = null!;
+
 
         public List<string> Skill { get; set; } = new();
         //public List<SkillDTO> SkillList { get; set; } 

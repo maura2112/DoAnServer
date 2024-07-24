@@ -13,7 +13,7 @@ namespace Application.DTOs
         //public int CategoryId { get; set; }
         public string? Keyword { get; set; }
 
-        public List<string>? Skill { get; set; }
+        public List<string>? Skills { get; set; }
 
         public int? Duration { get; set; }
         public int? StatusId { get; set; }

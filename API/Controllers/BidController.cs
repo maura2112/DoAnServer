@@ -159,7 +159,7 @@ namespace API.Controllers
                             NotificationId = await _notificationRepository.GetNotificationMax() +1,
                             SendId = userId,                  
                             SendUserName = bid.AppUser.Name,
-                            ProjectName = bid.Project.Title,
+                            ProjectName = bid.Project.Title,//k can cx dc
                             RecieveId = bid.Project.CreatedBy,
                             Description = "đã đấu thầu dự án của bạn .",
                             Datetime = DateTime.Now,

@@ -46,15 +46,15 @@ namespace API.Controllers
              .AsNoTracking()
              .ToListAsync();
 
-                var totalItem = list.Skip((pageIndex - 1) * 10)
-                   .Take(10).OrderBy(x => x.SendDate).ToList();
+                var totalItem = list.Skip((pageIndex - 1) * 15)
+                   .Take(15).OrderBy(x => x.SendDate).ToList();
 
                 var result = new Pagination<Message>()
                 {
                     TotalItemsCount = list.Count,
                     Items = totalItem,
                     PageIndex = pageIndex,
-                    PageSize = 10
+                    PageSize = 15
                 };
                 return Ok(result);
             }

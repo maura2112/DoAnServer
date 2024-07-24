@@ -138,7 +138,7 @@ namespace Application.Services
             {
                 // Here, CreatedDate is still a DateTime; format it as needed in the UI layer
                 // For example, you could create a new property to store the formatted date:
-                userCount.FormattedDate = DateTimeHelper.ToDateAndMonth(userCount.CreatedDate);
+                userCount.FormattedDate = DateTimeHelper.ToVietnameseOnlyDateString(userCount.CreatedDate);
             }
 
             return newUserCounts;

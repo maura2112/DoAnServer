@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.Xml;
 using Infrastructure.Services;
 using API.Hubs;
+using Net.payOS;
 
 namespace API
 {
@@ -26,7 +27,12 @@ namespace API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             var mailsetting = builder.Configuration.GetSection("MailSettings");
+            IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
             builder.Services.Configure<MailSettings>(mailsetting);
+            builder.Services.AddSingleton(payOS);
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title ="dotnetClaimAuthorization" , Version = "v1" });
@@ -61,6 +67,7 @@ namespace API
             builder.Services.AddAutoMapper(typeof(MapProfile));
             builder.Services.AddDbContext<ApplicationDbContext>(opt => builder.Configuration.GetConnectionString("DefaultConnection"));
             builder.Services.AddSignalR();
+
 
             builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
             {

@@ -78,9 +78,6 @@ namespace Application.Services
         {
             var userId = _currentUserService.UserId;
             var bid = _mapper.Map<Bid>(request);
-
-            
-            
             bid.ProjectId = request.ProjectId;
             bid.UserId = userId;
             bid.Proposal = request.Proposal;
@@ -88,32 +85,15 @@ namespace Application.Services
             bid.Budget = request.Budget;
             bid.CreatedDate = DateTime.Now;
             bid.UpdatedDate = DateTime.Now;
-
             var bidDTO = _mapper.Map<BidDTO>(bid);
-
-            // Retrieve and map the user who created the project
-            
             await _bidRepository.AddAsync(bid);
-
             var user = await _appUserRepository.GetByIdAsync(userId);
             bidDTO.AppUser = _mapper.Map<AppUserDTO>(user);
             var address = await _addressRepository.GetAddressByUserId(userId);
             bidDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
-
-            //var status = await _statusRepository.GetByIdAsync(bid.Project.StatusId);
-            //bidDTO.Project.ProjectStatus = _mapper.Map<ProjectStatusDTO>(status);
-
             var project = await _projectRepository.GetByIdAsync(request.ProjectId);
             bidDTO.Project = _mapper.Map<ProjectDTO>(project);
 
-            //var category = await _categoryRepository.GetByIdAsync(request.Project.CategoryId);
-            //bidDTO.Project.Category = _mapper.Map<CategoryDTO>(category);
-
-            //var listSkills = await _projectSkillRepository.GetListProjectSkillByProjectId(project.Id);
-            //foreach (var skill in listSkills)
-            //{
-            //    bidDTO.Project.Skill.Add(skill.SkillName);
-            //}
             return bidDTO;
         }
 
@@ -207,22 +187,11 @@ namespace Application.Services
             var bid = await _bidRepository.GetByIdAsync(id);
 
             var project = await _projectRepository.GetByIdAsync(bid.ProjectId);
-
-            //sau sẽ chỉnh theo statusId trong db
             project.StatusId = 2;
             _projectRepository.Update(project);
 
             bid.AcceptedDate = DateTime.Now;
-            //mediafile
-
-            // Update the project in the repository
             _bidRepository.Update(bid);
-
-            // Handle URL record update
-            //var urlRecord = project.CreateUrlRecordAsync("chinh-sua-du-an", project.Title);
-            //await _urlRepository.AddAsync(urlRecord); // assuming there's a method for updating URLs
-
-            // Map the updated project back to a DTO
             var bidDTO = _mapper.Map<BidDTO>(bid);
             
             return bidDTO;
@@ -232,5 +201,7 @@ namespace Application.Services
         {
             throw new NotImplementedException();
         }
+
+
     }
 }

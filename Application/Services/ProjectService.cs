@@ -7,6 +7,7 @@ using AutoMapper;
 using Azure.Core;
 using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Common;
 using Domain.Entities;
@@ -466,18 +467,61 @@ namespace Application.Services
         public async Task<ProjectDTO> UpdateProjectStatus(ProjectStatusUpdate update)
         {
             var project = await _projectRepository.GetByIdAsync(update.ProjectId);
-            project.StatusId = update.StatusId;
-            project.UpdatedDate = DateTime.Now;
+            
+            
             var userId = _currentUserService.UserId;
             if (update.StatusId == 5 && project.StatusId == 1)
             {
                 project.RejectReason = update.RejectReason;
             } // reject 
+            else if(update.StatusId == 9)
+            {
+                var BidAccepted = await _context.Bids.FirstOrDefaultAsync(x => x.ProjectId == update.ProjectId && x.AcceptedDate != null);
+                if(BidAccepted.UserId == userId && update.BidId == BidAccepted.Id)
+                {
+                    project.UpdatedDate = DateTime.Now;
+                    project.StatusId = update.StatusId;
+                    _projectRepository.Update(project);
+                    var DTOAbout9 = _mapper.Map<ProjectDTO>(project);
+                    var statusAbout9 = await _statusRepository.GetByIdAsync(DTOAbout9.StatusId);
+                    DTOAbout9.ProjectStatus = statusAbout9 != null ? _mapper.Map<ProjectStatusDTO>(statusAbout9) : null;
+                    var result = await MakeDone((int)update.BidId);
+                    return DTOAbout9;
+                }
+                
+            }
+            project.UpdatedDate = DateTime.Now;
+            project.StatusId = update.StatusId;
             _projectRepository.Update(project);
             var DTO = _mapper.Map<ProjectDTO>(project);
             var status = await _statusRepository.GetByIdAsync(DTO.StatusId);
             DTO.ProjectStatus = status != null ? _mapper.Map<ProjectStatusDTO>(status) : null;
             return DTO;
+        }
+
+        public async Task<bool> MakeDone(int id)
+        {
+            var userId = _currentUserService.UserId;
+            var bid = await _context.Bids.FirstOrDefaultAsync(x=>x.Id == id);
+            if (bid == null || bid.UserId != userId || bid.AcceptedDate != null)
+            {
+                return false;
+            }
+            var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x => x.BidUserId == bid.UserId && x.ProjectId == bid.ProjectId);
+            if (transaction != null)
+            {
+                return false;
+            }
+            var transactionNew = new RateTransaction()
+            {
+                ProjectId = bid.ProjectId,
+                BidUserId = userId,
+                BidCompletedDate = DateTime.Now,
+                IsDeleted = false,
+            };
+            _context.RateTransactions.Add(transactionNew);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<Pagination<ProjectDTO>> GetWithFilter( ProjectSearchDTO dto, int pageIndex, int pageSize)
@@ -786,7 +830,6 @@ namespace Application.Services
             foreach (var x in projectDTOs.Items)
             {
                 var model = _mapper.Map<ProjectDTO>(x);
-
                 var user = await _appUserRepository.GetByIdAsync(x.CreatedBy);
                 model.AppUser = _mapper.Map<AppUserDTO>(user);
                 var address = await _addressRepository.GetAddressByUserId((int)x.CreatedBy);
@@ -803,6 +846,7 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
+                model.CanMakeDone = (model.StatusId== 3)?true:false;
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
@@ -810,7 +854,6 @@ namespace Application.Services
                 model.UpdatedDateString = DateTimeHelper.ToVietnameseDateString(model.UpdatedDate);
                 updatedItems.Add(model);
             }
-
             projectDTOs.Items = updatedItems;
             return projectDTOs;
         }

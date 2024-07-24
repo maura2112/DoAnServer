@@ -24,8 +24,13 @@ namespace Application.DTOs
         public int StatusId { get; set; }
         public long? MediaFileId { get; set; }
 
+        public bool? CanMakeDone { get; set; }
+
+        public string? StatusName { get; set; }
+
         public bool? IsFavorite { get; set; }
-        
+        public string? RejectReason { get; set; }
+
         List<ProjectStatus> ListStatus { get; set; }
 
         public virtual AppUserDTO? AppUser { get; set; } = null!;

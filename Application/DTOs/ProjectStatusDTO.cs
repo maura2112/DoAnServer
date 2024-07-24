@@ -19,6 +19,7 @@ namespace Application.DTOs
     {
         public int StatusId { get; set; }
         public int ProjectId { get; set; }
+        public int? BidId { get; set; }
         public string? RejectReason { get; set; }
     }
 
@@ -34,8 +35,8 @@ namespace Application.DTOs
 
             RuleFor(x => x.RejectReason)
                 .MaximumLength(200).WithMessage("Không quá 200 kí tự")
-                .When(x => x.ProjectId == 5) // Điều kiện khi ProjectId là 5
-                .NotEmpty().WithMessage("Lí do từ chối không được lỗi");
+                .NotEmpty().WithMessage("Lí do từ chối không được lỗi")
+                .When(x => x.ProjectId == 5);
         }
     }
 }

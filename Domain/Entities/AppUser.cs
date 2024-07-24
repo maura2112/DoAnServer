@@ -39,6 +39,10 @@ namespace Domain.Entities
 
         public bool IsCompany { get; set; }
 
+        public int AmountBid { get; set; }
+
+        public int AmoutProject { get; set; }
+
         public string? Education { get; set; }
         public string? Experience { get; set; }
         public string? Qualifications { get; set; }

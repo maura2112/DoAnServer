@@ -58,6 +58,12 @@
             public const string Detail = "Detail";
             public const string Publish = "Publish";
             public const string Gets = "Gets";
+        }
+        public static class Payment
+        {
+            public const string Create = "Create";
+            public const string Sucess = "Sucess";
+
 
         }
         public static class Rating

@@ -45,8 +45,9 @@ namespace API.Controllers
              .OrderByDescending(x => x.SendDate)
              .AsNoTracking()
              .ToListAsync();
+
                 var totalItem = list.Skip((pageIndex - 1) * 10)
-                    .Take(10).ToList();
+                   .Take(10).OrderBy(x => x.SendDate).ToList();
 
                 var result = new Pagination<Message>()
                 {

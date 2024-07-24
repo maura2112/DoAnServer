@@ -2,6 +2,8 @@
 using Application.DTOs;
 using Application.IServices;
 using AutoMapper;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
 using Infrastructure.Data;
@@ -20,26 +22,50 @@ namespace API.Controllers
         private ApplicationDbContext _context = new ApplicationDbContext();
         private readonly IMapper _mapper;
         private readonly IHubContext<ChatHub> _chatHubContext;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ChatController(IMapper mapper, IHubContext<ChatHub> chatHubContext)
+        public ChatController(IMapper mapper, IHubContext<ChatHub> chatHubContext, ICurrentUserService currentUserService)
         {
             _mapper = mapper;
             _chatHubContext = chatHubContext;
+            _currentUserService = currentUserService;
         }
 
-        [HttpGet("messages/{conversationId}")]
-        public async Task<IActionResult> GetMessageByConversation(int conversationId)
+        [HttpGet("messages/{conversationId}/{pageIndex}")]
+        public async Task<IActionResult> GetMessageByConversation(int conversationId, int pageIndex)
         {
-            List<Message> list = await _context.Messages
-        .Where(x => x.ConversationId == conversationId)
-        .OrderByDescending(x => x.SendDate)
-        .Take(20)
-        .ToListAsync();
+            var userId = _currentUserService.UserId;
+            var conversation = await _context.Conversations.FirstOrDefaultAsync(x => x.ConversationId == conversationId);
+            if (conversation.User1 == userId || conversation.User2 == userId)
+            {
+                //them page index
+                //var list = new Pagination<Message>();
+                var list = await _context.Messages
+             .Where(x => x.ConversationId == conversationId)
+             .OrderByDescending(x => x.SendDate)
+             .AsNoTracking()
+             .ToListAsync();
+                var totalItem = list.Skip((pageIndex - 1) * 10)
+                    .Take(10).ToList();
 
-            // Sort the list in ascending order by SendDate
-            list = list.OrderBy(x => x.SendDate).ToList();
+                var result = new Pagination<Message>()
+                {
+                    TotalItemsCount = list.Count,
+                    Items = totalItem,
+                    PageIndex = pageIndex,
+                    PageSize = 10
+                };
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    message = "Bạn không có quyền vào đoạn chat này"
+                });
+            }
 
-            return Ok(list);
+
         }
 
         [HttpPost("AddConversation/{user1}/{user2}")]

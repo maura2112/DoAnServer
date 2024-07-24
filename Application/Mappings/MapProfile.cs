@@ -25,6 +25,7 @@ public class MapProfile : Profile
         //Notification
         CreateMap<Notification, NotificationDto>().ReverseMap();
         CreateMap<Message, ChatDto>().ReverseMap();
+        CreateMap<Pagination<Message>, Pagination<ChatDto>>().ReverseMap();
 
         CreateMap<Bid, BidDTO>().ReverseMap();
         CreateMap<Pagination<Bid>, Pagination<BidDTO>>().ReverseMap();

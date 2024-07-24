@@ -48,6 +48,20 @@ namespace Application.Services
         new DataColumn("Tổng số dự án", typeof(int))
             });
 
+            // Data table người dùng
+            DataTable dataTable2 = new DataTable("Người dùng");
+            dataTable2.Columns.AddRange(new DataColumn[]
+            {
+        new DataColumn("Phân quyền"),
+        new DataColumn("Số lượng người dùng khả dụng", typeof(int)),
+        new DataColumn("Số lượng người dùng bị chặn", typeof(int))
+            });
+
+            // Thêm dữ liệu vào DataTable2
+            dataTable2.Rows.Add("Freelancer", userPieChartData.FreelacerCount, userPieChartData.TotalBlockedFreelancer);
+            dataTable2.Rows.Add("Nhà tuyển dụng", userPieChartData.RecruiterCount, userPieChartData.TotalBlockedRecruiter);
+
+
 
             // Thêm dữ liệu vào DataTable1
             foreach (var data in categoryPieChartData.OrderByDescending(x => x.TotalProjects))
@@ -60,7 +74,7 @@ namespace Application.Services
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Danh mục và dự án");
-                #region worksheet danh mục và dự án
+#region worksheet danh mục và dự án
 
                 worksheet.Cells[1, 1].Value = "Báo cáo về thống kê tổng số dự án trên mỗi danh mục";
                 worksheet.Cells[1, 1, 1, 20].Merge = true; // Merge các ô từ A1 đến cột cuối cùng của hàng 1
@@ -73,31 +87,31 @@ namespace Application.Services
                 worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Căn giữa
                 worksheet.Cells[2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
                 worksheet.Cells[2, 1].Style.Font.Bold = true; // Tô đậm chữ
-                var targetTask = "";
+                //var targetTask = "";
                 // Tạo các Task song song cho các yêu cầu API
-                //var targetTask = GetChatGPTAnswer(
-                //    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
-                //    worksheet.Cells[1, 1].Value);
+                var targetTask = GetChatGPTAnswer(
+                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                    worksheet.Cells[1, 1].Value);
 
-                //Đổ data vào datatable 1 ws1
+                //Data để call api chatgpt
                 string dataTableContent = "Danh sách các danh mục và tổng số dự án:\n";
                 foreach (DataRow row in dataTable1.Rows)
                 {
                     dataTableContent += $"{row["Tên danh mục"]}: {row["Tổng số dự án"]} dự án\n";
                 }
 
-                var commentTask = "";
-                var proposeTask = "";
-                //var commentTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy ghi ngắn gọn:" + dataTableContent);
-                //var proposeTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy ghi ngắn gọn:" + dataTableContent);
+                //var commentTask = "";
+                //var proposeTask = "";
+                var commentTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent);
+                var proposeTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy viết ngắn gọn:" + dataTableContent);
 
                 // Chờ tất cả các Task hoàn thành
-                //await Task.WhenAll(targetTask, commentTask, proposeTask);
+                await Task.WhenAll(targetTask, commentTask, proposeTask);
 
                 // Lấy kết quả từ các Task
-                string target = targetTask;
-                string comment = commentTask;
-                string propose = proposeTask;
+                string target = await targetTask;
+                string comment = await commentTask;
+                string propose = await proposeTask;
 
                 // Thêm mục tiêu vào worksheet
                 worksheet.Cells[4, 1].Value = "Mục tiêu: ";
@@ -178,7 +192,7 @@ namespace Application.Services
                 worksheet.Cells[currentRow + 11, 1].Style.WrapText = true;
                 worksheet.Cells[currentRow + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
                 worksheet.Cells[currentRow + 11, 1, currentRow + 18, 20].Merge = true;
-
+                worksheet.Cells[startRow, startColumn, endRow, endColumn].AutoFitColumns();
                 // Thêm biểu đồ tròn (pie chart)
                 var chart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie);
                 chart.Title.Text = "Biểu đồ phân phối dự án theo danh mục";
@@ -188,9 +202,135 @@ namespace Application.Services
                 var series = chart.Series.Add(worksheet.Cells[$"B{startRow + 1}:B{endRow}"], worksheet.Cells[$"A{startRow + 1}:A{endRow}"]);
                 series.Header = "Tổng số dự án";
                 #endregion
-                var worksheet2 = package.Workbook.Worksheets.Add("Người dùng");
-                #region worksheet người dùng
 
+
+                var worksheet2 = package.Workbook.Worksheets.Add("Người dùng");
+#region worksheet người dùng
+                worksheet2.Cells[1, 1].Value = "Báo cáo về người dùng hệ thống";
+                worksheet2.Cells[1, 1, 1, 20].Merge = true;
+                worksheet2.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet2.Cells[1, 1].Style.Font.Size = 15;
+                worksheet2.Cells[1, 1].Style.Font.Bold = true;
+
+                worksheet2.Cells[2, 1].Value = $"Ngày tạo: {DateTime.Now}";
+                worksheet2.Cells[2, 1, 2, 20].Merge = true;
+                worksheet2.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet2.Cells[2, 1].Style.Font.Size = 13;
+                worksheet2.Cells[2, 1].Style.Font.Bold = true;
+
+                //var targetTask2 = "";
+                // Tạo các Task song song cho các yêu cầu API
+                var targetTask2 = GetChatGPTAnswer2(
+                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                    worksheet2.Cells[1, 1].Value);
+
+                //Data để call api chatgpt
+                string dataTableContent2 = "Danh sách người dùng khả dụng và bị chặn theo mỗi phân quyền:\n";
+                foreach (DataRow row in dataTable2.Rows)
+                {
+                    dataTableContent2 += $"{row["Phân quyền"]}: Số lượng người dùng khả dụng: {row["Số lượng người dùng khả dụng"]} người dùng, Số lượng người dùng bị chặn: {row["Số lượng người dùng bị chặn"]} người dùng\n";
+                }
+
+                //var commentTask2 = "";
+                //var proposeTask2 = "";
+                var commentTask2 = GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent2);
+                var proposeTask2 = GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, số lượng người dùng truy cập có thể là thêm nhiều ưu đãi khi là người mới,..., hãy viết ngắn gọn:" + dataTableContent2);
+
+                // Chờ tất cả các Task hoàn thành
+                await Task.WhenAll(targetTask2, commentTask2, proposeTask2);
+
+                // Lấy kết quả từ các Task
+                string target2 = await targetTask2;
+                string comment2 = await commentTask2;
+                string propose2 = await proposeTask2;
+
+                // Thêm mục tiêu vào worksheet
+                worksheet2.Cells[4, 1].Value = "Mục tiêu: ";
+                worksheet2.Cells[4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                worksheet2.Cells[4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                worksheet2.Cells[4, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet2.Cells[4, 1].Style.Font.Italic = true; // Tô đậm chữ
+                worksheet2.Cells[5, 1].Value = target2;
+                worksheet2.Cells[5, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet2.Cells[5, 1].Style.WrapText = true;
+                worksheet2.Cells[5, 1, 6, 20].Merge = true;
+                worksheet2.Cells[7, 1].Value = "";
+
+                // Thêm tiêu đề cho bảng
+                int startRow2 = 9; // Hàng bắt đầu vẽ bảng
+                int startColumn2 = 1; // Cột bắt đầu vẽ bảng
+
+
+                worksheet2.Cells[startRow2, startColumn2].Value = "Phân quyền";
+                worksheet2.Cells[startRow2, startColumn2 + 1].Value = "Số lượng người dùng khả dụng";
+                worksheet2.Cells[startRow2, startColumn2 + 2].Value = "Số lượng người dùng bị chặn";
+                var headerRange2 = worksheet2.Cells[startRow2, startColumn2, startRow2, startColumn2 + 2];
+                headerRange2.Style.Font.Bold = true;
+                headerRange2.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                headerRange2.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
+                // Thêm dữ liệu vào bảng 2
+                int currentRow2 = startRow2 + 1;
+                
+                foreach (DataRow row in dataTable2.Rows)
+                {
+                    worksheet2.Cells[currentRow2, startColumn2].Value = row["Phân quyền"];
+                    worksheet2.Cells[currentRow2, startColumn2 + 1].Value = row["Số lượng người dùng khả dụng"];
+                    worksheet2.Cells[currentRow2, startColumn2 + 2].Value = row["Số lượng người dùng bị chặn"];
+                    currentRow2++;
+                }
+
+                int endRow2 = currentRow2 - 1;
+                int endColumn2 = startColumn2 + 1;
+
+                
+
+                // Thêm các hàng bổ sung
+                var totalUser = userPieChartData.TotalUser;
+                var totalBlockedUser = userPieChartData.TotalBlockedFreelancer + userPieChartData.TotalBlockedRecruiter;
+                
+
+                worksheet2.Cells[currentRow2 + 2, 1].Value = "Tóm tắt";
+                worksheet2.Cells[currentRow2 + 2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet2.Cells[currentRow2 + 2, 1].Style.Font.Italic = true; // Tô đậm chữ
+                worksheet2.Cells[currentRow2 + 2, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                worksheet2.Cells[currentRow2 + 2, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
+                worksheet2.Cells[currentRow2 + 3, 1].Value = $"Tổng số người dùng: {totalUser} người dùng";
+                worksheet2.Cells[currentRow2 + 4, 1].Value = $"Tổng số người dùng bị chặn: {totalBlockedUser} người dùng";
+
+                worksheet2.Cells[currentRow2 + 6, 1].Value = "Kết luận";
+                worksheet2.Cells[currentRow2 + 6, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet2.Cells[currentRow2 + 6, 1].Style.Font.Italic = true; // Tô đậm chữ
+                worksheet2.Cells[currentRow2 + 6, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                worksheet2.Cells[currentRow2 + 6, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
+                worksheet2.Cells[currentRow2 + 7, 1].Value = comment2;
+                worksheet2.Cells[currentRow2 + 7, 1].Style.WrapText = true;
+                worksheet2.Cells[currentRow2 + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet2.Cells[currentRow2 + 7, 1, currentRow2 + 8, 20].Merge = true;
+
+                worksheet2.Cells[currentRow2 + 10, 1].Value = "Đề xuất: ";
+                worksheet2.Cells[currentRow2 + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet2.Cells[currentRow2 + 10, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                worksheet2.Cells[currentRow2 + 10, 1].Style.Font.Italic = true; // Tô đậm chữ
+                worksheet2.Cells[currentRow2 + 10, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                worksheet2.Cells[currentRow2 + 10, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
+
+                worksheet2.Cells[currentRow2 + 11, 1].Value = propose2;
+                worksheet2.Cells[currentRow2 + 11, 1].Style.WrapText = true;
+                worksheet2.Cells[currentRow2 + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                worksheet2.Cells[currentRow2 + 11, 1, currentRow2 + 18, 20].Merge = true;
+                worksheet2.Cells[startRow2, startColumn2, endRow2, endColumn2].AutoFitColumns();
+
+                // Thêm biểu đồ tròn (pie chart) cho người dùng
+                var chart2 = worksheet2.Drawings.AddChart("UserPieChart", eChartType.Pie);
+                chart2.Title.Text = "Biểu đồ phân phối người dùng theo phân quyền";
+                chart2.SetPosition(7, 0, 6, 0);
+                chart2.SetSize(300, 175);
+
+                var series2 = chart2.Series.Add(worksheet2.Cells[$"B{startRow2 + 1}:B{endRow2}"], worksheet2.Cells[$"A{startRow2 + 1}:A{endRow2}"]);
+                series2.Header = "Số lượng người dùng khả dụng và bị chặn mỗi phân quyền";
 
                 #endregion
 
@@ -211,7 +351,7 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer(string questionText)
         {
-            //sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
+            //sk-proj-Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 
@@ -288,7 +428,7 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer3(string questionText)
         {
-            //sk - proj - FBfH6DuO4bNnkuBa5eanT3BlbkFJaFpnxxpL1I7Ctu5TbfPK
+            //sk-proj-FBfH6DuO4bNnkuBa5eanT3BlbkFJaFpnxxpL1I7Ctu5TbfPK
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 

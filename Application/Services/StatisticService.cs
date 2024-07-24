@@ -58,9 +58,27 @@ namespace Application.Services
                 .Where(ur => ur.RoleId == 2)
                 .Select(ur => ur.UserId)
                 .CountAsync();
+            var listUserId = await _context.UserRoles.Where(x => x.RoleId != 3).ToListAsync();
+
+            var data = new List<UsersPieChartData>();
+
+            var each = new UsersPieChartData();
+            each.id = "Freelancer";
+            each.label = "Recruiter";
+            each.value = freelancerCount;
+            data.Add(each);
+            var each2 = new UsersPieChartData();
+            each2.id = "Freelancer";
+            each2.label = "Recruiter";
+            each2.value = recruiterCount;
+            data.Add(each2);
+
+
 
             var result = new UsersPieChart
             {
+                Data = data,
+                TotalUser = freelancerCount + recruiterCount,
                 FreelacerCount = freelancerCount,
                 RecruiterCount = recruiterCount
             };
@@ -104,7 +122,7 @@ namespace Application.Services
                 from pg in projectGroup.DefaultIfEmpty()
                 join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
                 from bg in bidGroup.DefaultIfEmpty()
-                where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId !=1 && pg.StatusId !=5)
+                where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId != 1 && pg.StatusId != 5)
                 group new { c, pg, bg } by c.CategoryName into g
                 select new StatisticProjects
                 {
@@ -140,25 +158,25 @@ namespace Application.Services
         public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int type, int pageIndex, int pageSize)
         {
             var query = from r in _context.Roles
-                join ur in _context.UserRoles on r.Id equals ur.RoleId
-                join u in _context.Users on ur.UserId equals u.Id
-                from rt in _context.RateTransactions
-                    .Where(rt => rt.ProjectUserId == u.Id || rt.BidUserId == u.Id)
-                    .DefaultIfEmpty()
-                join p in _context.Projects on rt.ProjectId equals p.Id into projects
-                from p in projects.DefaultIfEmpty()
-                where u != null &&
-                      (rt == null ||
-                       (rt.ProjectAcceptedDate != null && rt.BidCompletedDate != null))
-                group new { User = u, Role = r, RateTransaction = rt, Project = p } by new { UserName = u.Name, RoleName = r.Name } into g
-                select new StatisticUsers
-                {
-                    UserName = g.Key.UserName,
-                    Role = g.Key.RoleName,
-                    TotalCompletedProjects = g.Count(x => x.Project != null),
-                    TotalPositiveRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == true && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0),
-                    TotalNegativeRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == false && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0)
-                };
+                        join ur in _context.UserRoles on r.Id equals ur.RoleId
+                        join u in _context.Users on ur.UserId equals u.Id
+                        from rt in _context.RateTransactions
+                            .Where(rt => rt.ProjectUserId == u.Id || rt.BidUserId == u.Id)
+                            .DefaultIfEmpty()
+                        join p in _context.Projects on rt.ProjectId equals p.Id into projects
+                        from p in projects.DefaultIfEmpty()
+                        where u != null &&
+                              (rt == null ||
+                               (rt.ProjectAcceptedDate != null && rt.BidCompletedDate != null))
+                        group new { User = u, Role = r, RateTransaction = rt, Project = p } by new { UserName = u.Name, RoleName = r.Name } into g
+                        select new StatisticUsers
+                        {
+                            UserName = g.Key.UserName,
+                            Role = g.Key.RoleName,
+                            TotalCompletedProjects = g.Count(x => x.Project != null),
+                            TotalPositiveRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == true && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0),
+                            TotalNegativeRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == false && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0)
+                        };
 
 
 

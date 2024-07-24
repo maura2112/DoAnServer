@@ -26,7 +26,7 @@ namespace Application.Services
                 .Select(c => new CategoriesPieChart
                 {
                     CategoryName = c.CategoryName,
-                    TotalProjects = c.Projects.Count(p => p.StatusId != 1  && p.IsDeleted == false)
+                    TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
                 })
                 .ToListAsync();
 
@@ -36,7 +36,7 @@ namespace Application.Services
         public async Task<ProjectsPieChart> GetProjectPieChartData()
         {
             var totalProjects =
-                await _context.Projects.CountAsync(p => p.StatusId != 1  && p.IsDeleted == false);
+                await _context.Projects.CountAsync(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false);
             var completedProjects = await _context.Projects.CountAsync(p => p.StatusId == 6);
 
             var result = new ProjectsPieChart
@@ -104,7 +104,7 @@ namespace Application.Services
                 from pg in projectGroup.DefaultIfEmpty()
                 join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
                 from bg in bidGroup.DefaultIfEmpty()
-                where !c.IsDeleted && (pg == null || !pg.IsDeleted)
+                where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId !=1 && pg.StatusId !=5)
                 group new { c, pg, bg } by c.CategoryName into g
                 select new StatisticProjects
                 {

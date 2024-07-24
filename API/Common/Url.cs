@@ -144,5 +144,11 @@
             public const string ExportStatistic = "ExportStatistic";
             public const string AskingChatGPT = "AskingChatGPT";
         }
+
+        public static class Dashboard
+        {
+            public const string RecruiterDashboard = "RecruiterDashboard";
+            public const string FreelancerDashboard = "FreelancerDashboard";
+        }
     }
 }

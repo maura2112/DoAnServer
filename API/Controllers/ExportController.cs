@@ -25,17 +25,17 @@ namespace API.Controllers
         {
             var currentDate = DateTime.Now;
             var fileName = $"Báo cáo thống kê ({DateTimeHelper.ToVietnameseOnlyDateString(currentDate)}).xlsx";
-            var filePath = await _exportService.GenerateExcelFilePath(fileName);
+            var fileStream = await _exportService.GenerateExcelFileStream(fileName);
 
-            if (System.IO.File.Exists(filePath))
+            if (fileStream == null)
             {
-                return Ok(new { message = $"File has been saved to {filePath}" });
+                return StatusCode(500, new { message = "Failed to generate the file." });
             }
-            else
-            {
-                return StatusCode(500, new { message = "Failed to save the file." });
-            }
+
+            // Trả về file như một phản hồi HTTP
+            return File(fileStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
+
 
         [HttpPost]
         [Route(Common.Url.Export.AskingChatGPT)]

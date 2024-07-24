@@ -284,12 +284,11 @@ namespace API.Controllers
         {
 
             var result = _bidService.GetBidByProjectId(projectId);
-                return Ok(new
-                {
-                    
-                    data = result
-                });
-            
+            return Ok(new
+            {
+
+                data = result
+            });
         }
     }
 }

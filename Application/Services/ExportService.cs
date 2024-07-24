@@ -27,11 +27,12 @@ namespace Application.Services
             _statisticService = statisticService;
         }
 
-        public async Task<string> GenerateExcelFilePath(string fileName)
+        public async Task<Stream> GenerateExcelFileStream(string fileName)
         {
             // Thiết lập LicenseContext cho EPPlus
-            ExcelPackage.LicenseContext = LicenseContext.Commercial; // Hoặc LicenseContext.NonCommercial nếu bạn đang sử dụng giấy phép phi thương mại
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
+            // Lấy dữ liệu từ các dịch vụ
             var categoryPieChartData = await _statisticService.GetCategoryPieChartData();
             var projectPieChartData = await _statisticService.GetProjectPieChartData();
             var userPieChartData = await _statisticService.GetUserPieChartData();
@@ -51,10 +52,6 @@ namespace Application.Services
                 dataTable1.Rows.Add(data.CategoryName, data.TotalProjects);
             }
 
-            // Định nghĩa đường dẫn lưu file
-            var desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
-
-            // Tạo file Excel và worksheet
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Sheet1");
@@ -70,11 +67,11 @@ namespace Application.Services
                 worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Căn giữa
                 worksheet.Cells[2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
                 worksheet.Cells[2, 1].Style.Font.Bold = true; // Tô đậm chữ
-
+                var targetTask = "";
                 // Tạo các Task song song cho các yêu cầu API
-                var targetTask = GetChatGPTAnswer(
-                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
-                    worksheet.Cells[1, 1].Value);
+                //var targetTask = ""; GetChatGPTAnswer(
+                    //"Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                    //worksheet.Cells[1, 1].Value);
 
                 string dataTableContent = "Danh sách các danh mục và tổng số dự án:\n";
                 foreach (DataRow row in dataTable1.Rows)
@@ -82,16 +79,18 @@ namespace Application.Services
                     dataTableContent += $"{row["Tên danh mục"]}: {row["Tổng số dự án"]} dự án\n";
                 }
 
-                var commentTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy ghi ngắn gọn:" + dataTableContent);
-                var proposeTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy ghi ngắn gọn:" + dataTableContent);
+                var commentTask = "";
+                var proposeTask = "";
+                //var commentTask = ""; GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy ghi ngắn gọn:" + dataTableContent);
+                //var proposeTask = ""; GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy ghi ngắn gọn:" + dataTableContent);
 
                 // Chờ tất cả các Task hoàn thành
-                await Task.WhenAll(targetTask, commentTask, proposeTask);
+                //await Task.WhenAll(targetTask, commentTask, proposeTask);
 
                 // Lấy kết quả từ các Task
-                string target = await targetTask;
-                string comment = await commentTask;
-                string propose = await proposeTask;
+                string target =  targetTask;
+                string comment =  commentTask;
+                string propose =  proposeTask;
 
                 // Thêm mục tiêu vào worksheet
                 worksheet.Cells[4, 1].Value = "Mục tiêu: ";
@@ -160,7 +159,6 @@ namespace Application.Services
                 worksheet.Cells[currentRow + 7, 1].Style.WrapText = true;
                 worksheet.Cells[currentRow + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
                 worksheet.Cells[currentRow + 7, 1, currentRow + 8, 20].Merge = true;
-                
 
                 worksheet.Cells[currentRow + 10, 1].Value = "Đề xuất: ";
                 worksheet.Cells[currentRow + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
@@ -183,20 +181,21 @@ namespace Application.Services
                 var series = chart.Series.Add(worksheet.Cells[$"B{startRow + 1}:B{endRow}"], worksheet.Cells[$"A{startRow + 1}:A{endRow}"]);
                 series.Header = "Tổng số dự án";
 
-                // Lưu file
-                var fileInfo = new FileInfo(desktopPath);
-                package.SaveAs(fileInfo);
-
-                return desktopPath;
+                // Tạo MemoryStream để lưu file
+                var memoryStream = new MemoryStream();
+                package.SaveAs(memoryStream);
+                memoryStream.Position = 0; // Reset vị trí của stream
+                return memoryStream;
             }
         }
+
 
 
 
         public async Task<string> GetChatGPTAnswer(string questionText)
         {
             //sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
-            var chatGPTAPIkey = "";
+            var chatGPTAPIkey = "sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki";
             string answer = string.Empty;
 
             var httpClient = new HttpClient();
@@ -204,12 +203,12 @@ namespace Application.Services
 
             var requestBody = new
             {
-                model = "gpt-3.5-turbo",
+                model = "gpt-4-turbo",
                 messages = new[]
                 {
                     new { role = "user", content = questionText }
                 }
-            };
+            };  
 
             var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
             var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");

@@ -37,15 +37,15 @@ namespace API.Controllers
         }
 
 
-        [HttpPost]
-        [Route(Common.Url.Export.AskingChatGPT)]
-        public async Task<IActionResult> AskChat(string question)
-        {
-            var chat = await _exportService.GetChatGPTAnswer(question);
-            return Ok(new
-            {
-                message = chat
-            });
-        }
+        //[HttpPost]
+        //[Route(Common.Url.Export.AskingChatGPT)]
+        //public async Task<IActionResult> AskChat(string question)
+        //{
+        //    var chat = await _exportService.GetChatGPTAnswer(question);
+        //    return Ok(new
+        //    {
+        //        message = chat
+        //    });
+        //}
     }
 }

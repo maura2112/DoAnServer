@@ -12,5 +12,6 @@ namespace Application.DTOs.Statistic
         public int FreelancerCount { get; set; }
         public int RecruiterCount { get; set; }
         public DateTime CreatedDate { get; set; }
+        public string FormattedDate { get; set; }
     }
 }

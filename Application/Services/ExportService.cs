@@ -34,11 +34,13 @@ namespace Application.Services
 
             // Lấy dữ liệu từ các dịch vụ
             var categoryPieChartData = await _statisticService.GetCategoryPieChartData();
-            var projectPieChartData = await _statisticService.GetProjectPieChartData();
+            //var projectPieChartData = await _statisticService.GetProjectPieChartData();
             var userPieChartData = await _statisticService.GetUserPieChartData();
             var newUserData = await _statisticService.GetNewUserData();
+            
 
-            // Tạo DataTable để định nghĩa cấu trúc dữ liệu
+
+            //Data table danh mục và dự án
             DataTable dataTable1 = new DataTable("Báo cáo");
             dataTable1.Columns.AddRange(new DataColumn[]
             {
@@ -46,15 +48,19 @@ namespace Application.Services
         new DataColumn("Tổng số dự án", typeof(int))
             });
 
-            // Thêm dữ liệu vào DataTable
+
+            // Thêm dữ liệu vào DataTable1
             foreach (var data in categoryPieChartData.OrderByDescending(x => x.TotalProjects))
             {
                 dataTable1.Rows.Add(data.CategoryName, data.TotalProjects);
             }
 
+
+
             using (var package = new ExcelPackage())
             {
-                var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+                var worksheet = package.Workbook.Worksheets.Add("Danh mục và dự án");
+                #region worksheet danh mục và dự án
 
                 worksheet.Cells[1, 1].Value = "Báo cáo về thống kê tổng số dự án trên mỗi danh mục";
                 worksheet.Cells[1, 1, 1, 20].Merge = true; // Merge các ô từ A1 đến cột cuối cùng của hàng 1
@@ -69,10 +75,11 @@ namespace Application.Services
                 worksheet.Cells[2, 1].Style.Font.Bold = true; // Tô đậm chữ
                 var targetTask = "";
                 // Tạo các Task song song cho các yêu cầu API
-                //var targetTask = ""; GetChatGPTAnswer(
-                    //"Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
-                    //worksheet.Cells[1, 1].Value);
+                //var targetTask = GetChatGPTAnswer(
+                //    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                //    worksheet.Cells[1, 1].Value);
 
+                //Đổ data vào datatable 1 ws1
                 string dataTableContent = "Danh sách các danh mục và tổng số dự án:\n";
                 foreach (DataRow row in dataTable1.Rows)
                 {
@@ -81,16 +88,16 @@ namespace Application.Services
 
                 var commentTask = "";
                 var proposeTask = "";
-                //var commentTask = ""; GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy ghi ngắn gọn:" + dataTableContent);
-                //var proposeTask = ""; GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy ghi ngắn gọn:" + dataTableContent);
+                //var commentTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy ghi ngắn gọn:" + dataTableContent);
+                //var proposeTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy ghi ngắn gọn:" + dataTableContent);
 
                 // Chờ tất cả các Task hoàn thành
                 //await Task.WhenAll(targetTask, commentTask, proposeTask);
 
                 // Lấy kết quả từ các Task
-                string target =  targetTask;
-                string comment =  commentTask;
-                string propose =  proposeTask;
+                string target = targetTask;
+                string comment = commentTask;
+                string propose = proposeTask;
 
                 // Thêm mục tiêu vào worksheet
                 worksheet.Cells[4, 1].Value = "Mục tiêu: ";
@@ -115,7 +122,7 @@ namespace Application.Services
                 headerRange.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 headerRange.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                // Thêm dữ liệu vào bảng
+                // Thêm dữ liệu vào bảng 1
                 int currentRow = startRow + 1;
                 foreach (DataRow row in dataTable1.Rows)
                 {
@@ -180,6 +187,16 @@ namespace Application.Services
 
                 var series = chart.Series.Add(worksheet.Cells[$"B{startRow + 1}:B{endRow}"], worksheet.Cells[$"A{startRow + 1}:A{endRow}"]);
                 series.Header = "Tổng số dự án";
+                #endregion
+                var worksheet2 = package.Workbook.Worksheets.Add("Người dùng");
+                #region worksheet người dùng
+
+
+                #endregion
+
+                #region Doanh thu
+                #endregion
+
 
                 // Tạo MemoryStream để lưu file
                 var memoryStream = new MemoryStream();
@@ -195,7 +212,7 @@ namespace Application.Services
         public async Task<string> GetChatGPTAnswer(string questionText)
         {
             //sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
-            var chatGPTAPIkey = "sk - proj - Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki";
+            var chatGPTAPIkey = "";
             string answer = string.Empty;
 
             var httpClient = new HttpClient();
@@ -208,7 +225,84 @@ namespace Application.Services
                 {
                     new { role = "user", content = questionText }
                 }
-            };  
+            };
+
+            var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
+            var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = JsonConvert.DeserializeObject<dynamic>(responseString);
+                answer = responseJson.choices[0].message.content.ToString();
+            }
+            else
+            {
+                throw new Exception($"Error: {response.StatusCode}, Content: {responseString}");
+            }
+
+            return answer;
+
+        }
+
+        public async Task<string> GetChatGPTAnswer2(string questionText)
+        {
+            //sk-proj-q0wkjoY1EOexAnA7Da3xT3BlbkFJKlDiFMAUpi7PcAdODubO
+            var chatGPTAPIkey = "";
+            string answer = string.Empty;
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {chatGPTAPIkey}");
+
+            var requestBody = new
+            {
+                model = "gpt-4-turbo",
+                messages = new[]
+                {
+                    new { role = "user", content = questionText }
+                }
+            };
+
+            var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
+            var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = JsonConvert.DeserializeObject<dynamic>(responseString);
+                answer = responseJson.choices[0].message.content.ToString();
+            }
+            else
+            {
+                throw new Exception($"Error: {response.StatusCode}, Content: {responseString}");
+            }
+
+            return answer;
+
+
+        }
+
+        public async Task<string> GetChatGPTAnswer3(string questionText)
+        {
+            //sk - proj - FBfH6DuO4bNnkuBa5eanT3BlbkFJaFpnxxpL1I7Ctu5TbfPK
+            var chatGPTAPIkey = "";
+            string answer = string.Empty;
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {chatGPTAPIkey}");
+
+            var requestBody = new
+            {
+                model = "gpt-4-turbo",
+                messages = new[]
+                {
+                    new { role = "user", content = questionText }
+                }
+            };
 
             var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
             var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");

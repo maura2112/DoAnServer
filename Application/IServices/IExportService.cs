@@ -11,5 +11,7 @@ namespace Application.IServices
     {
         Task<Stream> GenerateExcelFileStream(string fileName);
         Task<string> GetChatGPTAnswer(string questionText);
+        Task<string> GetChatGPTAnswer2(string questionText);
+        Task<string> GetChatGPTAnswer3(string questionText);
     }
 }

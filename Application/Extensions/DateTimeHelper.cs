@@ -33,5 +33,18 @@ namespace Application.Extensions
                 return string.Empty;
             }
         }
+
+        public static string ToDateAndMonth(DateTime? dateTime)
+        {
+
+            if (dateTime.HasValue)
+            {
+                return dateTime.Value.ToString("dd-MM");
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
     }
 }

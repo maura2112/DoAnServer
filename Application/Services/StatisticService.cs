@@ -10,6 +10,8 @@ using Domain.Common;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Application.Extensions;
 
 namespace Application.Services
 {
@@ -59,16 +61,39 @@ namespace Application.Services
                 .Select(ur => ur.UserId)
                 .CountAsync();
             var listUserId = await _context.UserRoles.Where(x => x.RoleId != 3).ToListAsync();
+            var listBlockedUserIdFreelancer = await _context.UserRoles.Where(x => x.RoleId == 1).ToListAsync();
+            var listBlockedUserIdRecruiter = await _context.UserRoles.Where(x => x.RoleId == 2).ToListAsync();
+
+
+            var listBlockedFreelancer = 0;
+            foreach (var item in listBlockedUserIdFreelancer)
+            {
+               var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                if (user != null)
+                {
+                    listBlockedFreelancer++;
+                }
+            }
+
+            var listBlockedRecruiter = 0;
+            foreach (var item in listBlockedUserIdRecruiter)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                if (user != null)
+                {
+                    listBlockedRecruiter++;
+                }
+            }
 
             var data = new List<UsersPieChartData>();
 
             var each = new UsersPieChartData();
             each.id = "Freelancer";
-            each.label = "Recruiter";
+            each.label = "Freelancer";
             each.value = freelancerCount;
             data.Add(each);
             var each2 = new UsersPieChartData();
-            each2.id = "Freelancer";
+            each2.id = "Recruiter";
             each2.label = "Recruiter";
             each2.value = recruiterCount;
             data.Add(each2);
@@ -80,7 +105,9 @@ namespace Application.Services
                 Data = data,
                 TotalUser = freelancerCount + recruiterCount,
                 FreelacerCount = freelancerCount,
-                RecruiterCount = recruiterCount
+                RecruiterCount = recruiterCount,
+                TotalBlockedFreelancer = listBlockedFreelancer,
+                TotalBlockedRecruiter = listBlockedRecruiter,
             };
 
             return result;
@@ -106,9 +133,12 @@ namespace Application.Services
                 })
                 .ToListAsync();
 
+            // If you need the date formatted as a string for some reason, do it here
             foreach (var userCount in newUserCounts)
             {
-                userCount.TotalUserCount = userCount.FreelancerCount + userCount.RecruiterCount;
+                // Here, CreatedDate is still a DateTime; format it as needed in the UI layer
+                // For example, you could create a new property to store the formatted date:
+                userCount.FormattedDate = DateTimeHelper.ToDateAndMonth(userCount.CreatedDate);
             }
 
             return newUserCounts;

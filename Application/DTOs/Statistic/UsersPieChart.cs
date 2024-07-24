@@ -12,6 +12,8 @@ namespace Application.DTOs.Statistic
         public int TotalUser { get; set; }
         public int FreelacerCount { get; set; }
         public int RecruiterCount { get; set; }
+        public int TotalBlockedFreelancer { get; set; }
+        public int TotalBlockedRecruiter { get; set; }
     }
     public class UsersPieChartData
     {

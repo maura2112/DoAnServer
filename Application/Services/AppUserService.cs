@@ -186,5 +186,11 @@ namespace Application.Services
             return userDTO;
         }
 
+        //public async Task<UserDTO> AddBidAsync(int amount)
+        //{
+        //    var userId = _currentUserService.UserId;
+        //    var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+        //}
     }
 }

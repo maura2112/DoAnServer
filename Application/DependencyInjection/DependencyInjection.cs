@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IProductService, ProductService>();
 
         services.AddSingleton<IEmailSender, SendMailService>();
+        services.AddSingleton<IPaymentService, PaymentService>();
 
         //Cate
         services.AddScoped<ICategoryRepository, CategoryRepository>();

@@ -83,8 +83,8 @@ namespace Application.Services
             bid.Proposal = request.Proposal;
             bid.Duration = request.Duration;
             bid.Budget = request.Budget;
-            bid.CreatedDate = DateTime.Now;
-            bid.UpdatedDate = DateTime.Now;
+            bid.CreatedDate = DateTime.UtcNow;
+            bid.UpdatedDate = DateTime.UtcNow;
             var bidDTO = _mapper.Map<BidDTO>(bid);
             await _bidRepository.AddAsync(bid);
             var user = await _appUserRepository.GetByIdAsync(userId);
@@ -171,7 +171,7 @@ namespace Application.Services
             var oldAcceptedDate = bid.AcceptedDate;
             if (bid.AcceptedDate == oldAcceptedDate)
             {
-                bid.UpdatedDate = DateTime.Now;
+                bid.UpdatedDate = DateTime.UtcNow;
             }
             
             _bidRepository.Update(bid);

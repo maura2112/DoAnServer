@@ -91,6 +91,7 @@
             public const string Favorite = "Favorite";
             public const string AddFavorite = "AddFavorite";
             public const string DeleteFavorite = "DeleteFavorite";
+            public const string MakeDoneProject = "MakeDoneProject";
 
         }
 

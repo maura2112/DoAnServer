@@ -213,6 +213,14 @@ namespace API.Controllers
             var projectDTOs = await _projectService.GetProjectDTOs(projects);
             return Ok(projectDTOs); 
         }
+
+        [HttpPost]
+        [Route(Common.Url.Project.MakeDoneProject)]
+        public async Task<IActionResult> MakeDoneProject([FromBody] int projectId)
+        {
+            var result = await _projectService.MakeDoneByRec(projectId);
+            return Ok(result);
+        }
         //đang dùng cái này
         [HttpPut]
         [Route(Common.Url.Project.UpdateStatus)]

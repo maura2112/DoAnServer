@@ -11,6 +11,8 @@ namespace Application.IServices
     public interface IAppUserService
     {
         Task<UserDTO> GetUserDTOAsync(int uid);
-        Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch); 
+        Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch);
+
+        //Task<UserDTO> AddBidAsync(int amount);
     }
 }

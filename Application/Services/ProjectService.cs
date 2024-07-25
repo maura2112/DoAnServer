@@ -82,8 +82,8 @@ namespace Application.Services
             project.Duration = request.Duration;
             // createdBy
             project.CreatedBy = userId;
-            project.CreatedDate = DateTime.Now;
-            project.UpdatedDate = DateTime.Now;
+            project.CreatedDate = DateTime.UtcNow;
+            project.UpdatedDate = DateTime.UtcNow;
             project.StatusId = 1;
             project.IsDeleted = false;
             project.Description = request.Description;
@@ -256,6 +256,7 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
+                model.CanMakeDone = (model.StatusId == 3) ? true : false;
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
@@ -424,7 +425,7 @@ namespace Application.Services
             {
                 projectDTOList = projectDTOList.Where(x => x.CreatedDate <= search.CreatedTo);
             }
-            return await _paginationService.ToPagination(projectDTOList.ToList(), search.PageIndex, search.PageSize);
+            return await _paginationService.ToPagination(projectDTOList.OrderByDescending(x=>x.CreatedDate).ToList(), search.PageIndex, search.PageSize);
         }
 
         public async Task<ProjectDTO> ProcessProjectAsync(Project project)
@@ -488,7 +489,6 @@ namespace Application.Services
                     var result = await MakeDone((int)update.BidId);
                     return DTOAbout9;
                 }
-                
             }
             project.UpdatedDate = DateTime.Now;
             project.StatusId = update.StatusId;
@@ -522,6 +522,50 @@ namespace Application.Services
             _context.RateTransactions.Add(transactionNew);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> MakeDoneByRec(int projectId)
+        {
+            var userId = _currentUserService.UserId;
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project.CreatedBy == userId && (project.StatusId == 3 || project.StatusId == 9))
+            {
+                var bid = await _context.Bids.FirstOrDefaultAsync(x => x.AcceptedDate != null && projectId == x.ProjectId);
+                if (bid == null)
+                {
+                    return false;
+                }
+                var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x => x.ProjectId == projectId);
+                if (transaction != null)
+                {
+                    transaction.ProjectAcceptedDate = DateTime.Now;
+                    _context.RateTransactions.Update(transaction);
+                    await _context.SaveChangesAsync();
+                    return false;
+                }
+                transaction = new RateTransaction()
+                {
+                    ProjectId = projectId,
+                    IsDeleted = false,
+                    ProjectUserId = project.CreatedBy,
+                    BidUserId = bid.UserId,
+                    Rated = false,
+                    BidCompletedDate = DateTime.Now,
+                    ProjectAcceptedDate = DateTime.Now,
+                };
+                await _context.RateTransactions.AddAsync(transaction);
+                await _context.SaveChangesAsync();
+
+                project.StatusId = 6;
+                project.UpdatedDate = DateTime.UtcNow;
+                _context.Projects.Update(project);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task<Pagination<ProjectDTO>> GetWithFilter( ProjectSearchDTO dto, int pageIndex, int pageSize)
@@ -846,7 +890,7 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
-                model.CanMakeDone = (model.StatusId== 3)?true:false;
+                model.CanMakeDone = (model.StatusId== 3 || model.StatusId == 9) ?true:false;
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);

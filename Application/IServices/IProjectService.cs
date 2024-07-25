@@ -45,6 +45,8 @@ namespace Application.IServices
 
         Task<ProjectDTO> Update(UpdateProjectDTO request);
 
+        Task<bool> MakeDoneByRec(int projectId);
+
         Task<ProjectDTO> Delete(int id);
 
         Task<ProjectDTO> UpdateStatus(int projectId, int statusId);

@@ -69,7 +69,6 @@ namespace API.Controllers
         {
             try
             {
-                var uid = _currentUserService.UserId;
                 var blogDTO = await _blogService.GetBlogDTOAsync(id);
                 return Ok(blogDTO);
             }

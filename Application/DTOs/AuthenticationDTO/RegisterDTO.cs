@@ -43,9 +43,7 @@ namespace Application.DTOs
             .Equal(v => v.ConfirmPassword)
             .WithMessage("Xác nhận mật khẩu không khớp");
 
-            RuleFor(v => v.Skill).NotEmpty().WithMessage("Kĩ năng không được để trống");
             RuleFor(v => v.Skill.Count).LessThan(6).WithMessage("Không được chọn quá 5 kĩ năng");
-
         }
     }
 }

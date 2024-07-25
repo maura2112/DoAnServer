@@ -253,6 +253,33 @@ namespace API.Controllers
                     }
                 }
             }
+
+            if (projectDTOs.StatusId == 2)
+            {
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                    SendId = userId,
+                    SendUserName = "Hệ thống GoodJob",
+                    ProjectName = projectDTOs.Title,//k can cx dc
+                    RecieveId = projectDTOs.CreatedBy,
+                    Description = "đã duyệt dự án của bạn",
+                    Datetime = DateTime.Now,
+                    NotificationType = 2,
+                    IsRead = 0,
+                    Link = "detail/" + projectDTOs.Id
+                };
+                bool x = await _notificationService.AddNotification(notificationDto);
+                if (x)
+                {
+                    var hubConnections = await _context.HubConnections
+                                .Where(con => con.userId == projectDTOs.CreatedBy).ToListAsync();
+                    foreach (var hubConnection in hubConnections)
+                    {
+                        await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                    }
+                }
+            }
             return Ok(projectDTOs);
         }
 

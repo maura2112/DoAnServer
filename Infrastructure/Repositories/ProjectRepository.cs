@@ -91,7 +91,7 @@ namespace Infrastructure.Repositories
         public async Task<Pagination<Project>> RecruiterGetAsync(Expression<Func<Project, bool>> filter, int pageIndex, int pageSize)
         {
             var items = await _dbSet.Where(filter)
-                .Where(x => x.IsDeleted == false )
+                .Where(x => x.IsDeleted != true)
                 .OrderByDescending(x=>x.UpdatedDate)
                 .AsNoTracking()
                 .ToListAsync();
@@ -100,7 +100,7 @@ namespace Infrastructure.Repositories
             {
                 PageSize = pageSize,
                 PageIndex = pageIndex,
-                TotalItemsCount = items.Count(x => x.IsDeleted == false),
+                TotalItemsCount = items.Count(),
                 Items = totalItem,
             };
 

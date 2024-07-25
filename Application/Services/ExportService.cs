@@ -351,7 +351,9 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer(string questionText)
         {
-            //sk-proj-Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
+            //sk-
+            //proj-
+            //Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 
@@ -389,7 +391,9 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer2(string questionText)
         {
-            //sk-proj-q0wkjoY1EOexAnA7Da3xT3BlbkFJKlDiFMAUpi7PcAdODubO
+            //sk-
+            //proj-
+            //q0wkjoY1EOexAnA7Da3xT3BlbkFJKlDiFMAUpi7PcAdODubO
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 
@@ -428,7 +432,9 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer3(string questionText)
         {
-            //sk-proj-FBfH6DuO4bNnkuBa5eanT3BlbkFJaFpnxxpL1I7Ctu5TbfPK
+            //sk-
+            //proj-
+            //FBfH6DuO4bNnkuBa5eanT3BlbkFJaFpnxxpL1I7Ctu5TbfPK
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 

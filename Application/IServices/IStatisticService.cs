@@ -19,8 +19,8 @@ namespace Application.IServices
 
         //datagrid
         public Task<Pagination<StatisticProjects>> GetProjectStatisticData(int pageIndex, int pageSize);
-        public Task<Pagination<StatisticUsers>> GetUserStatisticData(int type, int pageIndex, int pageSize);
-        public Task<Pagination<StatisticSkills>> GetSkillStatisticData(int type, int pageIndex, int pageSize);
+        public Task<Pagination<StatisticUsers>> GetUserStatisticData( int pageIndex, int pageSize);
+        public Task<Pagination<StatisticSkills>> GetSkillStatisticData( int pageIndex, int pageSize);
 
     }
 }

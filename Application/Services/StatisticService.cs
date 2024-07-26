@@ -68,7 +68,7 @@ namespace Application.Services
             var listBlockedFreelancer = 0;
             foreach (var item in listBlockedUserIdFreelancer)
             {
-               var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
                 if (user != null)
                 {
                     listBlockedFreelancer++;
@@ -185,7 +185,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int type, int pageIndex, int pageSize)
+        public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int pageIndex, int pageSize)
         {
             var query = from r in _context.Roles
                         join ur in _context.UserRoles on r.Id equals ur.RoleId
@@ -212,18 +212,10 @@ namespace Application.Services
 
             IQueryable<StatisticUsers> orderedQuery;
 
-            if (type == 1)
-            {
-                orderedQuery = query.OrderByDescending(x => x.TotalPositiveRatings);
-            }
-            else if (type == 2)
-            {
-                orderedQuery = query.OrderByDescending(x => x.TotalNegativeRatings);
-            }
-            else
-            {
-                return null;
-            }
+
+            orderedQuery = query.OrderByDescending(x => x.TotalPositiveRatings);
+
+
 
             var totalCount = await query.CountAsync();
 
@@ -242,7 +234,7 @@ namespace Application.Services
         }
 
 
-        public async Task<Pagination<StatisticSkills>> GetSkillStatisticData(int type, int pageIndex, int pageSize)
+        public async Task<Pagination<StatisticSkills>> GetSkillStatisticData(int pageIndex, int pageSize)
         {
             var query =
                 from c in _context.Categories
@@ -264,18 +256,10 @@ namespace Application.Services
 
             IQueryable<StatisticSkills> orderedQuery = null;
 
-            if (type == 1)
-            {
-                orderedQuery = query.OrderByDescending(x => x.TotalApprovedProject);
-            }
-            else if (type == 2)
-            {
-                orderedQuery = query.OrderByDescending(x => x.TotalUsers);
-            }
-            else
-            {
-                return null;
-            }
+
+            orderedQuery = query.OrderByDescending(x => x.TotalApprovedProject);
+
+
 
             var totalCount = await query.CountAsync();
 

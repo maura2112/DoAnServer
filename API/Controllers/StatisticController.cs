@@ -74,48 +74,27 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Statistic.StatisticUsers)]
-        public async Task<IActionResult> GetUserStatisticData(int type, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetUserStatisticData( int pageIndex, int pageSize)
         {
-            var result = await _statisticService.GetUserStatisticData(type, pageIndex, pageSize);
-            string description = Enum.GetName(typeof(UserStatistic), type);
-            if (!string.IsNullOrEmpty(description))
-            {
-                var memberInfo = typeof(UserStatistic).GetMember(description);
-                var descriptionAttribute = memberInfo[0].GetCustomAttribute<DescriptionAttribute>();
-                if (descriptionAttribute != null)
-                {
-                    description = descriptionAttribute.Description;
-                }
-            }
-
+            var result = await _statisticService.GetUserStatisticData(pageIndex, pageSize);
             return Ok(new
             {
                 success = true,
-                message = $"Đang sort theo: {description}",
                 data = result
             });
 
         }
         [HttpGet]
         [Route(Common.Url.Statistic.StatisticSkills)]
-        public async Task<IActionResult> GetSkillStatisticData(int type, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetSkillStatisticData( int pageIndex, int pageSize)
         {
-            var result = await _statisticService.GetSkillStatisticData(type, pageIndex, pageSize);
-            string description = Enum.GetName(typeof(SkillStatistic), type);
-            if (!string.IsNullOrEmpty(description))
-            {
-                var memberInfo = typeof(SkillStatistic).GetMember(description);
-                var descriptionAttribute = memberInfo[0].GetCustomAttribute<DescriptionAttribute>();
-                if (descriptionAttribute != null)
-                {
-                    description = descriptionAttribute.Description;
-                }
-            }
+            var result = await _statisticService.GetSkillStatisticData( pageIndex, pageSize);
+
+            
 
             return Ok(new
             {
                 success = true,
-                message = $"Đang sort theo: {description}",
                 data = result
             });
 

@@ -21,11 +21,11 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Export.ExportStatistic)]
-        public async Task<IActionResult> GenerateExcel()
+        public async Task<IActionResult> GenerateExcel(bool isChat)
         {
             var currentDate = DateTime.Now;
             var fileName = $"Báo cáo thống kê ({DateTimeHelper.ToVietnameseOnlyDateString(currentDate)}).xlsx";
-            var fileStream = await _exportService.GenerateExcelFileStream(fileName);
+            var fileStream = await _exportService.GenerateExcelFileStream(fileName, isChat);
 
             if (fileStream == null)
             {

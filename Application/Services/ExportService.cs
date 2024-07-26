@@ -27,7 +27,7 @@ namespace Application.Services
             _statisticService = statisticService;
         }
 
-        public async Task<Stream> GenerateExcelFileStream(string fileName)
+        public async Task<Stream> GenerateExcelFileStream(string fileName, bool isChat)
         {
             // Thiết lập LicenseContext cho EPPlus
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -37,7 +37,7 @@ namespace Application.Services
             //var projectPieChartData = await _statisticService.GetProjectPieChartData();
             var userPieChartData = await _statisticService.GetUserPieChartData();
             var newUserData = await _statisticService.GetNewUserData();
-            
+
 
 
             //Data table danh mục và dự án
@@ -74,7 +74,7 @@ namespace Application.Services
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Danh mục và dự án");
-#region worksheet danh mục và dự án
+                #region worksheet danh mục và dự án
 
                 worksheet.Cells[1, 1].Value = "Báo cáo về thống kê tổng số dự án trên mỗi danh mục";
                 worksheet.Cells[1, 1, 1, 20].Merge = true; // Merge các ô từ A1 đến cột cuối cùng của hàng 1
@@ -87,11 +87,11 @@ namespace Application.Services
                 worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Căn giữa
                 worksheet.Cells[2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
                 worksheet.Cells[2, 1].Style.Font.Bold = true; // Tô đậm chữ
-                //var targetTask = "";
+
+                string target;
+                string comment;
+                string propose;
                 // Tạo các Task song song cho các yêu cầu API
-                var targetTask = GetChatGPTAnswer(
-                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
-                    worksheet.Cells[1, 1].Value);
 
                 //Data để call api chatgpt
                 string dataTableContent = "Danh sách các danh mục và tổng số dự án:\n";
@@ -99,19 +99,25 @@ namespace Application.Services
                 {
                     dataTableContent += $"{row["Tên danh mục"]}: {row["Tổng số dự án"]} dự án\n";
                 }
+                if (isChat)
+                {
+                    var targetTask = await GetChatGPTAnswer(
+                   "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                   worksheet.Cells[1, 1].Value);
 
-                //var commentTask = "";
-                //var proposeTask = "";
-                var commentTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent);
-                var proposeTask = GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy viết ngắn gọn:" + dataTableContent);
+                    var commentTask = await GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent);
+                    var proposeTask = await GetChatGPTAnswer("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, có thể là tạo thêm nhiều blog về các danh mục ít dự án chẳng hạn, hãy viết ngắn gọn:" + dataTableContent);
+                    target = targetTask;
+                    comment = commentTask;
+                    propose = proposeTask;
+                }
+                else
+                {
+                    target = "";
+                    comment = "";
+                    propose = "";
+                }
 
-                // Chờ tất cả các Task hoàn thành
-                await Task.WhenAll(targetTask, commentTask, proposeTask);
-
-                // Lấy kết quả từ các Task
-                string target = await targetTask;
-                string comment = await commentTask;
-                string propose = await proposeTask;
 
                 // Thêm mục tiêu vào worksheet
                 worksheet.Cells[4, 1].Value = "Mục tiêu: ";
@@ -205,7 +211,7 @@ namespace Application.Services
 
 
                 var worksheet2 = package.Workbook.Worksheets.Add("Người dùng");
-#region worksheet người dùng
+                #region worksheet người dùng
                 worksheet2.Cells[1, 1].Value = "Báo cáo về người dùng hệ thống";
                 worksheet2.Cells[1, 1, 1, 20].Merge = true;
                 worksheet2.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -218,11 +224,12 @@ namespace Application.Services
                 worksheet2.Cells[2, 1].Style.Font.Size = 13;
                 worksheet2.Cells[2, 1].Style.Font.Bold = true;
 
-                //var targetTask2 = "";
-                // Tạo các Task song song cho các yêu cầu API
-                var targetTask2 = GetChatGPTAnswer2(
-                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
-                    worksheet2.Cells[1, 1].Value);
+
+
+                // Lấy kết quả từ các Task
+                string target2 ;
+                string comment2 ;
+                string propose2 ;
 
                 //Data để call api chatgpt
                 string dataTableContent2 = "Danh sách người dùng khả dụng và bị chặn theo mỗi phân quyền:\n";
@@ -231,18 +238,26 @@ namespace Application.Services
                     dataTableContent2 += $"{row["Phân quyền"]}: Số lượng người dùng khả dụng: {row["Số lượng người dùng khả dụng"]} người dùng, Số lượng người dùng bị chặn: {row["Số lượng người dùng bị chặn"]} người dùng\n";
                 }
 
-                //var commentTask2 = "";
-                //var proposeTask2 = "";
-                var commentTask2 = GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent2);
-                var proposeTask2 = GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, số lượng người dùng truy cập có thể là thêm nhiều ưu đãi khi là người mới,..., hãy viết ngắn gọn:" + dataTableContent2);
+                if (isChat)
+                {
+                    var targetTask2 = await GetChatGPTAnswer2(
+                    "Tôi là Admin và Trang web của tôi là về tìm kiếm việc làm freelancer, dựa vào tên báo cáo thống kê này, bạn hãy đưa ra ngắn gọn mục tiêu của báo cáo này giúp tôi: " +
+                    worksheet2.Cells[1, 1].Value);
 
-                // Chờ tất cả các Task hoàn thành
-                await Task.WhenAll(targetTask2, commentTask2, proposeTask2);
+                    var commentTask2 = await GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent2);
+                    
+                    var proposeTask2 = await GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, số lượng người dùng truy cập có thể là thêm nhiều ưu đãi khi là người mới,..., hãy viết ngắn gọn:" + dataTableContent2);
+                    target2 = targetTask2;
+                    comment2 = commentTask2;
+                    propose2 = proposeTask2;
+                }
+                else
+                {
+                    target2 = "";
+                    comment2 = "";
+                    propose2 = "";
+                }
 
-                // Lấy kết quả từ các Task
-                string target2 = await targetTask2;
-                string comment2 = await commentTask2;
-                string propose2 = await proposeTask2;
 
                 // Thêm mục tiêu vào worksheet
                 worksheet2.Cells[4, 1].Value = "Mục tiêu: ";
@@ -271,7 +286,7 @@ namespace Application.Services
 
                 // Thêm dữ liệu vào bảng 2
                 int currentRow2 = startRow2 + 1;
-                
+
                 foreach (DataRow row in dataTable2.Rows)
                 {
                     worksheet2.Cells[currentRow2, startColumn2].Value = row["Phân quyền"];
@@ -283,12 +298,12 @@ namespace Application.Services
                 int endRow2 = currentRow2 - 1;
                 int endColumn2 = startColumn2 + 1;
 
-                
+
 
                 // Thêm các hàng bổ sung
                 var totalUser = userPieChartData.TotalUser;
                 var totalBlockedUser = userPieChartData.TotalBlockedFreelancer + userPieChartData.TotalBlockedRecruiter;
-                
+
 
                 worksheet2.Cells[currentRow2 + 2, 1].Value = "Tóm tắt";
                 worksheet2.Cells[currentRow2 + 2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
@@ -351,9 +366,6 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer(string questionText)
         {
-            //sk-
-            //proj-
-            //Y0wUbNYcg4l0uCxNdfJWT3BlbkFJaVnJqQxgB7yGvxrEtwki
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 
@@ -391,10 +403,8 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer2(string questionText)
         {
-            //sk-
-            //proj-
-            //q0wkjoY1EOexAnA7Da3xT3BlbkFJKlDiFMAUpi7PcAdODubO
-            var chatGPTAPIkey = "";
+
+            var chatGPTAPIkey ="";
             string answer = string.Empty;
 
             var httpClient = new HttpClient();
@@ -432,9 +442,7 @@ namespace Application.Services
 
         public async Task<string> GetChatGPTAnswer3(string questionText)
         {
-            //sk-
-            //proj-
-            //FBfH6DuO4bNnkuBa5eanT3BlbkFJaFpnxxpL1I7Ctu5TbfPK
+
             var chatGPTAPIkey = "";
             string answer = string.Empty;
 

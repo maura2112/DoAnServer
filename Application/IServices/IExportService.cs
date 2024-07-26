@@ -9,7 +9,7 @@ namespace Application.IServices
 {
     public interface IExportService
     {
-        Task<Stream> GenerateExcelFileStream(string fileName);
+        Task<Stream> GenerateExcelFileStream(string fileName, bool isChat);
         Task<string> GetChatGPTAnswer(string questionText);
         Task<string> GetChatGPTAnswer2(string questionText);
         Task<string> GetChatGPTAnswer3(string questionText);

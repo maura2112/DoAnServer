@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Extensions;
 using Application.IServices;
 using Application.Services;
 using Microsoft.AspNetCore.Http;
@@ -43,6 +44,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Report.Reports)]
+        [RoleAuthorizeAttribute("Admin")]
         public async Task<IActionResult> GetReports([FromQuery] ReportSearchDTO dto)
         {
             var rpDTO = await _userReportService.GetReports(dto);
@@ -51,6 +53,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Report.Approve)]
+        [RoleAuthorizeAttribute("Admin")]
         public async Task<IActionResult> Approve([FromForm] int id)
         {
             var rpDTO = await _userReportService.ApproveReport(id);
@@ -64,7 +67,29 @@ namespace API.Controllers
             return BadRequest(new
             {
                 success = false,
-                message = "Đã duyệt báo cáo này !"
+                message = "Duyệt báo cáo không thành công !"
+            });
+
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Report.Reject)]
+        [RoleAuthorizeAttribute("Admin")]
+        public async Task<IActionResult> Reject([FromForm] int id)
+        {
+            var rpDTO = await _userReportService.RejectReport(id);
+            if (rpDTO)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Đã từ chối báo cáo này !"
+                });
+            }
+            return BadRequest(new
+            {
+                success = false,
+                message = "Từ chối báo cáo không thành công !"
             });
 
         }

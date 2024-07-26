@@ -26,5 +26,22 @@ namespace Application.Services
                 return baseAmount;
             }
         }
+        public int ReverseMoneyCheckout(int totalAmount)
+        {
+            int amount = totalAmount / 5000;
+
+            if (amount > 40)
+            {
+                return (int)(totalAmount / (5000 * 0.8));
+            }
+            else if (amount > 20)
+            {
+                return (int)(totalAmount / (5000 * 0.9));
+            }
+            else
+            {
+                return amount;
+            }
+        }
     }
 }

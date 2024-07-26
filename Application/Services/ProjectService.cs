@@ -28,6 +28,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Application.Common.ProjectStatus;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using ProjectStatus = Application.Common.ProjectStatus;
 
 namespace Application.Services
 {
@@ -889,6 +890,25 @@ namespace Application.Services
                 foreach (var skill in listSkills)
                 {
                     model.Skill.Add(skill.SkillName);
+                }
+                if(model.StatusId ==(int) ProjectStatus.StatusId.Close)
+                {
+                    var bid = await _context.Bids.FirstOrDefaultAsync(x=>x.AcceptedDate != null && model.Id == x.ProjectId);
+                    if(bid != null)
+                    {
+                        var userDTOs = (from u in _context.Users
+                                        where u.Id == bid.UserId
+                                        select new AppUserDTO2
+                                        {
+                                            Id = u.Id,
+                                            Email = u.Email,
+                                            Name = u.Name,
+                                            Duration = bid.Duration,
+                                            Budget = bid.Budget,
+                                            Avatar= u.Avatar
+                                        }).FirstOrDefault();
+                        model.Partner = userDTOs;
+                    }
                 }
                 model.CanMakeDone = (model.StatusId== 3 || model.StatusId == 9) ?true:false;
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);

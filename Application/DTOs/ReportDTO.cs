@@ -32,6 +32,8 @@ namespace Application.DTOs
         public string? BidUser { get; set; }
 
         public bool? IsApproved { get; set; }
+
+        public bool? IsRejected { get; set; }
     }
 
     public class ReportDTOValidator : AbstractValidator<ReportDTO>

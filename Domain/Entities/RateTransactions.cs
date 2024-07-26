@@ -23,6 +23,7 @@ namespace Domain.Entities
         public DateTime? BidCompletedDate { get; set; }
 
         public bool? Rated { get; set; }
+        public bool? RatedOther { get; set; }
 
         public virtual AppUser? UserProject { get; set; }
         public virtual AppUser? UserBid { get; set; }

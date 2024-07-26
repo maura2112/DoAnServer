@@ -13,6 +13,8 @@ namespace Application.DTOs
         public string Name { set; get; }
         public string Email { set; get; }
         public string PhoneNumber { set; get; }
+
+        public string Description { set; get; }
         public string? TaxCode { set; get; }
         public bool? IsCompany { set; get; }
         public List<string> Skills { set; get; }

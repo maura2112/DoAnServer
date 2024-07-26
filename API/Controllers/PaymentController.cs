@@ -3,6 +3,8 @@ using Net.payOS.Types;
 using Net.payOS;
 using Application.DTOs;
 using Application.IServices;
+using Microsoft.AspNetCore.Identity;
+using Domain.Entities;
 
 namespace API.Controllers
 {
@@ -10,10 +12,14 @@ namespace API.Controllers
     {
         private readonly PayOS _payOS;
         private readonly IPaymentService _paymentService;
-        public PaymentController(PayOS payOS, IPaymentService paymentService)
+        private readonly ICurrentUserService _currentUserService;
+        private readonly UserManager<AppUser> _userManager;
+        public PaymentController(PayOS payOS, IPaymentService paymentService, ICurrentUserService currentUserService, UserManager<AppUser> userManager)
         {
             _payOS = payOS;
             _paymentService = paymentService;
+            _currentUserService = currentUserService;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -43,9 +49,17 @@ namespace API.Controllers
         {
             try
             {
+                var userId = _currentUserService.UserId;
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user == null)
+                {
+                    return BadRequest("Không tìm thấy tài khoản phù hợp");
+                }
                 PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInfomation(int.Parse(notification.OrderCode));
-
-                return Ok();
+                var totalBids = _paymentService.ReverseMoneyCheckout(paymentLinkInformation.amount);
+                user.AmountBid = user.AmountBid + totalBids;
+                await _userManager.UpdateAsync(user);
+                return Ok(user.AmountBid);
             }
             catch (System.Exception exception)
             {

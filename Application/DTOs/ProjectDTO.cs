@@ -37,6 +37,9 @@ namespace Application.DTOs
         public virtual AppUserDTO2? AppUser2 { get; set; } = null!;
         public virtual CategoryDTO? Category { get; set; } = null!;
 
+       public AppUserDTO2? Partner { get; set; } = null!;
+
+
 
         public List<string> Skill { get; set; } = new();
         //public List<SkillDTO> SkillList { get; set; } 

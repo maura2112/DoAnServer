@@ -20,6 +20,8 @@ namespace Domain.Entities
         public long? BidId { get; set; }
 
         public bool IsApproved { get; set; }
+
+        public bool IsRejected { get; set; }
         public string Description { get; set;}
         public DateTime CreatedDate { get; set;}
         public DateTime? UpdatedDate { get; set;}

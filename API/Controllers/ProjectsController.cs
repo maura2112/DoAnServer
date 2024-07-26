@@ -238,7 +238,7 @@ namespace API.Controllers
                     RecieveId = projectDTOs.CreatedBy,
                     Description = "đã từ chối dự án của bạn",
                     Datetime = DateTime.Now,
-                    NotificationType = 2,
+                    NotificationType = 1,
                     IsRead = 0,
                     Link = "detail/" + projectDTOs.Id
                 };
@@ -265,7 +265,7 @@ namespace API.Controllers
                     RecieveId = projectDTOs.CreatedBy,
                     Description = "đã duyệt dự án của bạn",
                     Datetime = DateTime.Now,
-                    NotificationType = 2,
+                    NotificationType = 1,
                     IsRead = 0,
                     Link = "detail/" + projectDTOs.Id
                 };

@@ -25,6 +25,8 @@ namespace Application.Services
         {
             var filter = PredicateBuilder.True<Domain.Entities.RateTransaction> ();
             filter = filter.And(item => item.ProjectUserId == userId1);
+            filter = filter.And(item => item.ProjectAcceptedDate != null);
+            filter = filter.And(item => item.BidCompletedDate != null);
             filter = filter.And(item => item.BidUserId == userId2);
             filter = filter.And(item => item.Rated == false || item.Rated == null);
             var RateTransaction = await _repositoty.GetByFilter(filter);
@@ -34,6 +36,8 @@ namespace Application.Services
             var filter2 = PredicateBuilder.True<Domain.Entities.RateTransaction>();
             filter2 = filter2.And(item => item.ProjectUserId == userId2);
             filter2 = filter2.And(item => item.BidUserId == userId1);
+            filter2 = filter2.And(item => item.ProjectAcceptedDate != null);
+            filter2 = filter2.And(item => item.BidCompletedDate != null);
             filter2 = filter2.And(item => item.Rated == false || item.Rated == null);
             RateTransaction = await _repositoty.GetByFilter(filter2);
             return RateTransaction;

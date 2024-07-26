@@ -9,6 +9,8 @@ namespace Application.IServices
     public interface IPaymentService
     {
         public int MoneyCheckout(int amount);
-      
+        public int ReverseMoneyCheckout(int totalAmount);
+
+
     }
 }

@@ -76,6 +76,10 @@ namespace Application.Services
             {
                 reportDTOs = reportDTOs.Where(x => x.IsApproved == searchDTO.approved).ToList();
             }
+            if (searchDTO.rejected != null)
+            {
+               reportDTOs = reportDTOs.Where(x => x.IsRejected == searchDTO.rejected).ToList();
+            }
             return await _paginationService.ToPagination(reportDTOs, searchDTO.PageIndex, searchDTO.PageSize);
         }
 
@@ -91,7 +95,21 @@ namespace Application.Services
                 _repository.Update(report);
                 return true;
             }
+        }
 
+        public async Task<bool> RejectReport(int id)
+        {
+            var report = await _repository.GetByIdAsync(id);
+            if (report == null)
+            {
+                return false;
+            }
+            else
+            {
+                report.IsRejected = true;
+                _repository.Update(report);
+                return true;
+            }
         }
     }
 }

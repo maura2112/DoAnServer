@@ -133,6 +133,7 @@
             public const string Create = "Create";
             public const string Reports = "Reports";
             public const string Approve = "Approve";
+            public const string Reject = "Reject";
         }
         public static class Statistic
         {

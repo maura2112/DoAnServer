@@ -43,6 +43,8 @@ namespace Application.DTOs
         public string Avatar { get; set; }
         public DateTime CreatedDate { get; set; }
 
+        public string Email { get; set; }
+
         public bool? EmailConfirmed { get; set; }
 
         public float? AvgRate { get; set; }
@@ -51,6 +53,10 @@ namespace Application.DTOs
         public string? Country { get; set; }
         public string? City { get; set; }
         public List<string> Skill { get; set; } = new();
+
+        public int? Duration { get; set; }
+        public int? Budget { get; set; }
+
         //public string? CompletedProjectRate { get; set; }
     }
 

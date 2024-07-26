@@ -12,5 +12,6 @@ namespace Application.DTOs
         public string? typeDes { set; get; }
 
         public bool? approved { set; get; }
+        public bool? rejected { set; get; }
     }
 }

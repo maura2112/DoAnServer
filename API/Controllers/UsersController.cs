@@ -69,6 +69,7 @@ namespace API.Controllers
             user.PhoneNumber = String.IsNullOrEmpty(dto.PhoneNumber) ? "" : dto.PhoneNumber;
             user.Email = dto.Email;
             user.Name = dto.Name;
+            user.Description = dto.Description;
             user.TaxCode = String.IsNullOrEmpty(dto.TaxCode) ? "": dto.TaxCode;
             var userResult = await _userManager.UpdateAsync(user);
             if (userResult.Succeeded)

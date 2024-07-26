@@ -13,5 +13,7 @@ namespace Application.IServices
         public Task CreateReport(ReportCreateDTO dto);
         public Task<Pagination<ReportDTO>> GetReports(ReportSearchDTO searchDTO);
         Task<bool> ApproveReport(int id);
+
+        Task<bool> RejectReport(int id);
     }
 }

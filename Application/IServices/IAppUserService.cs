@@ -1,5 +1,7 @@
 ﻿using Application.DTOs;
 using Domain.Common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,7 @@ namespace Application.IServices
     {
         Task<UserDTO> GetUserDTOAsync(int uid);
         Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch);
+        Task<string> SendVerificationEmailAsync(string link);
 
         //Task<UserDTO> AddBidAsync(int amount);
     }

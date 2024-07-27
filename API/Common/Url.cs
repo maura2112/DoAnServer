@@ -13,6 +13,7 @@
                 public const string ResetPassword = "ResetPassword";
                 public const string ResetPasswordInputCode = "ResetPasswordInputCode";
                 public const string ResetNewPassword = "ResetNewPassword";
+                
             }
             public const string Profile = "Profile";
             public const string Update = "Update";
@@ -31,6 +32,8 @@
 
             public const string Roles = "Roles";
             public const string GetUser = "GetUser";
+
+            public const string SendConfirmEmail = "SendConfirmEmail";
         }
         public static class Product
         {

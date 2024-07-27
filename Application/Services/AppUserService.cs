@@ -3,19 +3,26 @@ using Application.DTOs;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -36,7 +43,8 @@ namespace Application.Services
         private readonly IProjectRepository _projectRepository;
         private readonly IBidRepository _bidRepository;
         private readonly ApplicationDbContext _context ;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository, ApplicationDbContext applicationDbContext)
+        private readonly IEmailSender _emailSender;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository, ApplicationDbContext applicationDbContext, IEmailSender emailSender)
         {
             _repository = repository;
             _mapper = mapper;
@@ -51,6 +59,7 @@ namespace Application.Services
             _projectRepository = projectRepository;
             _bidRepository = bidRepository;
             _context = applicationDbContext;
+            _emailSender = emailSender;
         }
 
         public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
@@ -166,13 +175,13 @@ namespace Application.Services
                         userDTO.IsRated = true;
                     }
                 }
-                var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == user.Id || x.ProjectUserId == user.Id);
-                var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == user.Id);
-                int avgRate;
+                var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == uid || x.ProjectUserId == uid);
+                var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == uid);
+                decimal avgRate;
                 if (totalRate != 0)
                 {
-                    avgRate = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star) /
-                              totalRate;
+                    float sumStars = await _context.Ratings.Where(x => x.RateToUserId == user.Id).SumAsync(x => x.Star);
+                    avgRate = Math.Round((decimal)sumStars / totalRate, 1);
                 }
                 else
                 {
@@ -184,6 +193,26 @@ namespace Application.Services
 
             }
             return userDTO;
+        }
+
+        public async Task<string> SendVerificationEmailAsync( string link)
+        {
+            string uid = _currentUserService.UserId.ToString();
+            var user = await _userManager.FindByIdAsync(uid);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = $"{link}&code={code}";
+            await _emailSender.SendEmailAsync(
+                user.Email,
+                "Xác nhận email",
+                $"Vui lòng xác nhận email tài khoản của bạn bằng cách bấm vào link này: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            return "Vui lòng kiểm tra gmail của bạn";
         }
 
         //public async Task<UserDTO> AddBidAsync(int amount)

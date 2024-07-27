@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net.WebSockets;
 using System.Text.Json;
+using static API.Common.Url;
 
 namespace API.Controllers
 {
@@ -283,6 +284,19 @@ namespace API.Controllers
                 }
                 return Ok("Mở khóa thành công "+ userUnlock.Count+" người dùng");
             }
+        }
+
+        [HttpPost]
+        [Route(Common.Url.User.SendConfirmEmail)]
+        public async Task<ActionResult> SendConfirmEmail( string link)
+        {
+            var result = await _appUserService.SendVerificationEmailAsync(link);
+            if(result == null)
+            {
+                return NotFound("Không tìm thấy người dùng này");
+            }
+
+            return Ok(result);
         }
     }
 }

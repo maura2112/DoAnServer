@@ -23,7 +23,7 @@ namespace Application.DTOs
         public int TotalProject { get; set; }
         public int  TotalBid { get; set; }
 
-        public float? AvgRate { get; set; }
+        public decimal? AvgRate { get; set; }
         public int? TotalRate { get; set; }
 
         public DateTime? LockoutEnd { get; set; }

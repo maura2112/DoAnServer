@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Application.Extensions;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -158,9 +159,10 @@ public static class DependencyInjection
             opt.Lockout.AllowedForNewUsers = true; // Default true
             opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Default 5
             opt.Lockout.MaxFailedAccessAttempts = 5; // Default 5
+            opt.Tokens.EmailConfirmationTokenProvider = "Default";
         })
             .AddRoles<Role>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         services.AddSingleton(TimeProvider.System);
         return services;
     }

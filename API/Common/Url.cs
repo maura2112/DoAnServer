@@ -34,6 +34,7 @@
             public const string GetUser = "GetUser";
 
             public const string SendConfirmEmail = "SendConfirmEmail";
+            public const string UpdateAddress = "UpdateAddress";
         }
         public static class Product
         {

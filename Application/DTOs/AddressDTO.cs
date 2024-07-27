@@ -10,19 +10,27 @@ namespace Application.DTOs
 {
     public class AddressDTO
     {
-        public int UserId { get; set; }
-        public string Street { get; set; }
+        public int? UserId { get; set; }
+        public string? Street { get; set; }
         public string City { get; set; }
         public string State { get; set; }
         public string PostalCode { get; set; }
-        public string Country { get; set; }
+        public string? Country { get; set; }
         
     }
     public class AddressDTOValidator : AbstractValidator<AddressDTO>
     {
         public AddressDTOValidator()
         {
-           
+            RuleFor(address => address.City)
+            .NotEmpty().WithMessage("Vui lòng chọn tên thành phố");           
+            RuleFor(address => address.State)
+            .NotEmpty().WithMessage("Vui lòng chọn tên quận/huyện");
+            RuleFor(address => address.PostalCode)
+                .NotEmpty().WithMessage("Vui lòng điền mã bưu điện")
+                .Matches(@"^\d+$").WithMessage("Mã bưu điện không hợp lệ");
+            RuleFor(address => address.Street)
+            .NotEmpty().WithMessage("Vui lòng điền tên đường");
         }
     }
 }

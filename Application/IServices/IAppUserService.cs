@@ -16,6 +16,8 @@ namespace Application.IServices
         Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch);
         Task<string> SendVerificationEmailAsync(string link);
 
+        Task<AddressDTO> UpdateAddress(AddressDTO dto);
+
         //Task<UserDTO> AddBidAsync(int amount);
     }
 }

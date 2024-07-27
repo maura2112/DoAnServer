@@ -228,6 +228,10 @@ namespace API.Controllers
         {
             var userId = _currentUserService.UserId;
             var projectDTOs = await _projectService.UpdateProjectStatus(update);
+            if(projectDTOs == null)
+            {
+                return BadRequest("Dự án của bạn đã bị từ chối quá nhiều lần. Hãy tạo dự án mới");
+            }
             if(projectDTOs.StatusId == 5) {
                 NotificationDto notificationDto = new NotificationDto()
                 {

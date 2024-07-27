@@ -298,5 +298,13 @@ namespace API.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost]
+        [Route(Common.Url.User.UpdateAddress)]
+        public async Task<ActionResult> UpdateAddress([FromBody] AddressDTO dto)
+        {
+            var address = await _appUserService.UpdateAddress(dto);
+            return Ok(address);
+        }
     }
 }

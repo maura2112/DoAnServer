@@ -35,7 +35,7 @@ namespace API.Controllers
                 items.Add(item);
                 PaymentData paymentData = new PaymentData(orderCode, total, "Mua thêm số lượng dự thầu", items, "https://localhost:3002/cancel", "https://localhost:3002/success");
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
-                return Ok(createPayment.checkoutUrl);
+                return Ok(createPayment);
             }
             catch (System.Exception exception)
             {

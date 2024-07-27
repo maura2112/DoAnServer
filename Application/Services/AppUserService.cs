@@ -215,11 +215,24 @@ namespace Application.Services
             return "Vui lòng kiểm tra gmail của bạn";
         }
 
-        //public async Task<UserDTO> AddBidAsync(int amount)
-        //{
-        //    var userId = _currentUserService.UserId;
-        //    var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-
-        //}
+        public async Task<AddressDTO> UpdateAddress(AddressDTO dto)
+        {
+            var userId = _currentUserService.UserId;
+            dto.UserId = userId;
+            dto.Country = "Việt Nam";
+            var address = new Address()
+            {
+                UserId = userId,
+                Country = dto.Country,
+                PostalCode = dto.PostalCode,
+                City = dto.City,
+                State = dto.State,
+                Street = dto.Street,
+            };
+            await _context.Addresses.AddAsync(address);
+            await _context.SaveChangesAsync();
+            return dto;
+            
+        }
     }
 }

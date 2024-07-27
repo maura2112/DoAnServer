@@ -468,13 +468,16 @@ namespace Application.Services
 
         public async Task<ProjectDTO> UpdateProjectStatus(ProjectStatusUpdate update)
         {
-            var project = await _projectRepository.GetByIdAsync(update.ProjectId);
-            
-            
             var userId = _currentUserService.UserId;
+            var project = await _projectRepository.GetByIdAsync(update.ProjectId);
+            if(project.RejectTimes >= 3 && update.StatusId== 1)
+            {
+                return null;
+            }
             if (update.StatusId == 5 && project.StatusId == 1)
             {
                 project.RejectReason = update.RejectReason;
+                project.RejectTimes = project.RejectTimes + 1;
             } // reject 
             else if(update.StatusId == 9)
             {

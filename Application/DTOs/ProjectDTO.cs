@@ -27,6 +27,7 @@ namespace Application.DTOs
         public bool? CanMakeDone { get; set; }
 
         public string? StatusName { get; set; }
+        public int? RejectTimes { get; set; }
 
         public bool? IsFavorite { get; set; }
         public string? RejectReason { get; set; }

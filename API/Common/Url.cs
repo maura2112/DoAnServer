@@ -13,7 +13,7 @@
                 public const string ResetPassword = "ResetPassword";
                 public const string ResetPasswordInputCode = "ResetPasswordInputCode";
                 public const string ResetNewPassword = "ResetNewPassword";
-                
+
             }
             public const string Profile = "Profile";
             public const string Update = "Update";
@@ -35,6 +35,8 @@
 
             public const string SendConfirmEmail = "SendConfirmEmail";
             public const string UpdateAddress = "UpdateAddress";
+            public const string InputConfirmEmail = "InputConfirmEmailCode";
+            public const string ConfirmEmail = "ConfirmEmail";
         }
         public static class Product
         {
@@ -148,7 +150,7 @@
             public const string StatisticProjects = "StatisticProjects";
             public const string StatisticUsers = "StatisticUsers";
             public const string StatisticSkills = "StatisticSkills";
-            
+
         }
 
         public static class Export

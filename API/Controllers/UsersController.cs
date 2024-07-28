@@ -1,9 +1,12 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Application.Services;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Entities;
+using Domain.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -25,7 +28,10 @@ namespace API.Controllers
         private readonly IMediaService _mediaFileService;
         private readonly IPasswordGeneratorService _passwordGeneratorService;
         private readonly RoleManager<Role> _roleManager;
-        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager)
+        private readonly ITokenService _tokenService;
+        private readonly IEmailSender _emailSender;
+        private readonly IAppUserRepository _appUserRepository;
+        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager, ITokenService tokenService, IEmailSender emailSender, IAppUserRepository appUserRepository)
         {
             _appUserService = appUserService;
             _currentUserService = currentUserService;
@@ -34,6 +40,9 @@ namespace API.Controllers
             _passwordGeneratorService = passwordGeneratorService;
             _mediaFileService = mediaFileService;
             _roleManager = roleManager;
+            _tokenService = tokenService;
+            _emailSender = emailSender;
+            _appUserRepository = appUserRepository;
         }
         [HttpGet]
         [Route(Common.Url.User.Profile)]
@@ -288,15 +297,120 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.User.SendConfirmEmail)]
-        public async Task<ActionResult> SendConfirmEmail( string link)
+        public async Task<ActionResult> SendConfirmEmail()
         {
-            var result = await _appUserService.SendVerificationEmailAsync(link);
-            if(result == null)
+            var uid =  _currentUserService.UserId;
+            
+            var user = await _appUserRepository.GetByIdAsync(uid);
+            
+            if (user == null)
             {
-                return NotFound("Không tìm thấy người dùng này");
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Email sai hoặc người dùng không tồn tại"
+                });
             }
+            var resetCode = _passwordGeneratorService.Generate6DigitCode();
+            user.PasswordResetToken = _passwordGeneratorService.HashPassword(resetCode);
+            user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(3);
+            await _userManager.UpdateAsync(user);
+            await _emailSender.SendEmailAsync(user.Email, "Mã xác nhận xác thực email ",
+                        $"<p>Dear {user.Name},</p>" +
+                        $"<p>Chúng tôi đã nhận được yêu cầu xác thực email. Hãy sữ dụng mã dưới đây:</p>" +
+                        $"<h3 style=\"background-color: #f9f9f9; padding: 10px; border: 1px solid #ccc; display: inline-block;\">{resetCode}</h3>" +
+                        $"<p>Mã sẽ hợp lệ trong vòng 3 phút.</p>" +
+                        $"<p>Nếu bạn không yêu cầu xác thực email, hãy bỏ qua email này.</p>" +
+                        $"<p>Cảm ơn,</p>" +
+                        $"<p>GoodJobs</p>");
+            return Ok(new
+            {
+                success = true,
+                message = "Hãy kiểm tra email để lấy mã xác nhận"
+            }); ;
+        }
+        [HttpPost]
+        [Route(Common.Url.User.InputConfirmEmail)]
+        public async Task<ActionResult> InputConfirmEmail([FromBody] InputEmailConfirmDTO dto)
+        {
+            var uid = _currentUserService.UserId;
 
-            return Ok(result);
+            var user = await _appUserRepository.GetByIdAsync(uid);
+
+            if (user == null || user.PasswordResetToken == null)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Email sai hoặc người dùng không tồn tại"
+                });
+            }
+            if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, dto.Code))
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            if (user.ResetTokenExpires < DateTime.UtcNow)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            return Ok(new
+            {
+                success = true,
+                message = "Mã chính xác",
+                secureToken = user.PasswordResetToken
+            });
+        }
+        [HttpPost]
+        [Route(Common.Url.User.ConfirmEmail)]
+        public async Task<ActionResult> ConfirmEmailAsync([FromBody] EmailConfirmDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+            }
+            var uid = _currentUserService.UserId;
+
+            var user = await _appUserRepository.GetByIdAsync(uid);
+
+            if (user == null || user.PasswordResetToken == null)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Email sai hoặc người dùng không tồn tại"
+                });
+            }
+            if (!user.PasswordResetToken.Equals(dto.SecureToken))
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }
+            if (user.ResetTokenExpires < DateTime.UtcNow)
+            {
+                return Conflict(new
+                {
+                    success = false,
+                    message = "Mã không hợp lệ !"
+                });
+            }  
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+            return Ok(new
+            {
+                success = true,
+                message = "Xác thực email thành công",
+            });
         }
 
         [HttpPost]

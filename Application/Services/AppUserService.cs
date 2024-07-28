@@ -44,7 +44,8 @@ namespace Application.Services
         private readonly IBidRepository _bidRepository;
         private readonly ApplicationDbContext _context ;
         private readonly IEmailSender _emailSender;
-        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository, ApplicationDbContext applicationDbContext, IEmailSender emailSender)
+        private readonly ITokenService _tokenService;
+        public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository, ApplicationDbContext applicationDbContext, IEmailSender emailSender, ITokenService tokenService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -60,6 +61,7 @@ namespace Application.Services
             _bidRepository = bidRepository;
             _context = applicationDbContext;
             _emailSender = emailSender;
+            _tokenService = tokenService;
         }
 
         public async Task<Pagination<UserDTO>> GetUsers(UserSearchDTO userSearch)
@@ -195,25 +197,31 @@ namespace Application.Services
             return userDTO;
         }
 
-        public async Task<string> SendVerificationEmailAsync( string link)
-        {
-            string uid = _currentUserService.UserId.ToString();
-            var user = await _userManager.FindByIdAsync(uid);
-            if (user == null)
-            {
-                return null;
-            }
+        //public async Task<string> SendVerificationEmailAsync(string email)
+        //{
+        //    string uid = _currentUserService.UserId.ToString();
+        //    var user = await _userManager.FindByIdAsync(uid);
+        //    if (user == null)
+        //    {
+        //        return null;
+        //    }
 
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = $"{link}&code={code}";
-            await _emailSender.SendEmailAsync(
-                user.Email,
-                "Xác nhận email",
-                $"Vui lòng xác nhận email tài khoản của bạn bằng cách bấm vào link này: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+        //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            return "Vui lòng kiểm tra gmail của bạn";
-        }
+        //    // Create a unique token for the verification link
+        //    var token = Guid.NewGuid().ToString();
+        //    _tokenService.SaveToken(token, code);
+
+        //    var callbackUrl = $"{baseUrl}/api/users/ConfirmEmail?token={token}";
+
+        //    await _emailSender.SendEmailAsync(
+        //        user.Email,
+        //        "Xác nhận email",
+        //        $"Vui lòng xác nhận email tài khoản của bạn bằng cách bấm vào link này: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+        //    return token;
+        //}
 
         public async Task<AddressDTO> UpdateAddress(AddressDTO dto)
         {

@@ -133,6 +133,9 @@ public static class DependencyInjection
         //Dashboard
         services.AddScoped<IDashboardService, DashboardService>();
 
+        //Token Service
+        services.AddScoped<ITokenService, TokenService>();
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;
@@ -151,7 +154,7 @@ public static class DependencyInjection
             options.CallbackPath = new PathString("/dang-nhap-tu-google"); // Ensure this matches the Google Cloud Console settings
         });
 
-
+        services.AddMemoryCache();
         services.AddIdentityCore<AppUser>(opt =>
         {
             opt.User.RequireUniqueEmail = true;

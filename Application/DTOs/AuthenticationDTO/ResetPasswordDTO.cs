@@ -14,7 +14,15 @@ namespace Application.DTOs
         public string NewPasswordConfirm { get; set; }
         public string SecureToken { get; set; }
     }
+    public class EmailConfirmDTO
+    {
+        public string SecureToken { get; set; }
+    }
 
+    public class InputEmailConfirmDTO
+    {
+        public string Code { get; set; }
+    }
     public class ResetPasswordCodeDTO
     {
         public string Email { get; set; }

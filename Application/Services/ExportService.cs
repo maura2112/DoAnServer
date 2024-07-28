@@ -118,18 +118,21 @@ namespace Application.Services
                     propose = "";
                 }
 
-
+                if (isChat)
+                {
+                    worksheet.Cells[4, 1].Value = "Mục tiêu: ";
+                    worksheet.Cells[4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet.Cells[4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    worksheet.Cells[4, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                    worksheet.Cells[4, 1].Style.Font.Italic = true; // Tô đậm chữ
+                    worksheet.Cells[5, 1].Value = target;
+                    worksheet.Cells[5, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet.Cells[5, 1].Style.WrapText = true;
+                    worksheet.Cells[5, 1, 6, 20].Merge = true;
+                    worksheet.Cells[7, 1].Value = "";
+                }
                 // Thêm mục tiêu vào worksheet
-                worksheet.Cells[4, 1].Value = "Mục tiêu: ";
-                worksheet.Cells[4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                worksheet.Cells[4, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
-                worksheet.Cells[4, 1].Style.Font.Italic = true; // Tô đậm chữ
-                worksheet.Cells[5, 1].Value = target;
-                worksheet.Cells[5, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet.Cells[5, 1].Style.WrapText = true;
-                worksheet.Cells[5, 1, 6, 20].Merge = true;
-                worksheet.Cells[7, 1].Value = "";
+
 
                 // Thêm tiêu đề cho bảng
                 int startRow = 9; // Hàng bắt đầu vẽ bảng
@@ -175,29 +178,32 @@ namespace Application.Services
 
                 worksheet.Cells[currentRow + 3, 1].Value = $"Tổng số danh mục: {totalCategory} danh mục";
                 worksheet.Cells[currentRow + 4, 1].Value = $"Danh mục có nhiều dự án nhất: {maxProjectsCategory} - {maxProjectsCount} dự án";
+                if (isChat)
+                {
+                    worksheet.Cells[currentRow + 6, 1].Value = "Kết luận";
+                    worksheet.Cells[currentRow + 6, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                    worksheet.Cells[currentRow + 6, 1].Style.Font.Italic = true; // Tô đậm chữ
+                    worksheet.Cells[currentRow + 6, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet.Cells[currentRow + 6, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                worksheet.Cells[currentRow + 6, 1].Value = "Kết luận";
-                worksheet.Cells[currentRow + 6, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
-                worksheet.Cells[currentRow + 6, 1].Style.Font.Italic = true; // Tô đậm chữ
-                worksheet.Cells[currentRow + 6, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[currentRow + 6, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    worksheet.Cells[currentRow + 7, 1].Value = comment;
+                    worksheet.Cells[currentRow + 7, 1].Style.WrapText = true;
+                    worksheet.Cells[currentRow + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet.Cells[currentRow + 7, 1, currentRow + 8, 20].Merge = true;
 
-                worksheet.Cells[currentRow + 7, 1].Value = comment;
-                worksheet.Cells[currentRow + 7, 1].Style.WrapText = true;
-                worksheet.Cells[currentRow + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet.Cells[currentRow + 7, 1, currentRow + 8, 20].Merge = true;
+                    worksheet.Cells[currentRow + 10, 1].Value = "Đề xuất: ";
+                    worksheet.Cells[currentRow + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet.Cells[currentRow + 10, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                    worksheet.Cells[currentRow + 10, 1].Style.Font.Italic = true; // Tô đậm chữ
+                    worksheet.Cells[currentRow + 10, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet.Cells[currentRow + 10, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
 
-                worksheet.Cells[currentRow + 10, 1].Value = "Đề xuất: ";
-                worksheet.Cells[currentRow + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet.Cells[currentRow + 10, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
-                worksheet.Cells[currentRow + 10, 1].Style.Font.Italic = true; // Tô đậm chữ
-                worksheet.Cells[currentRow + 10, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[currentRow + 10, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
+                    worksheet.Cells[currentRow + 11, 1].Value = propose;
+                    worksheet.Cells[currentRow + 11, 1].Style.WrapText = true;
+                    worksheet.Cells[currentRow + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet.Cells[currentRow + 11, 1, currentRow + 18, 20].Merge = true;
+                }
 
-                worksheet.Cells[currentRow + 11, 1].Value = propose;
-                worksheet.Cells[currentRow + 11, 1].Style.WrapText = true;
-                worksheet.Cells[currentRow + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet.Cells[currentRow + 11, 1, currentRow + 18, 20].Merge = true;
                 worksheet.Cells[startRow, startColumn, endRow, endColumn].AutoFitColumns();
                 // Thêm biểu đồ tròn (pie chart)
                 var chart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie);
@@ -227,9 +233,9 @@ namespace Application.Services
 
 
                 // Lấy kết quả từ các Task
-                string target2 ;
-                string comment2 ;
-                string propose2 ;
+                string target2;
+                string comment2;
+                string propose2;
 
                 //Data để call api chatgpt
                 string dataTableContent2 = "Danh sách người dùng khả dụng và bị chặn theo mỗi phân quyền:\n";
@@ -245,7 +251,7 @@ namespace Application.Services
                     worksheet2.Cells[1, 1].Value);
 
                     var commentTask2 = await GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra kết luận báo cáo thống kê cho tôi, hãy viết ngắn gọn:" + dataTableContent2);
-                    
+
                     var proposeTask2 = await GetChatGPTAnswer2("Từ nội dung sau, hãy đưa ra đề xuất để có thể cải thiện cho doanh số trang web, số lượng người dùng truy cập có thể là thêm nhiều ưu đãi khi là người mới,..., hãy viết ngắn gọn:" + dataTableContent2);
                     target2 = targetTask2;
                     comment2 = commentTask2;
@@ -260,16 +266,20 @@ namespace Application.Services
 
 
                 // Thêm mục tiêu vào worksheet
-                worksheet2.Cells[4, 1].Value = "Mục tiêu: ";
-                worksheet2.Cells[4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet2.Cells[4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                worksheet2.Cells[4, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
-                worksheet2.Cells[4, 1].Style.Font.Italic = true; // Tô đậm chữ
-                worksheet2.Cells[5, 1].Value = target2;
-                worksheet2.Cells[5, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet2.Cells[5, 1].Style.WrapText = true;
-                worksheet2.Cells[5, 1, 6, 20].Merge = true;
-                worksheet2.Cells[7, 1].Value = "";
+                if (isChat)
+                {
+                    worksheet2.Cells[4, 1].Value = "Mục tiêu: ";
+                    worksheet2.Cells[4, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet2.Cells[4, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    worksheet2.Cells[4, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                    worksheet2.Cells[4, 1].Style.Font.Italic = true; // Tô đậm chữ
+                    worksheet2.Cells[5, 1].Value = target2;
+                    worksheet2.Cells[5, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet2.Cells[5, 1].Style.WrapText = true;
+                    worksheet2.Cells[5, 1, 6, 20].Merge = true;
+                    worksheet2.Cells[7, 1].Value = "";
+                }
+
 
                 // Thêm tiêu đề cho bảng
                 int startRow2 = 9; // Hàng bắt đầu vẽ bảng
@@ -313,29 +323,32 @@ namespace Application.Services
 
                 worksheet2.Cells[currentRow2 + 3, 1].Value = $"Tổng số người dùng: {totalUser} người dùng";
                 worksheet2.Cells[currentRow2 + 4, 1].Value = $"Tổng số người dùng bị chặn: {totalBlockedUser} người dùng";
+                if (isChat)
+                {
+                    worksheet2.Cells[currentRow2 + 6, 1].Value = "Kết luận";
+                    worksheet2.Cells[currentRow2 + 6, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                    worksheet2.Cells[currentRow2 + 6, 1].Style.Font.Italic = true; // Tô đậm chữ
+                    worksheet2.Cells[currentRow2 + 6, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet2.Cells[currentRow2 + 6, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                worksheet2.Cells[currentRow2 + 6, 1].Value = "Kết luận";
-                worksheet2.Cells[currentRow2 + 6, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
-                worksheet2.Cells[currentRow2 + 6, 1].Style.Font.Italic = true; // Tô đậm chữ
-                worksheet2.Cells[currentRow2 + 6, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet2.Cells[currentRow2 + 6, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    worksheet2.Cells[currentRow2 + 7, 1].Value = comment2;
+                    worksheet2.Cells[currentRow2 + 7, 1].Style.WrapText = true;
+                    worksheet2.Cells[currentRow2 + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet2.Cells[currentRow2 + 7, 1, currentRow2 + 8, 20].Merge = true;
 
-                worksheet2.Cells[currentRow2 + 7, 1].Value = comment2;
-                worksheet2.Cells[currentRow2 + 7, 1].Style.WrapText = true;
-                worksheet2.Cells[currentRow2 + 7, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet2.Cells[currentRow2 + 7, 1, currentRow2 + 8, 20].Merge = true;
+                    worksheet2.Cells[currentRow2 + 10, 1].Value = "Đề xuất: ";
+                    worksheet2.Cells[currentRow2 + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet2.Cells[currentRow2 + 10, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
+                    worksheet2.Cells[currentRow2 + 10, 1].Style.Font.Italic = true; // Tô đậm chữ
+                    worksheet2.Cells[currentRow2 + 10, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet2.Cells[currentRow2 + 10, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
 
-                worksheet2.Cells[currentRow2 + 10, 1].Value = "Đề xuất: ";
-                worksheet2.Cells[currentRow2 + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet2.Cells[currentRow2 + 10, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
-                worksheet2.Cells[currentRow2 + 10, 1].Style.Font.Italic = true; // Tô đậm chữ
-                worksheet2.Cells[currentRow2 + 10, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet2.Cells[currentRow2 + 10, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Khaki);
+                    worksheet2.Cells[currentRow2 + 11, 1].Value = propose2;
+                    worksheet2.Cells[currentRow2 + 11, 1].Style.WrapText = true;
+                    worksheet2.Cells[currentRow2 + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                    worksheet2.Cells[currentRow2 + 11, 1, currentRow2 + 18, 20].Merge = true;
+                }
 
-                worksheet2.Cells[currentRow2 + 11, 1].Value = propose2;
-                worksheet2.Cells[currentRow2 + 11, 1].Style.WrapText = true;
-                worksheet2.Cells[currentRow2 + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-                worksheet2.Cells[currentRow2 + 11, 1, currentRow2 + 18, 20].Merge = true;
                 worksheet2.Cells[startRow2, startColumn2, endRow2, endColumn2].AutoFitColumns();
 
                 // Thêm biểu đồ tròn (pie chart) cho người dùng
@@ -404,7 +417,7 @@ namespace Application.Services
         public async Task<string> GetChatGPTAnswer2(string questionText)
         {
 
-            var chatGPTAPIkey ="";
+            var chatGPTAPIkey = "";
             string answer = string.Empty;
 
             var httpClient = new HttpClient();

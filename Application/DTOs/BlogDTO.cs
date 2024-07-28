@@ -25,6 +25,8 @@ namespace Application.DTOs
         public string CategoryName { get; set; }
         public DateTime CreateDate { get; set; }
         public string CreateTime { get; set; }
+
+        public List<RelatedBLogDTO>? relateds { get; set; }
     }
 
     public class RelatedAdd
@@ -32,7 +34,13 @@ namespace Application.DTOs
         public int BlogId { get; set; }
 
         public List<int> RelatedBlogId { get; set; }
+    }
 
+    public class RelatedBLogDTO
+    {
+        public int BlogId { get; set; }
+        public string BlogName { get; set; }
+        public string  DateString { get; set; }
     }
 
 

@@ -112,7 +112,24 @@ namespace Application.Services
                              CreateDate = b.CreatedDate,
                              CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
                          }).FirstOrDefaultAsync();
+            blogDTO.relateds = await RelatedBlogs(blogDTO.BlogId);
             return blogDTO;
+        }
+
+        public async Task<List<RelatedBLogDTO>> RelatedBlogs(int id)
+        {
+            var query = from b in _context.RelatedBlogs
+                        join b2 in _context.Blogs on b.RelatedBlogId equals b2.Id
+                        where b.BlogId == id
+                        select new RelatedBLogDTO
+                        {
+                            BlogId = b2.Id,
+                            BlogName = b2.Title,
+                            DateString = DateTimeHelper.ToVietnameseDateString(b2.CreatedDate),
+                        };
+
+            var result = await query.ToListAsync();
+            return result;
         }
 
         public async Task<BlogCreateDTO> UpdateBlog(BlogCreateDTO dto)

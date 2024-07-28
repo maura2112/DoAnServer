@@ -62,6 +62,8 @@
             public const string Detail = "Detail";
             public const string Publish = "Publish";
             public const string Gets = "Gets";
+            public const string Other = "Other";
+            public const string AddRelated = "AddRelated";
         }
         public static class Payment
         {

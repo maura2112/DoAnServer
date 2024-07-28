@@ -27,5 +27,13 @@ namespace Application.DTOs
         public string CreateTime { get; set; }
     }
 
-    
+    public class RelatedAdd
+    {       
+        public int BlogId { get; set; }
+
+        public List<int> RelatedBlogId { get; set; }
+
+    }
+
+
 }

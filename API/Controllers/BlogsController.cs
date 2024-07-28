@@ -138,5 +138,25 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Internal server error" });
             }
         }
+
+        [HttpGet]
+        [Route(Common.Url.Blog.Other)]
+        public async Task<IActionResult> GetBlogsOther([FromQuery] int blogid ,[FromQuery] string cursor = null, [FromQuery] int limit = 20)
+        {
+            var blog =await _blogService.GetOther(blogid, cursor, limit);
+            return Ok(blog);
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Blog.AddRelated)]
+        public async Task<IActionResult> AddRelated([FromBody]RelatedAdd related)
+        {
+            var result = await _blogService.AddRelatedBlog(related);
+            if (result)
+            {
+                return Ok(related);
+            }
+            return BadRequest("Thêm Blog liên quang không thành công");
+        }
     }
 }

@@ -3,6 +3,8 @@ using Application.DTOs;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
+using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Math;
 using Domain.Common;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -196,6 +198,55 @@ namespace Application.Services
             query = query.OrderByDescending(x=>x.CreateDate).Take(filter.Top);
             var list = await query.ToListAsync();
             return list;
+        }
+
+        public async Task<LaziLoadDTO<Blog>> GetOther(int blogId , string cursor, int limit)
+        {
+            var lastBlogId = cursor != null ? Convert.ToDateTime(cursor) : (DateTime?)null;
+            var query = _context.Blogs.AsQueryable();
+
+            if (lastBlogId.HasValue)
+            {
+                query = query.Where(b => b.CreatedDate < lastBlogId.Value);
+            }
+            query = query.Where(b => b.Id != blogId);
+            var blogs = await query.OrderByDescending(b => b.CreatedDate)
+                                   .Take(limit)
+                                   .ToListAsync();
+            var nextCursor = blogs.Any() ? blogs.Last().CreatedDate.ToString() : null;
+            var result = new LaziLoadDTO<Blog>()
+            {
+                nextCursor = nextCursor,
+                Items = blogs,
+            };
+            return result;
+        }
+
+        public async Task<bool> AddRelatedBlog(RelatedAdd related)
+        {
+            var relatedBlog =  _context.RelatedBlogs.Where(x => x.BlogId == related.BlogId).AsQueryable();
+            if (relatedBlog.Any())
+            {
+                _context.RelatedBlogs.RemoveRange(relatedBlog);
+                await _context.SaveChangesAsync();
+            }
+            var relatedBlogNews = new List<RelatedBlog>();
+            foreach (int id in related.RelatedBlogId)
+            {
+                var blog = new RelatedBlog()
+                {
+                    BlogId = related.BlogId,
+                    RelatedBlogId = id
+                };
+                relatedBlogNews.Add(blog);
+            }
+            if (relatedBlogNews.Any())
+            {
+                await _context.RelatedBlogs.AddRangeAsync(relatedBlog);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
     }
 }

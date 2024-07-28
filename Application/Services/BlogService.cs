@@ -120,7 +120,7 @@ namespace Application.Services
         {
             var query = from b in _context.RelatedBlogs
                         join b2 in _context.Blogs on b.RelatedBlogId equals b2.Id
-                        where b.BlogId == id
+                        where b.BlogId == id && b.IsDeleted != true && b2.IsPublished == true
                         select new RelatedBLogDTO
                         {
                             BlogId = b2.Id,

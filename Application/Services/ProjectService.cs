@@ -46,9 +46,10 @@ namespace Application.Services
         private readonly PaginationService<ProjectDTO> _paginationService;
         private readonly ApplicationDbContext _context;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IBidRepository _bidRepository;
 
 
-        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IAddressRepository addressRepository, IStatusRepository statusRepository, PaginationService<ProjectDTO> paginationService, ApplicationDbContext context, INotificationRepository notificationRepository)
+        public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IAddressRepository addressRepository, IStatusRepository statusRepository, PaginationService<ProjectDTO> paginationService, ApplicationDbContext context, INotificationRepository notificationRepository, IBidRepository bidRepository)
         {
             _mapper = mapper;
             _projectRepository = projectRepository;
@@ -62,6 +63,7 @@ namespace Application.Services
             _paginationService = paginationService;
             _context = context;
             _notificationRepository = notificationRepository;
+            _bidRepository = bidRepository;
         }
 
         public async Task<ProjectDTO> Add(AddProjectDTO request)
@@ -278,12 +280,23 @@ namespace Application.Services
                 return null;
             }
 
-            if (project.IsDeleted == true || project.StatusId == 1 || project.StatusId == 5 || project.StatusId == 6)
+            if (project.IsDeleted == true || project.StatusId == 1 || project.StatusId == 5)
             {
 
                 if (project.CreatedBy != _currentUserService.UserId)
                 {
                     return null;
+                }
+            }
+            if (project.StatusId == 3 || project.StatusId == 6 || project.StatusId == 9)
+            {
+                if (project.CreatedBy != _currentUserService.UserId)
+                {
+                    var bid = await _bidRepository.FirstOrDefaultAsync(x => x.ProjectId == id);
+                    if (_currentUserService.UserId != bid.UserId)
+                    {
+                        return null;
+                    }
                 }
             }
             var projectDTO = _mapper.Map<ProjectDTO>(project);
@@ -426,7 +439,7 @@ namespace Application.Services
             {
                 projectDTOList = projectDTOList.Where(x => x.CreatedDate <= search.CreatedTo);
             }
-            return await _paginationService.ToPagination(projectDTOList.OrderByDescending(x=>x.CreatedDate).ToList(), search.PageIndex, search.PageSize);
+            return await _paginationService.ToPagination(projectDTOList.OrderByDescending(x => x.CreatedDate).ToList(), search.PageIndex, search.PageSize);
         }
 
         public async Task<ProjectDTO> ProcessProjectAsync(Project project)
@@ -470,7 +483,7 @@ namespace Application.Services
         {
             var userId = _currentUserService.UserId;
             var project = await _projectRepository.GetByIdAsync(update.ProjectId);
-            if(project.RejectTimes >= 3 && update.StatusId== 1)
+            if (project.RejectTimes >= 3 && update.StatusId == 1)
             {
                 return null;
             }
@@ -479,10 +492,10 @@ namespace Application.Services
                 project.RejectReason = update.RejectReason;
                 project.RejectTimes = project.RejectTimes + 1;
             } // reject 
-            else if(update.StatusId == 9)
+            else if (update.StatusId == 9)
             {
                 var BidAccepted = await _context.Bids.FirstOrDefaultAsync(x => x.ProjectId == update.ProjectId && x.AcceptedDate != null);
-                if(BidAccepted.UserId == userId && update.BidId == BidAccepted.Id)
+                if (BidAccepted.UserId == userId && update.BidId == BidAccepted.Id)
                 {
                     project.UpdatedDate = DateTime.Now;
                     project.StatusId = update.StatusId;
@@ -506,7 +519,7 @@ namespace Application.Services
         public async Task<bool> MakeDone(int id)
         {
             var userId = _currentUserService.UserId;
-            var bid = await _context.Bids.FirstOrDefaultAsync(x=>x.Id == id);
+            var bid = await _context.Bids.FirstOrDefaultAsync(x => x.Id == id);
             if (bid == null || bid.UserId != userId || bid.AcceptedDate != null)
             {
                 return false;
@@ -572,7 +585,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<Pagination<ProjectDTO>> GetWithFilter( ProjectSearchDTO dto, int pageIndex, int pageSize)
+        public async Task<Pagination<ProjectDTO>> GetWithFilter(ProjectSearchDTO dto, int pageIndex, int pageSize)
         {
             var query = from p in _context.Projects
                         join ps in _context.ProjectSkills on p.Id equals ps.ProjectId into psGroup
@@ -894,10 +907,10 @@ namespace Application.Services
                 {
                     model.Skill.Add(skill.SkillName);
                 }
-                if(model.StatusId ==(int) ProjectStatus.StatusId.Close)
+                if (model.StatusId == (int)ProjectStatus.StatusId.Close)
                 {
-                    var bid = await _context.Bids.FirstOrDefaultAsync(x=>x.AcceptedDate != null && model.Id == x.ProjectId);
-                    if(bid != null)
+                    var bid = await _context.Bids.FirstOrDefaultAsync(x => x.AcceptedDate != null && model.Id == x.ProjectId);
+                    if (bid != null)
                     {
                         var userDTOs = (from u in _context.Users
                                         where u.Id == bid.UserId
@@ -908,12 +921,12 @@ namespace Application.Services
                                             Name = u.Name,
                                             Duration = bid.Duration,
                                             Budget = bid.Budget,
-                                            Avatar= u.Avatar
+                                            Avatar = u.Avatar
                                         }).FirstOrDefault();
                         model.Partner = userDTOs;
                     }
                 }
-                model.CanMakeDone = (model.StatusId== 3 || model.StatusId == 9) ?true:false;
+                model.CanMakeDone = (model.StatusId == 3 || model.StatusId == 9) ? true : false;
                 model.TimeAgo = TimeAgoHelper.CalculateTimeAgo(model.CreatedDate);
                 model.AverageBudget = await _projectRepository.GetAverageBudget(model.Id);
                 model.TotalBids = await _projectRepository.GetTotalBids(model.Id);
@@ -927,13 +940,13 @@ namespace Application.Services
 
         public async Task<bool?> IsFavorite(int userId, int projectId)
         {
-            if(userId == 0)
+            if (userId == 0)
             {
                 return null;
             }
             var favorite = await _context.FavoriteProjects.FirstOrDefaultAsync(x => x.AppUserId == userId && projectId == x.ProjectId);
 
-            if(favorite == null)
+            if (favorite == null)
             {
                 return false;
             }

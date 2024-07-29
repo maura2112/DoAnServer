@@ -372,7 +372,7 @@ namespace API.Controllers
                 if (user.PhoneNumber !=  null) {
                     if (!user.PhoneNumber.Equals(phoneNumber))
                     {
-                        return BadRequest("Số tài khoản không khớp");
+                        return BadRequest("Số điện thoại không khớp");
                     }
                 }
                 var Code = _passwordGeneratorService.Generate6DigitCode();

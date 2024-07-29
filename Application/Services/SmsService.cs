@@ -1,6 +1,9 @@
 ﻿using Application.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 
 
 namespace Application.Services

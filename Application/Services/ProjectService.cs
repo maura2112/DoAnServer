@@ -952,5 +952,30 @@ namespace Application.Services
             }
             return true;
         }
+
+        public async Task<bool> RejectTesting(int projectId)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId);
+
+            if (project == null)
+            {
+                return false;
+            }
+            if (project.StatusId != 9)
+            {
+                return false;
+            }
+            var userId = _currentUserService.UserId;
+            if (project.CreatedBy != userId) {
+                return false;
+            }
+            project.StatusId =(int) ProjectStatus.StatusId.Close;
+            _context.Projects.Update(project);
+            await _context.SaveChangesAsync();
+            var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x=>x.ProjectId == projectId);
+            _context.RateTransactions.Remove(transaction);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

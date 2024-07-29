@@ -62,6 +62,7 @@ namespace API
             });
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<ISmsService, SmsService>();
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddTransient<RouteMiddleware>();
             builder.Services.AddAutoMapper(typeof(MapProfile));

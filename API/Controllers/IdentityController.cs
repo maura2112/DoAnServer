@@ -1,7 +1,9 @@
 ﻿using Application.DTOs;
 using Application.DTOs.AuthenticationDTO;
 using Application.IServices;
+using Application.Services;
 using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Entities;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
@@ -38,8 +40,10 @@ namespace API.Controllers
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<Role> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ISmsService _smsService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager, IConfiguration configuration)
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager, IConfiguration configuration, ISmsService smsService, ICurrentUserService currentUserService)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -50,6 +54,8 @@ namespace API.Controllers
             _emailSender = emailSender;
             _roleManager = roleManager;
             _configuration = configuration;
+            _smsService = smsService;
+            _currentUserService = currentUserService;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -352,6 +358,88 @@ namespace API.Controllers
                 RefreshToken = refreshToken
             };
             return Ok(loginRespone);
+        }
+
+
+        [HttpPost]
+        [Route(Common.Url.User.Identity.VerifyPhone)]
+        public async Task<IActionResult> SendSmsAsync([FromBody] string phoneNumber )
+        {
+            try
+            {
+                var userId = _currentUserService.UserId;
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user.PhoneNumber !=  null) {
+                    if (!user.PhoneNumber.Equals(phoneNumber))
+                    {
+                        return BadRequest("Số tài khoản không khớp");
+                    }
+                }
+                var Code = _passwordGeneratorService.Generate6DigitCode();
+                user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(1);
+                user.PhoneNumber = phoneNumber;
+                user.PasswordResetToken = _passwordGeneratorService.HashPassword(Code);
+                await _userManager.UpdateAsync(user);
+                bool result = await _smsService.SendSmsAsync(phoneNumber, "GoodJobs - Mã xác thực số điện thoại: "+ Code);
+                if (result)
+                {
+                    return Ok("Message sent successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to send SMS.");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, "An error occurred while sending SMS.");
+            }
+        }
+
+        [HttpPost]
+        [Route(Common.Url.User.Identity.VerifyPhoneCode)]
+        public async Task<IActionResult> VerifyPhoneCode([FromBody] string code)
+        {
+            try
+            {
+                var userId = _currentUserService.UserId;
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user == null || user.PasswordResetToken == null)
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Người dùng không tồn tại"
+                    });
+                }
+                if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, code.ToString()))
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Mã không hợp lệ !"
+                    });
+                }
+                if (user.ResetTokenExpires < DateTime.UtcNow)
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Mã không hợp lệ !"
+                    });
+                }
+                user.PhoneNumberConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Đã xác thực người dùng thành công",
+                });
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
         }
 
     }   

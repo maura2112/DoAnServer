@@ -15,6 +15,7 @@ namespace Application.Common
             Close = 3,
             Reject =5,
             Done = 6,
+            Testing = 9 
         }
     }
 }

@@ -10,6 +10,8 @@
                 public const string Logout = "Logout";
                 public const string Register = "Register";
                 public const string External = "External";
+                public const string VerifyPhone = "VerifyPhone";
+                public const string VerifyPhoneCode = "VerifyPhoneCode";
                 public const string ResetPassword = "ResetPassword";
                 public const string ResetPasswordInputCode = "ResetPasswordInputCode";
                 public const string ResetNewPassword = "ResetNewPassword";
@@ -100,6 +102,7 @@
             public const string AddFavorite = "AddFavorite";
             public const string DeleteFavorite = "DeleteFavorite";
             public const string MakeDoneProject = "MakeDoneProject";
+            public const string RejectTesting = "RejectTesting";
 
         }
 

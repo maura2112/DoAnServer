@@ -63,6 +63,8 @@ namespace Application.IServices
 
         Task<bool?> IsFavorite(int userId, int projectId);
 
+        Task<bool> RejectTesting(int projectId);
+
 
         //Task<int> CreateAsync(Project request);
 

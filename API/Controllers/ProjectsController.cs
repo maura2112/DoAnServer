@@ -516,5 +516,23 @@ namespace API.Controllers
                 Message = "Bạn vừa xóa dự án thành công"
             });
         }
+
+
+        [HttpDelete]
+        [Route(Common.Url.Project.RejectTesting)]
+        public async Task<IActionResult> RejectTesting([FromQuery]int projectId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _projectService.RejectTesting(projectId);
+            if (!result)
+            {
+                return BadRequest("Từ chối đợi kiệm thất bại");
+            }
+            return Ok("Từ chối hoàn thành dự án thành công");
+        }
     }
 }

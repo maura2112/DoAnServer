@@ -42,7 +42,7 @@ namespace Application.Services
         private readonly IRateTransactionService _transactionService;
         private readonly IProjectRepository _projectRepository;
         private readonly IBidRepository _bidRepository;
-        private readonly ApplicationDbContext _context ;
+        private readonly ApplicationDbContext _context;
         private readonly IEmailSender _emailSender;
         private readonly ITokenService _tokenService;
         public AppUserService(IAppUserRepository repository, IMapper mapper, IAddressRepository addressRepository, IMediaFileRepository mediaFileRepository, ISkillService skillService, UserManager<AppUser> userManager, PaginationService<UserDTO> paginationService, IRatingService ratingService, ICurrentUserService currentUserService, IRateTransactionService transactionService, IProjectRepository projectRepository, IBidRepository bidRepository, ApplicationDbContext applicationDbContext, IEmailSender emailSender, ITokenService tokenService)
@@ -76,7 +76,7 @@ namespace Application.Services
             {
                 users = await _userManager.Users.ToListAsync();
             }
-            if(userSearch.search != null)
+            if (userSearch.search != null)
             {
                 users = users.Where(x => (x.Name != null && x.Name.ToLower().Contains(userSearch.search.ToLower())) ||
                          (x.Description != null && x.Description.ToLower().Contains(userSearch.search.ToLower())))
@@ -89,13 +89,13 @@ namespace Application.Services
             if (userSearch.phone != null)
             {
                 users = users.Where(x => x.PhoneNumber != null).ToList();
-                if(users.Count > 0)
+                if (users.Count > 0)
                 {
                     users = users.Where(x => x.PhoneNumber.ToLower().Contains(userSearch.phone.ToLower())).ToList();
                 }
             }
 
-            var userDTOS = users.Select( user =>
+            var userDTOS = users.Select(user =>
             {
                 var userDTO = ProcessUserDto(user);
                 return userDTO.Result;
@@ -126,24 +126,24 @@ namespace Application.Services
         public async Task<UserDTO> GetUserDTOAsync(int uid)
         {
             var userDTO = new UserDTO();
-            var user = await _repository.GetByIdAsync(uid); 
+            var user = await _repository.GetByIdAsync(uid);
             if (user != null)
             {
                 userDTO = _mapper.Map<UserDTO>(user);
-                var  userAddress =  await _addressRepository.GetAddressByUserId(uid);
+                var userAddress = await _addressRepository.GetAddressByUserId(uid);
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 };
                 if (userAddress != null)
                 {
-                    
+
                     userDTO.Address = _mapper.Map<AddressDTO>(userAddress);
                 }
-                if(user.Experience != null)
+                if (user.Experience != null)
                 {
                     var exs = System.Text.Json.JsonSerializer.Deserialize<List<Experience>>(user.Experience, options);
-                    userDTO.Experiences= exs;
+                    userDTO.Experiences = exs;
                 }
                 if (user.Education != null)
                 {
@@ -160,8 +160,8 @@ namespace Application.Services
                 {
                     userDTO.mediaFiles = _mapper.Map<List<MediaFileDTO>>(medias);
                 }
-                   var skillDTOs = await _skillService.GetForUser(uid);
-                userDTO.skills = skillDTOs.Select(x=>x.SkillName).ToList();
+                var skillDTOs = await _skillService.GetForUser(uid);
+                userDTO.skills = skillDTOs.Select(x => x.SkillName).ToList();
 
                 var ratings = await _ratingService.GetRatingsForUser(uid);
                 if (ratings.Any())
@@ -169,10 +169,10 @@ namespace Application.Services
                     userDTO.ratings = ratings;
                 }
                 var userId = _currentUserService.UserId;
-                if(userId != user.Id)
+                if (userId != user.Id)
                 {
                     var transaction = await _transactionService.GetRateTransactionByUsers(userId, user.Id);
-                    if(transaction != null)
+                    if (transaction != null)
                     {
                         userDTO.IsRated = true;
                     }
@@ -240,7 +240,13 @@ namespace Application.Services
             await _context.Addresses.AddAsync(address);
             await _context.SaveChangesAsync();
             return dto;
-            
+
+        }
+
+        public async Task<AppUser> FindByPhone(string phoneNumber)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => string.Equals(x.PhoneNumber, phoneNumber, StringComparison.OrdinalIgnoreCase));
+            return user;
         }
     }
 }

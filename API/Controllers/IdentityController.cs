@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.DTOs.AuthenticationDTO;
+using Application.Extensions;
 using Application.IServices;
 using Application.Services;
 using AutoMapper;
@@ -377,7 +378,7 @@ namespace API.Controllers
                 }
                 var Code = _passwordGeneratorService.Generate6DigitCode();
                 user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(1);
-                user.PhoneNumber = phoneNumber;
+                user.PhoneNumber = StringExtensions.NormalizePhoneNumber(phoneNumber);
                 user.PasswordResetToken = _passwordGeneratorService.HashPassword(Code);
                 await _userManager.UpdateAsync(user);
                 bool result = await _smsService.SendSmsAsync(phoneNumber, "GoodJobs - Mã xác thực số điện thoại: "+ Code);

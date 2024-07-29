@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Domain.Common;
+using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -18,6 +19,7 @@ namespace Application.IServices
 
         Task<AddressDTO> UpdateAddress(AddressDTO dto);
 
+        Task<AppUser> FindByPhone(string phoneNumber);
         //Task<UserDTO> AddBidAsync(int amount);
     }
 }

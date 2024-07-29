@@ -70,23 +70,41 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-            
+
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
                 return BadRequest("Bạn hãy đăng nhập");
             }
-            user.PhoneNumber = String.IsNullOrEmpty(dto.PhoneNumber) ? "" : dto.PhoneNumber;
+            if (dto.PhoneNumber != null)
+            {
+                var userPhone = await _appUserService.FindByPhone(dto.PhoneNumber);
+                if (userPhone == null)
+                {
+                    user.PhoneNumber = dto.PhoneNumber;
+                }
+                else if (userPhone != null)
+                {
+                    if (userPhone.Id == user.Id)
+                    {
+                        user.PhoneNumber = dto.PhoneNumber;
+                    }
+                    else
+                    {
+                        return BadRequest("Số điện thoại đã được sử dụng bởi 1 người dùng khác");
+                    }
+                }
+            }
             user.Email = dto.Email;
             user.Name = dto.Name;
             user.Description = dto.Description;
-            user.TaxCode = String.IsNullOrEmpty(dto.TaxCode) ? "": dto.TaxCode;
+            user.TaxCode = String.IsNullOrEmpty(dto.TaxCode) ? "" : dto.TaxCode;
             var userResult = await _userManager.UpdateAsync(user);
             if (userResult.Succeeded)
             {
                 await _skillService.UpdateSkillForUser(dto.Skills, userId);
             }
-            return Ok(dto);  
+            return Ok(dto);
         }
 
         [HttpPut]
@@ -148,11 +166,11 @@ namespace API.Controllers
             {
                 PropertyNameCaseInsensitive = true
             };
-            user.Education=  JsonSerializer.Serialize(educations, options);
+            user.Education = JsonSerializer.Serialize(educations, options);
             var userResult = await _userManager.UpdateAsync(user);
             return Ok(new
             {
-                educations=  educations,
+                educations = educations,
                 success = true,
             });
         }
@@ -198,7 +216,7 @@ namespace API.Controllers
         public async Task<IActionResult> AddPortfolio(MediaFileDTO mediaFile)
         {
             var userId = _currentUserService.UserId;
-            var file =await _mediaFileService.AddMediaFile(mediaFile);
+            var file = await _mediaFileService.AddMediaFile(mediaFile);
             return Ok(file);
         }
 
@@ -247,25 +265,27 @@ namespace API.Controllers
         [Route(Common.Url.User.Lock)]
         public async Task<IActionResult> Lock([FromBody] List<int> userIds)
         {
-            var users = await _userManager.Users.Where(x=>userIds.Contains(x.Id)).ToListAsync();
+            var users = await _userManager.Users.Where(x => userIds.Contains(x.Id)).ToListAsync();
             if (!users.Any())
             {
                 return NotFound("Không tìm thấy người dùng.");
             }
-            var userLock = users.Where(x=>x.LockoutEnabled || x.LockoutEnd  == null).ToList();
+            var userLock = users.Where(x => x.LockoutEnabled || x.LockoutEnd == null).ToList();
 
             if (!userLock.Any())
             {
                 return BadRequest("Tất cả người dùng đều đang bị khóa");
-            }else
+            }
+            else
             {
-                foreach (var user in userLock) {
+                foreach (var user in userLock)
+                {
                     var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
                     var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
                     var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
                 }
-                return Ok("Khóa thành công "+userLock.Count +" người dùng");
-            } 
+                return Ok("Khóa thành công " + userLock.Count + " người dùng");
+            }
         }
 
         [HttpPost]
@@ -291,7 +311,7 @@ namespace API.Controllers
 
                     var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
                 }
-                return Ok("Mở khóa thành công "+ userUnlock.Count+" người dùng");
+                return Ok("Mở khóa thành công " + userUnlock.Count + " người dùng");
             }
         }
 
@@ -299,10 +319,10 @@ namespace API.Controllers
         [Route(Common.Url.User.SendConfirmEmail)]
         public async Task<ActionResult> SendConfirmEmail()
         {
-            var uid =  _currentUserService.UserId;
-            
+            var uid = _currentUserService.UserId;
+
             var user = await _appUserRepository.GetByIdAsync(uid);
-            
+
             if (user == null)
             {
                 return Conflict(new
@@ -403,7 +423,7 @@ namespace API.Controllers
                     success = false,
                     message = "Mã không hợp lệ !"
                 });
-            }  
+            }
             user.EmailConfirmed = true;
             await _userManager.UpdateAsync(user);
             return Ok(new

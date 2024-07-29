@@ -1,4 +1,4 @@
-
+﻿
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -289,5 +289,30 @@ namespace Application.Extensions
       }
       return fileExtension;
     }
-  }
+
+        public static string NormalizePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                throw new ArgumentException("Phone number cannot be null or empty.", nameof(phoneNumber));
+            }
+            phoneNumber = phoneNumber.TrimStart('+');
+            if (phoneNumber.Length > 10 && phoneNumber.StartsWith("84"))
+            {
+                phoneNumber = phoneNumber.Substring(2);
+            }
+            if (phoneNumber.Length > 10 && phoneNumber.Length <= 11)
+            {
+                if (phoneNumber.Length == 11 && phoneNumber.StartsWith("0"))
+                {
+                    phoneNumber = phoneNumber.Substring(1);
+                }
+            }
+            if (phoneNumber.Length == 11)
+            {
+                phoneNumber = phoneNumber.Substring(1); 
+            }
+            return new string(phoneNumber.Where(char.IsDigit).ToArray());
+        }
+    }
 }

@@ -47,7 +47,7 @@ namespace Application.Services
         {
 
             var reports =await _repository.GetAll();
-            var reportDTOs = reports.Select( report =>
+            var reportDTOs = reports.Select(  async report =>
             {
                 var reportDTO = _mapper.Map<ReportDTO>(report);
                 var cateReport =  _categoryRepository.GetByIdAsync(reportDTO.ReportCategoryId);
@@ -65,22 +65,29 @@ namespace Application.Services
                     reportDTO.ProjectName = project.Result.Title;
                     var userProject = _userManager.FindByIdAsync(project.Result.CreatedBy.ToString());
                     reportDTO.ProjectUser = userProject.Result.Name;
+                }else if (report.UserReportedId != null)
+                {
+                    var user = await _userManager.FindByIdAsync(report.UserReportedId.ToString());
+                    reportDTO.UserReportedName =  user.Name; 
+                    reportDTO.UserReportedId = user.Id;
                 }
                 return reportDTO;
             }).ToList();
-            if(searchDTO.typeDes != null)
+
+            var reportList =  (await Task.WhenAll(reportDTOs)).ToList();
+            if (searchDTO.typeDes != null)
             {
-                reportDTOs =  reportDTOs.Where(x=>x.ReportType == searchDTO.typeDes).ToList();
+                reportList = reportList.Where(x=>x.ReportType == searchDTO.typeDes).ToList();
             }
             if(searchDTO.approved != null)
             {
-                reportDTOs = reportDTOs.Where(x => x.IsApproved == searchDTO.approved).ToList();
+                reportList = reportList.Where(x => x.IsApproved == searchDTO.approved).ToList();
             }
             if (searchDTO.rejected != null)
             {
-               reportDTOs = reportDTOs.Where(x => x.IsRejected == searchDTO.rejected).ToList();
+                reportList = reportList.Where(x => x.IsRejected == searchDTO.rejected).ToList();
             }
-            return await _paginationService.ToPagination(reportDTOs, searchDTO.PageIndex, searchDTO.PageSize);
+            return await _paginationService.ToPagination(reportList, searchDTO.PageIndex, searchDTO.PageSize);
         }
 
         public async Task<bool> ApproveReport(int id)

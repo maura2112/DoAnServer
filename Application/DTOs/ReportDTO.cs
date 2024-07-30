@@ -23,6 +23,10 @@ namespace Application.DTOs
 
         public string? ReportName { get; set; }
 
+        public string? UserReportedName { get; set; }
+
+        public int? UserReportedId { get; set; }
+
         public string? ProjectName { get; set; }
 
         public string? ProjectUser { get; set; }

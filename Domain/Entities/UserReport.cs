@@ -18,6 +18,9 @@ namespace Domain.Entities
         public int? ProjectId { get; set; }
 
         public long? BidId { get; set; }
+        [ForeignKey("UserReported")]
+
+        public int? UserReportedId { get; set; }
 
         public bool IsApproved { get; set; }
 
@@ -28,6 +31,8 @@ namespace Domain.Entities
 
         public AppUser User { get; set; } = null!;
         public ReportCategory ReportCategory { get; set; } = null!;
+
+        public AppUser UserReported { get; set; } = null!;
 
 
 

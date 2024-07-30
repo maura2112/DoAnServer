@@ -32,23 +32,27 @@ namespace Application.Services
             {
                 RecruiterDTO result = new RecruiterDTO()
                 {
-                    TotalProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId!=1 && x.IsDeleted == false),
-                    TotalCompletedProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId ==6 && x.IsDeleted == false),
+                    TotalProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId != 1 && x.IsDeleted == false),
+                    TotalCompletedProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 6 && x.IsDeleted == false),
                     TotalDoingProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 3 && x.IsDeleted == false),
                     TotalPendingProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 1 && x.IsDeleted == false),
                     TotalPostedProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 2 && x.IsDeleted == false)
                 };
+
                 var projectsPerCate = await _context.Categories
                     .Select(c => new CategoriesPieChart
                     {
                         CategoryName = c.CategoryName,
-                        TotalProjects = c.Projects.Count(p =>p.CreatedBy == userId && p.StatusId != 1 && p.IsDeleted == false)
+                        TotalProjects = c.Projects.Count(p => p.CreatedBy == userId && p.StatusId != 1 && p.IsDeleted == false)
                     })
+                    .Where(cp => cp.TotalProjects > 0) // Lọc những mục có TotalProjects > 0
                     .ToListAsync();
+
                 result.ProjectsPerCate = projectsPerCate;
 
                 return result;
             }
+
         }
 
         public async Task<FreelancerDTO> GetFreelancerDashboard()

@@ -23,7 +23,11 @@ namespace API
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             var mailsetting = builder.Configuration.GetSection("MailSettings");
@@ -78,6 +82,9 @@ namespace API
                                        .AllowCredentials();
 
             }));
+
+
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())

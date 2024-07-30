@@ -192,32 +192,27 @@ namespace Application.Services
             var query = from r in _context.Roles
                         join ur in _context.UserRoles on r.Id equals ur.RoleId
                         join u in _context.Users on ur.UserId equals u.Id
-                        from rt in _context.RateTransactions
-                            .Where(rt => rt.ProjectUserId == u.Id || rt.BidUserId == u.Id)
+                        from rt in _context.Ratings
+                            .Where(rt => rt.RateToUserId == u.Id)
                             .DefaultIfEmpty()
-                        join p in _context.Projects on rt.ProjectId equals p.Id into projects
+                        join p in _context.Projects on rt.RateTransaction.ProjectId equals p.Id into projects
                         from p in projects.DefaultIfEmpty()
                         where u != null &&
                               (rt == null ||
-                               (rt.ProjectAcceptedDate != null && rt.BidCompletedDate != null))
-                        group new { User = u, Role = r, RateTransaction = rt, Project = p } by new { UserName = u.Name, RoleName = r.Name } into g
+                               (rt.RateTransaction.ProjectAcceptedDate != null && rt.RateTransaction.BidCompletedDate != null))
+                        group new { User = u, Role = r, Rating = rt, Project = p } by new { UserName = u.Name, RoleName = r.Name } into g
                         select new StatisticUsers
                         {
                             UserName = g.Key.UserName,
                             Role = g.Key.RoleName,
                             TotalCompletedProjects = g.Count(x => x.Project != null),
-                            TotalPositiveRatings = 0,
-                            TotalNegativeRatings = 0,
+                            TotalPositiveRatings = g.Count(x => x.Rating != null && x.Rating.Star > 3), // Tính số lượng đánh giá tích cực
+                            TotalNegativeRatings = g.Count(x => x.Rating != null && x.Rating.Star <= 3), // Tính số lượng đánh giá tiêu cực
                         };
-
-
 
             IQueryable<StatisticUsers> orderedQuery;
 
-
             orderedQuery = query.OrderByDescending(x => x.TotalPositiveRatings);
-
-
 
             var totalCount = await query.CountAsync();
 
@@ -233,6 +228,7 @@ namespace Application.Services
                 PageIndex = pageIndex,
                 Items = paginatedResult
             };
+
         }
 
 

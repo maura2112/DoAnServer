@@ -19,7 +19,7 @@ namespace Application.IServices
 
         Task<AddressDTO> UpdateAddress(AddressDTO dto);
 
-        Task<AppUser> FindByPhone(string phoneNumber);
+        Task<AppUser> FindByPhoneConfirmed(string phoneNumber);
         //Task<UserDTO> AddBidAsync(int amount);
     }
 }

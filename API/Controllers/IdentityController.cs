@@ -33,6 +33,7 @@ namespace API.Controllers
     public class IdentityController : ApiControllerBase
     {
         private readonly IMapper _mapper;
+        private readonly IAppUserService _appUserService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IPasswordGeneratorService _passwordGeneratorService;
         private readonly IJwtTokenService _jwtTokenService;
@@ -44,7 +45,7 @@ namespace API.Controllers
         private readonly ISmsService _smsService;
         private readonly ICurrentUserService _currentUserService;
 
-        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager, IConfiguration configuration, ISmsService smsService, ICurrentUserService currentUserService)
+        public IdentityController(IJwtTokenService jwtTokenService, IMapper mapper, UserManager<AppUser> userManager, IPasswordGeneratorService passwordGeneratorService, ISkillService skillService, SignInManager<AppUser> signInManager, IEmailSender emailSender, RoleManager<Role> roleManager, IConfiguration configuration, ISmsService smsService, ICurrentUserService currentUserService, IAppUserService appUserService)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -57,6 +58,7 @@ namespace API.Controllers
             _configuration = configuration;
             _smsService = smsService;
             _currentUserService = currentUserService;
+            _appUserService = appUserService;
         }
         [HttpPost]
         [Route(Common.Url.User.Identity.Register)]
@@ -369,13 +371,12 @@ namespace API.Controllers
             try
             {
                 var userId = _currentUserService.UserId;
-                var user = await _userManager.FindByIdAsync(userId.ToString());
-                if (user.PhoneNumber !=  null) {
-                    if (!user.PhoneNumber.Equals(StringExtensions.NormalizePhoneNumber(phoneNumber)))
-                    {
-                        return BadRequest("Số điện thoại không khớp");
-                    }
+                var userPhone = await _appUserService.FindByPhoneConfirmed(StringExtensions.NormalizePhoneNumber(phoneNumber));
+                if(userPhone != null)
+                {
+                    return BadRequest("Số điện thoại này đã được xác nhận");
                 }
+                var user = await _userManager.FindByIdAsync(userId.ToString());
                 var Code = _passwordGeneratorService.Generate6DigitCode();
                 user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(1);
                 user.PhoneNumber = StringExtensions.NormalizePhoneNumber(phoneNumber);

@@ -243,9 +243,9 @@ namespace Application.Services
 
         }
 
-        public async Task<AppUser> FindByPhone(string phoneNumber)
+        public async Task<AppUser> FindByPhoneConfirmed(string phoneNumber)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber != null && x.PhoneNumber.Equals(phoneNumber));
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber != null && x.PhoneNumber.Equals(phoneNumber) && x.PhoneNumberConfirmed == true);
             return user;
         }
     }

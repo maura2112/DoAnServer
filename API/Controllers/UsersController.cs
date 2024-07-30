@@ -76,26 +76,17 @@ namespace API.Controllers
             {
                 return BadRequest("Bạn hãy đăng nhập");
             }
-            if (dto.PhoneNumber != null)
+
+            if(user.PhoneNumber  == null )
             {
-                var userPhone = await _appUserService.FindByPhone(dto.PhoneNumber);
-                if (userPhone == null)
+                user.PhoneNumber = dto.PhoneNumber;
+            }else
+            {
+                if (!user.PhoneNumberConfirmed)
                 {
                     user.PhoneNumber = dto.PhoneNumber;
                 }
-                else if (userPhone != null)
-                {
-                    if (userPhone.Id == user.Id)
-                    {
-                        user.PhoneNumber = dto.PhoneNumber;
-                    }
-                    else
-                    {
-                        return BadRequest("Số điện thoại đã được sử dụng bởi 1 người dùng khác");
-                    }
-                }
             }
-            user.Email = dto.Email;
             user.Name = dto.Name;
             user.Description = dto.Description;
             user.TaxCode = String.IsNullOrEmpty(dto.TaxCode) ? "" : dto.TaxCode;

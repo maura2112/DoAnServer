@@ -13,8 +13,10 @@ namespace Application.IServices
     {
         //chart
         public Task<List<CategoriesPieChart>> GetCategoryPieChartData();
+        public Task<List<CategoriesPieChart>> GetCategoryPieChartExport();
         public Task<ProjectsPieChart> GetProjectPieChartData();
         public Task<UsersPieChart> GetUserPieChartData();
+        public Task<UsersPieChart> GetUserPieChartExport();
         public Task<List<NewUser>> GetNewUserData();
 
         //datagrid

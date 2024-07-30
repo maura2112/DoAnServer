@@ -25,12 +25,13 @@ namespace Application.Services
         public async Task<List<CategoriesPieChart>> GetCategoryPieChartData()
         {
             var result = await _context.Categories
-                .Select(c => new CategoriesPieChart
-                {
-                    CategoryName = c.CategoryName,
-                    TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
-                })
-                .ToListAsync();
+    .Select(c => new CategoriesPieChart
+    {
+        CategoryName = c.CategoryName,
+        TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
+    })
+    .Where(cp => cp.TotalProjects > 0) // Lọc những mục có TotalProjects > 0
+    .ToListAsync();
 
             return result;
         }
@@ -147,27 +148,27 @@ namespace Application.Services
         public async Task<Pagination<StatisticProjects>> GetProjectStatisticData(int pageIndex, int pageSize)
         {
             var query =
-                from c in _context.Categories
-                join p in _context.Projects on c.Id equals p.CategoryId into projectGroup
-                from pg in projectGroup.DefaultIfEmpty()
-                join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
-                from bg in bidGroup.DefaultIfEmpty()
-                where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId != 1 && pg.StatusId != 5)
-                group new { c, pg, bg } by c.CategoryName into g
-                select new StatisticProjects
-                {
-                    CategoryName = g.Key,
-                    MinimumBudget = g.Min(x => x.pg != null ? x.pg.MinBudget : (int?)null) ?? 0,
-                    MaximumBudget = g.Max(x => x.pg != null ? x.pg.MaxBudget : (int?)null) ?? 0,
-                    AverageBudget = (float)(g.Average(x => x.pg != null ? (x.pg.MinBudget + x.pg.MaxBudget) / 2.0 : (double?)null) ?? 0),
-                    MinimumDuration = g.Min(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
-                    MaximumDuration = g.Max(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
-                    AverageDuration = (float)(g.Average(x => x.pg != null ? x.pg.Duration : (double?)null) ?? 0),
-                    MinimumBid = g.Min(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
-                    MaximumBid = g.Max(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
-                    AverageBid = (int)Math.Ceiling(g.Average(x => x.bg != null ? (double?)x.bg.Budget : null) ?? 0),
-                    TotalProjects = g.Count(x => x.pg != null)  // Count the total number of projects
-                };
+    from c in _context.Categories
+    join p in _context.Projects on c.Id equals p.CategoryId into projectGroup
+    from pg in projectGroup.DefaultIfEmpty()
+    join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
+    from bg in bidGroup.DefaultIfEmpty()
+    where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId != 1 && pg.StatusId != 5)
+    group new { c, pg, bg } by c.CategoryName into g
+    select new StatisticProjects
+    {
+        CategoryName = g.Key,
+        MinimumBudget = g.Min(x => x.pg != null ? x.pg.MinBudget : (int?)null) ?? 0,
+        MaximumBudget = g.Max(x => x.pg != null ? x.pg.MaxBudget : (int?)null) ?? 0,
+        AverageBudget = (float)(g.Average(x => x.pg != null ? (x.pg.MinBudget + x.pg.MaxBudget) / 2.0 : (double?)null) ?? 0),
+        MinimumDuration = g.Min(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
+        MaximumDuration = g.Max(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
+        AverageDuration = (float)Math.Round(g.Average(x => x.pg != null ? (double?)x.pg.Duration : (double?)null) ?? 0, 1),
+        MinimumBid = g.Min(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
+        MaximumBid = g.Max(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
+        AverageBid = (int)Math.Ceiling(g.Average(x => x.bg != null ? (double?)x.bg.Budget : null) ?? 0),
+        TotalProjects = g.Count(x => x.pg != null)  // Count the total number of projects
+    };
 
             var totalCount = await query.CountAsync();
 
@@ -183,6 +184,7 @@ namespace Application.Services
                 PageIndex = pageIndex,
                 Items = paginatedResult
             };
+
         }
 
         public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int pageIndex, int pageSize)
@@ -275,6 +277,82 @@ namespace Application.Services
                 PageIndex = pageIndex,
                 Items = paginatedResult
             };
+        }
+
+        public async Task<List<CategoriesPieChart>> GetCategoryPieChartExport()
+        {
+            var result = await _context.Categories
+                .Select(c => new CategoriesPieChart
+                {
+                    CategoryName = c.CategoryName,
+                    TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
+                })
+                .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<UsersPieChart> GetUserPieChartExport()
+        {
+            var freelancerCount = await _context.UserRoles
+                .Where(ur => ur.RoleId == 1)
+                .Select(ur => ur.UserId)
+                .CountAsync();
+            var recruiterCount = await _context.UserRoles
+                .Where(ur => ur.RoleId == 2)
+                .Select(ur => ur.UserId)
+                .CountAsync();
+            var listUserId = await _context.UserRoles.Where(x => x.RoleId != 3).ToListAsync();
+            var listBlockedUserIdFreelancer = await _context.UserRoles.Where(x => x.RoleId == 1).ToListAsync();
+            var listBlockedUserIdRecruiter = await _context.UserRoles.Where(x => x.RoleId == 2).ToListAsync();
+
+
+            var listBlockedFreelancer = 0;
+            foreach (var item in listBlockedUserIdFreelancer)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                if (user != null)
+                {
+                    listBlockedFreelancer++;
+                }
+            }
+
+            var listBlockedRecruiter = 0;
+            foreach (var item in listBlockedUserIdRecruiter)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                if (user != null)
+                {
+                    listBlockedRecruiter++;
+                }
+            }
+
+            var data = new List<UsersPieChartData>();
+
+            var each = new UsersPieChartData();
+            each.id = "Freelancer";
+            each.label = "Freelancer";
+            each.value = freelancerCount;
+            data.Add(each);
+            var each2 = new UsersPieChartData();
+            each2.id = "Recruiter";
+            each2.label = "Recruiter";
+            each2.value = recruiterCount;
+            data.Add(each2);
+
+
+
+            var result = new UsersPieChart
+            {
+                Data = data,
+                TotalUser = freelancerCount + recruiterCount,
+                FreelacerCount = freelancerCount,
+                RecruiterCount = recruiterCount,
+                TotalBlockedFreelancer = listBlockedFreelancer,
+                TotalBlockedRecruiter = listBlockedRecruiter,
+            };
+
+            return result;
         }
     }
 }

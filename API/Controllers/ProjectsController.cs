@@ -518,7 +518,7 @@ namespace API.Controllers
         }
 
 
-        [HttpDelete]
+        [HttpPost]
         [Route(Common.Url.Project.RejectTesting)]
         public async Task<IActionResult> RejectTesting([FromQuery]int projectId)
         {

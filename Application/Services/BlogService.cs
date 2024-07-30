@@ -125,6 +125,7 @@ namespace Application.Services
                         where b.BlogId == id && b.IsDeleted != true && b2.IsPublished == true
                         select new RelatedBLogDTO
                         {
+                            Image = b2.BlogImage,
                             BlogId = b2.Id,
                             BlogName = b2.Title,
                             DateString = DateTimeHelper.ToVietnameseDateString(b2.CreatedDate),
@@ -233,6 +234,7 @@ namespace Application.Services
                                    .Take(limit)
                                    .Select(x => new RelatedBLogDTO
                                     {
+                                        Image = x.BlogImage,
                                         BlogId = x.Id,
                                         BlogName = x.Title,
                                         DateString = DateTimeHelper.ToVietnameseDateString(x.CreatedDate),

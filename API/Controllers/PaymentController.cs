@@ -47,7 +47,7 @@ namespace API.Controllers
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
                 var userId = _currentUserService.UserId;
-                PaymentData paymentData = new PaymentData(orderCode, total, "Mua thêm số lượng dự thầu", items, "http://localhost:5069/cancel", "https://webapp-doan-2.azurewebsites.net/api/Payment/Success?userId=" + userId);
+                PaymentData paymentData = new PaymentData(orderCode, total, "Mua thêm số lượng dự thầu", items, "http://localhost:5069/cancel", "http://localhost:5069/api/Payment/Success?userId=" + userId);
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment);
             }
@@ -59,7 +59,7 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Payment.Success)]
-        public async Task<IActionResult> Sucess([FromQuery] string orderCode, [FromQuery] int userId)
+        public async Task<IActionResult> Sucess([FromQuery] int userId,[FromQuery] string orderCode)
         {
             try
             {

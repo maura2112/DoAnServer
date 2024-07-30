@@ -204,8 +204,8 @@ namespace Application.Services
                             UserName = g.Key.UserName,
                             Role = g.Key.RoleName,
                             TotalCompletedProjects = g.Count(x => x.Project != null),
-                            //TotalPositiveRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == true && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0),
-                            //TotalNegativeRatings = g.Sum(x => x.RateTransaction != null && x.RateTransaction.Rated == false && x.RateTransaction.ProjectAcceptedDate != null ? 1 : 0)
+                            TotalPositiveRatings = 0,
+                            TotalNegativeRatings = 0,
                         };
 
 

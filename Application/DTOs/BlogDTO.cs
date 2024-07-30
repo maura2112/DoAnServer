@@ -39,6 +39,8 @@ namespace Application.DTOs
     public class RelatedBLogDTO
     {
         public int BlogId { get; set; }
+
+        public string Image { get; set; }
         public string BlogName { get; set; }
         public string  DateString { get; set; }
         public DateTime CreateDate { get; set; }

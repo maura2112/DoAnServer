@@ -1,4 +1,4 @@
-
+﻿
 using Application.Mappings;
 using FluentValidation;
 using Infrastructure.Data;
@@ -23,11 +23,11 @@ namespace API
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            //    .AddNewtonsoftJson(options =>
-            //    {
-            //        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            //    });
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             var mailsetting = builder.Configuration.GetSection("MailSettings");
@@ -89,9 +89,11 @@ namespace API
 
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseHttpsRedirection();
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseMiddleware<RouteMiddleware>();

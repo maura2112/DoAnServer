@@ -197,10 +197,9 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.CreatedDate <= projects.CreatedTo);
             }
-            if (projects.IsDeleted.HasValue)
-            {
-                filter = filter.And(item => item.IsDeleted == projects.IsDeleted.Value);
-            }
+            
+            filter = filter.And(item => item.IsDeleted == false);
+            
             var result = await _projectService.GetWithFilterForRecruiter(filter, projects.PageIndex, projects.PageSize);
             return Ok(result);
         }

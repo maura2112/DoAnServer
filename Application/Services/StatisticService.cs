@@ -148,27 +148,27 @@ namespace Application.Services
         public async Task<Pagination<StatisticProjects>> GetProjectStatisticData(int pageIndex, int pageSize)
         {
             var query =
-                from c in _context.Categories
-                join p in _context.Projects on c.Id equals p.CategoryId into projectGroup
-                from pg in projectGroup.DefaultIfEmpty()
-                join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
-                from bg in bidGroup.DefaultIfEmpty()
-                where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId != 1 && pg.StatusId != 5)
-                group new { c, pg, bg } by c.CategoryName into g
-                select new StatisticProjects
-                {
-                    CategoryName = g.Key,
-                    MinimumBudget = g.Min(x => x.pg != null ? x.pg.MinBudget : (int?)null) ?? 0,
-                    MaximumBudget = g.Max(x => x.pg != null ? x.pg.MaxBudget : (int?)null) ?? 0,
-                    AverageBudget = (float)(g.Average(x => x.pg != null ? (x.pg.MinBudget + x.pg.MaxBudget) / 2.0 : (double?)null) ?? 0),
-                    MinimumDuration = g.Min(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
-                    MaximumDuration = g.Max(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
-                    AverageDuration = (float)(g.Average(x => x.pg != null ? x.pg.Duration : (double?)null) ?? 0),
-                    MinimumBid = g.Min(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
-                    MaximumBid = g.Max(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
-                    AverageBid = (int)Math.Ceiling(g.Average(x => x.bg != null ? (double?)x.bg.Budget : null) ?? 0),
-                    TotalProjects = g.Count(x => x.pg != null)  // Count the total number of projects
-                };
+    from c in _context.Categories
+    join p in _context.Projects on c.Id equals p.CategoryId into projectGroup
+    from pg in projectGroup.DefaultIfEmpty()
+    join b in _context.Bids on pg.Id equals b.ProjectId into bidGroup
+    from bg in bidGroup.DefaultIfEmpty()
+    where !c.IsDeleted && (pg == null || !pg.IsDeleted && pg.StatusId != 1 && pg.StatusId != 5)
+    group new { c, pg, bg } by c.CategoryName into g
+    select new StatisticProjects
+    {
+        CategoryName = g.Key,
+        MinimumBudget = g.Min(x => x.pg != null ? x.pg.MinBudget : (int?)null) ?? 0,
+        MaximumBudget = g.Max(x => x.pg != null ? x.pg.MaxBudget : (int?)null) ?? 0,
+        AverageBudget = (float)(g.Average(x => x.pg != null ? (x.pg.MinBudget + x.pg.MaxBudget) / 2.0 : (double?)null) ?? 0),
+        MinimumDuration = g.Min(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
+        MaximumDuration = g.Max(x => x.pg != null ? x.pg.Duration : (int?)null) ?? 0,
+        AverageDuration = (float)Math.Round(g.Average(x => x.pg != null ? (double?)x.pg.Duration : (double?)null) ?? 0, 1),
+        MinimumBid = g.Min(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
+        MaximumBid = g.Max(x => x.bg != null ? x.bg.Budget : (int?)null) ?? 0,
+        AverageBid = (int)Math.Ceiling(g.Average(x => x.bg != null ? (double?)x.bg.Budget : null) ?? 0),
+        TotalProjects = g.Count(x => x.pg != null)  // Count the total number of projects
+    };
 
             var totalCount = await query.CountAsync();
 
@@ -184,6 +184,7 @@ namespace Application.Services
                 PageIndex = pageIndex,
                 Items = paginatedResult
             };
+
         }
 
         public async Task<Pagination<StatisticUsers>> GetUserStatisticData(int pageIndex, int pageSize)

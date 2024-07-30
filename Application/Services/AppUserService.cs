@@ -245,7 +245,7 @@ namespace Application.Services
 
         public async Task<AppUser> FindByPhone(string phoneNumber)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => string.Equals(x.PhoneNumber, phoneNumber, StringComparison.OrdinalIgnoreCase));
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber != null && x.PhoneNumber.Equals(phoneNumber));
             return user;
         }
     }

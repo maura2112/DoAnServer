@@ -371,7 +371,7 @@ namespace API.Controllers
                 var userId = _currentUserService.UserId;
                 var user = await _userManager.FindByIdAsync(userId.ToString());
                 if (user.PhoneNumber !=  null) {
-                    if (!user.PhoneNumber.Equals(phoneNumber))
+                    if (!user.PhoneNumber.Equals(StringExtensions.NormalizePhoneNumber(phoneNumber)))
                     {
                         return BadRequest("Số điện thoại không khớp");
                     }

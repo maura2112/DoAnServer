@@ -33,9 +33,9 @@ namespace Application.Services
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
             // Lấy dữ liệu từ các dịch vụ
-            var categoryPieChartData = await _statisticService.GetCategoryPieChartData();
+            var categoryPieChartData = await _statisticService.GetCategoryPieChartExport();
             //var projectPieChartData = await _statisticService.GetProjectPieChartData();
-            var userPieChartData = await _statisticService.GetUserPieChartData();
+            var userPieChartData = await _statisticService.GetUserPieChartExport();
             var newUserData = await _statisticService.GetNewUserData();
 
 

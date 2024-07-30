@@ -25,12 +25,13 @@ namespace Application.Services
         public async Task<List<CategoriesPieChart>> GetCategoryPieChartData()
         {
             var result = await _context.Categories
-                .Select(c => new CategoriesPieChart
-                {
-                    CategoryName = c.CategoryName,
-                    TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
-                })
-                .ToListAsync();
+    .Select(c => new CategoriesPieChart
+    {
+        CategoryName = c.CategoryName,
+        TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
+    })
+    .Where(cp => cp.TotalProjects > 0) // Lọc những mục có TotalProjects > 0
+    .ToListAsync();
 
             return result;
         }
@@ -275,6 +276,82 @@ namespace Application.Services
                 PageIndex = pageIndex,
                 Items = paginatedResult
             };
+        }
+
+        public async Task<List<CategoriesPieChart>> GetCategoryPieChartExport()
+        {
+            var result = await _context.Categories
+                .Select(c => new CategoriesPieChart
+                {
+                    CategoryName = c.CategoryName,
+                    TotalProjects = c.Projects.Count(p => p.StatusId != 1 && p.StatusId != 5 && p.IsDeleted == false)
+                })
+                .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<UsersPieChart> GetUserPieChartExport()
+        {
+            var freelancerCount = await _context.UserRoles
+                .Where(ur => ur.RoleId == 1)
+                .Select(ur => ur.UserId)
+                .CountAsync();
+            var recruiterCount = await _context.UserRoles
+                .Where(ur => ur.RoleId == 2)
+                .Select(ur => ur.UserId)
+                .CountAsync();
+            var listUserId = await _context.UserRoles.Where(x => x.RoleId != 3).ToListAsync();
+            var listBlockedUserIdFreelancer = await _context.UserRoles.Where(x => x.RoleId == 1).ToListAsync();
+            var listBlockedUserIdRecruiter = await _context.UserRoles.Where(x => x.RoleId == 2).ToListAsync();
+
+
+            var listBlockedFreelancer = 0;
+            foreach (var item in listBlockedUserIdFreelancer)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                if (user != null)
+                {
+                    listBlockedFreelancer++;
+                }
+            }
+
+            var listBlockedRecruiter = 0;
+            foreach (var item in listBlockedUserIdRecruiter)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                if (user != null)
+                {
+                    listBlockedRecruiter++;
+                }
+            }
+
+            var data = new List<UsersPieChartData>();
+
+            var each = new UsersPieChartData();
+            each.id = "Freelancer";
+            each.label = "Freelancer";
+            each.value = freelancerCount;
+            data.Add(each);
+            var each2 = new UsersPieChartData();
+            each2.id = "Recruiter";
+            each2.label = "Recruiter";
+            each2.value = recruiterCount;
+            data.Add(each2);
+
+
+
+            var result = new UsersPieChart
+            {
+                Data = data,
+                TotalUser = freelancerCount + recruiterCount,
+                FreelacerCount = freelancerCount,
+                RecruiterCount = recruiterCount,
+                TotalBlockedFreelancer = listBlockedFreelancer,
+                TotalBlockedRecruiter = listBlockedRecruiter,
+            };
+
+            return result;
         }
     }
 }

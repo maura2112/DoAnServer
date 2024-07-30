@@ -72,7 +72,7 @@
         public static class Payment
         {
             public const string Create = "Create";
-            public const string Sucess = "Sucess";
+            public const string Success = "Success";
 
 
         }

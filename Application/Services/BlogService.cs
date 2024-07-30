@@ -9,6 +9,7 @@ using Domain.Common;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Migrations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -36,37 +37,38 @@ namespace Application.Services
             return blog;
         }
 
-        public async Task<Pagination<BlogDTO>> GetBlogs(BlogSearch search )
+        public async Task<Pagination<BlogDTO>> GetBlogs(BlogSearch search)
         {
             var query = (from b in _context.Blogs
-                        join c in _context.Categories on b.CategoryId equals c.Id
-                        join u in _context.Users on b.CreatedBy equals u.Id
-                        where b.IsDeleted != true
-                        select new BlogDTO
-                        {
-                            BlogId = b.Id,
-                            Title = b.Title,
-                            ShortDesction = b.ShortDescription,
-                            Description = b.Description,
-                            CategoryId = b.CategoryId,
-                            UserId = b.CreatedBy,
-                            CategoryName = c.CategoryName,
-                            Author = u.Name,
-                            IsHomePage = b.IsHomePage,
-                            IsHot = b.IsHot,
-                            IsPublished = b.IsPublished,
-                            BlogImage = b.BlogImage,
-                            CreateDate = b.CreatedDate,
-                            CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
-                        });
+                         join c in _context.Categories on b.CategoryId equals c.Id
+                         join u in _context.Users on b.CreatedBy equals u.Id
+                         where b.IsDeleted != true
+                         select new BlogDTO
+                         {
+                             BlogId = b.Id,
+                             Title = b.Title,
+                             ShortDesction = b.ShortDescription,
+                             Description = b.Description,
+                             CategoryId = b.CategoryId,
+                             UserId = b.CreatedBy,
+                             CategoryName = c.CategoryName,
+                             Author = u.Name,
+                             IsHomePage = b.IsHomePage,
+                             IsHot = b.IsHot,
+                             IsPublished = b.IsPublished,
+                             BlogImage = b.BlogImage,
+                             CreateDate = b.CreatedDate,
+                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
+                         });
 
-            if(search.AuthorName != null )
+            if (search.AuthorName != null)
             {
                 query = query.Where(x => x.Author.ToLower().Contains(search.AuthorName));
             }
 
             var filter = PredicateBuilder.True<BlogDTO>();
-            if(search.CategoryId != null) {
+            if (search.CategoryId != null)
+            {
                 filter = filter.And(item => item.CategoryId == search.CategoryId);
             }
             if (search.Title != null)
@@ -92,26 +94,26 @@ namespace Application.Services
         public async Task<BlogDTO> GetBlogDTOAsync(int id)
         {
             var blogDTO = await (from b in _context.Blogs
-                         join c in _context.Categories on b.CategoryId equals c.Id
-                         join u in _context.Users on b.CreatedBy equals u.Id
-                         where b.Id == id
-                         select new BlogDTO
-                         {
-                             BlogId = b.Id,
-                             Title = b.Title,
-                             ShortDesction = b.ShortDescription,
-                             Description = b.Description,
-                             CategoryId = b.CategoryId,
-                             UserId = b.CreatedBy,
-                             IsPublished = b.IsPublished,
-                             IsHomePage = b.IsHomePage,
-                             IsHot= b.IsHot,
-                             CategoryName = c.CategoryName,
-                             Author = u.Name,
-                             BlogImage = b.BlogImage,
-                             CreateDate = b.CreatedDate,
-                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
-                         }).FirstOrDefaultAsync();
+                                 join c in _context.Categories on b.CategoryId equals c.Id
+                                 join u in _context.Users on b.CreatedBy equals u.Id
+                                 where b.Id == id
+                                 select new BlogDTO
+                                 {
+                                     BlogId = b.Id,
+                                     Title = b.Title,
+                                     ShortDesction = b.ShortDescription,
+                                     Description = b.Description,
+                                     CategoryId = b.CategoryId,
+                                     UserId = b.CreatedBy,
+                                     IsPublished = b.IsPublished,
+                                     IsHomePage = b.IsHomePage,
+                                     IsHot = b.IsHot,
+                                     CategoryName = c.CategoryName,
+                                     Author = u.Name,
+                                     BlogImage = b.BlogImage,
+                                     CreateDate = b.CreatedDate,
+                                     CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
+                                 }).FirstOrDefaultAsync();
             blogDTO.relateds = await RelatedBlogs(blogDTO.BlogId);
             return blogDTO;
         }
@@ -134,8 +136,8 @@ namespace Application.Services
 
         public async Task<BlogCreateDTO> UpdateBlog(BlogCreateDTO dto)
         {
-            var blog = await _context.Blogs.FirstOrDefaultAsync(x=>dto.Id == x.Id);
-            if(blog == null)
+            var blog = await _context.Blogs.FirstOrDefaultAsync(x => dto.Id == x.Id);
+            if (blog == null)
             {
                 return null;
             }
@@ -155,8 +157,8 @@ namespace Application.Services
 
         public async Task<bool> DeleteBlog(int id)
         {
-            var blog =await _context.Blogs.FirstOrDefaultAsync(x=>x.Id == id && x.IsDeleted != true);
-            if(blog == null)
+            var blog = await _context.Blogs.FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted != true);
+            if (blog == null)
             {
                 return false;
             }
@@ -168,8 +170,8 @@ namespace Application.Services
 
         public async Task<int> PublishBlog(int id)
         {
-            var blog = await _context.Blogs.FirstOrDefaultAsync(x=>x.Id == id);
-            if(blog == null)
+            var blog = await _context.Blogs.FirstOrDefaultAsync(x => x.Id == id);
+            if (blog == null)
             {
                 return 0;
             }
@@ -202,9 +204,9 @@ namespace Application.Services
                              CreateDate = b.CreatedDate,
                              CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
                          });
-            if(filter.IsHot != null)
+            if (filter.IsHot != null)
             {
-                query = query.Where(x=>x.IsHot == filter.IsHot);
+                query = query.Where(x => x.IsHot == filter.IsHot);
             }
 
             if (filter.IsHomePage != null)
@@ -212,12 +214,12 @@ namespace Application.Services
                 query = query.Where(x => x.IsHomePage == filter.IsHomePage);
             }
 
-            query = query.OrderByDescending(x=>x.CreateDate).Take(filter.Top);
+            query = query.OrderByDescending(x => x.CreateDate).Take(filter.Top);
             var list = await query.ToListAsync();
             return list;
         }
 
-        public async Task<LaziLoadDTO<Blog>> GetOther(int blogId , string cursor, int limit)
+        public async Task<LaziLoadDTO<RelatedBLogDTO>> GetOther(int blogId, string cursor, int limit)
         {
             var lastBlogId = cursor != null ? Convert.ToDateTime(cursor) : (DateTime?)null;
             var query = _context.Blogs.AsQueryable();
@@ -229,9 +231,16 @@ namespace Application.Services
             query = query.Where(b => b.Id != blogId);
             var blogs = await query.OrderByDescending(b => b.CreatedDate)
                                    .Take(limit)
+                                   .Select(x => new RelatedBLogDTO
+                                    {
+                                        BlogId = x.Id,
+                                        BlogName = x.Title,
+                                        DateString = DateTimeHelper.ToVietnameseDateString(x.CreatedDate),
+                                       CreateDate =x.CreatedDate
+                                   })
                                    .ToListAsync();
-            var nextCursor = blogs.Any() ? blogs.Last().CreatedDate.ToString() : null;
-            var result = new LaziLoadDTO<Blog>()
+            var nextCursor = blogs.Any() ? blogs.Last().CreateDate.ToString() : null;
+            var result = new LaziLoadDTO<RelatedBLogDTO>()
             {
                 nextCursor = nextCursor,
                 Items = blogs,
@@ -241,7 +250,7 @@ namespace Application.Services
 
         public async Task<bool> AddRelatedBlog(RelatedAdd related)
         {
-            var relatedBlog =  _context.RelatedBlogs.Where(x => x.BlogId == related.BlogId).AsQueryable();
+            var relatedBlog = _context.RelatedBlogs.Where(x => x.BlogId == related.BlogId).AsQueryable();
             if (relatedBlog.Any())
             {
                 _context.RelatedBlogs.RemoveRange(relatedBlog);
@@ -253,13 +262,15 @@ namespace Application.Services
                 var blog = new RelatedBlog()
                 {
                     BlogId = related.BlogId,
-                    RelatedBlogId = id
+                    RelatedBlogId = id,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
                 };
                 relatedBlogNews.Add(blog);
             }
             if (relatedBlogNews.Any())
             {
-                await _context.RelatedBlogs.AddRangeAsync(relatedBlog);
+                await _context.RelatedBlogs.AddRangeAsync(relatedBlogNews);
                 await _context.SaveChangesAsync();
                 return true;
             }

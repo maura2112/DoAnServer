@@ -23,7 +23,7 @@ namespace Application.IServices
         
         public Task<int> PublishBlog(int id);
 
-        public Task<LaziLoadDTO<Blog>> GetOther (int blogId,string cursor, int limit);
+        public Task<LaziLoadDTO<RelatedBLogDTO>> GetOther (int blogId,string cursor, int limit);
 
         public Task<bool> AddRelatedBlog(RelatedAdd related);
     }

@@ -41,6 +41,7 @@ namespace Application.DTOs
         public int BlogId { get; set; }
         public string BlogName { get; set; }
         public string  DateString { get; set; }
+        public DateTime CreateDate { get; set; }
     }
 
 

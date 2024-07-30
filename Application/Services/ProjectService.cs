@@ -566,7 +566,7 @@ namespace Application.Services
                     IsDeleted = false,
                     ProjectUserId = project.CreatedBy,
                     BidUserId = bid.UserId,
-                    Rated = false,
+                    //Rated = false,
                     BidCompletedDate = DateTime.Now,
                     ProjectAcceptedDate = DateTime.Now,
                 };

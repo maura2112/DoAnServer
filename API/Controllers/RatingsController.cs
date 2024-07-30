@@ -37,7 +37,12 @@ namespace API.Controllers
             {
                 return NotFound("Bạn không thể đánh giá người này");
             }
-            ratingTrasaction.Rated = true;
+            if(ratingTrasaction.User1IdRated != 0) {
+                ratingTrasaction.User2IdRated = userId;
+            }else
+            {
+                ratingTrasaction.User1IdRated = userId;
+            }
             _rateTransactionRepository.Update(ratingTrasaction);
             rating.UserId = userId;
             rating.RateTransactionId = ratingTrasaction.Id;

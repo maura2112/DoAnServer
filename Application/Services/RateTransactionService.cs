@@ -16,30 +16,23 @@ namespace Application.Services
     {
         private readonly IRateTransactionRepository _repositoty;
         private readonly IMapper _mapper;
-        public RateTransactionService(IRateTransactionRepository repositoty, IMapper mapper)
+        private readonly ICurrentUserService _currentUserService;
+        public RateTransactionService(IRateTransactionRepository repositoty, IMapper mapper, ICurrentUserService currentUserService)
         {
             _repositoty = repositoty;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
         public async Task<RateTransaction> GetRateTransactionByUsers(int userId1, int userId2)
         {
+            var userCurrenId = _currentUserService.UserId;
             var filter = PredicateBuilder.True<Domain.Entities.RateTransaction> ();
-            filter = filter.And(item => item.ProjectUserId == userId1);
+            filter = filter.And(item => item.ProjectUserId == userId1 || item.ProjectUserId == userId2);
             filter = filter.And(item => item.ProjectAcceptedDate != null);
             filter = filter.And(item => item.BidCompletedDate != null);
-            filter = filter.And(item => item.BidUserId == userId2);
-            filter = filter.And(item => item.Rated == false || item.Rated == null);
+            filter = filter.And(item => item.BidUserId == userId2 || item.BidUserId == userId1);
+            filter = filter.And(item => item.User1IdRated == 0 || item.User2IdRated == 0);
             var RateTransaction = await _repositoty.GetByFilter(filter);
-            if (RateTransaction != null) { 
-                return RateTransaction;
-            }
-            var filter2 = PredicateBuilder.True<Domain.Entities.RateTransaction>();
-            filter2 = filter2.And(item => item.ProjectUserId == userId2);
-            filter2 = filter2.And(item => item.BidUserId == userId1);
-            filter2 = filter2.And(item => item.ProjectAcceptedDate != null);
-            filter2 = filter2.And(item => item.BidCompletedDate != null);
-            filter2 = filter2.And(item => item.Rated == false || item.Rated == null);
-            RateTransaction = await _repositoty.GetByFilter(filter2);
             return RateTransaction;
         }
 

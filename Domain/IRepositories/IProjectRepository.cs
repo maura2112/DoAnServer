@@ -1,5 +1,6 @@
 ﻿using Domain.Common;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace Domain.IRepositories
     {
         Task<int> GetTotalBids(int projectId);
         Task<int> GetAverageBudget(int projectId);
+        Task<List<Project>> GetAllProject();
         Task<Pagination<Project>> ProjectToPagination(int pageIndex, int pageSize);
         public Task<Pagination<Project>> ProjectGetAsync(
             Expression<Func<Project, bool>> filter,

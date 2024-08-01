@@ -7,6 +7,7 @@ using Domain.IRepositories;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace API.Controllers
     {
         private ApplicationDbContext _context = new ApplicationDbContext();
         private readonly IHubContext<ChatHub> _chatHubContext;
-
+        private readonly UserManager<AppUser> _userManager;
         private readonly IBidService _bidService;
         private readonly IBidRepository _bidRepository;
         private readonly IProjectRepository _projectRepository;
@@ -30,9 +31,9 @@ namespace API.Controllers
         private readonly INotificationRepository _notificationRepository;
 
 
-        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser, 
-            IProjectRepository projectRepository, IAppUserRepository appUserRepository, 
-            INotificationService notificationService, IHubContext<ChatHub> chatHubContext, INotificationRepository notificationRepository)
+        public BidController(IBidService bidService, IBidRepository bidRepository, ICurrentUserService currentUser,
+            IProjectRepository projectRepository, IAppUserRepository appUserRepository,
+            INotificationService notificationService, IHubContext<ChatHub> chatHubContext, INotificationRepository notificationRepository, UserManager<AppUser> userManager)
         {
             _bidService = bidService;
             _bidRepository = bidRepository;
@@ -42,6 +43,7 @@ namespace API.Controllers
             _notificationService = notificationService;
             _chatHubContext = chatHubContext;
             _notificationRepository = notificationRepository;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -141,12 +143,18 @@ namespace API.Controllers
                 bool isBidding = await _bidRepository.CheckBidding(userId, DTOs.ProjectId);
                 if (isBidding)
                 {
-                    return BadRequest(new { message = "Bạn đã đấu thầu dự án này" });
+                    return BadRequest(new { message = "Bạn không thể tiếp tục dự thầu" });
                 }
                 else
                 {
                     try
                     {
+                        var user = await _userManager.FindByIdAsync(userId.ToString());
+                        if (user.AmountBid == 0) {
+                            return BadRequest(new { message = "Bạn không thể tiếp tục dự thầu" });
+                        }
+                        user.AmountBid = user.AmountBid - 1;
+                        await _userManager.UpdateAsync(user);
                         var bid = await _bidService.Add(DTOs);
                         var response = new BidResponseDTO
                         {

@@ -125,5 +125,14 @@ namespace Infrastructure.Repositories
 
             return result;
         }
+
+        public async Task<List<Project>> GetAllProject()
+        {
+            var items = await _context.Projects
+             .Where(x=>x.IsDeleted != true)
+            .AsNoTracking()
+            .ToListAsync();
+            return items;
+        }
     }
 }

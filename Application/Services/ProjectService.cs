@@ -399,8 +399,7 @@ namespace Application.Services
 
         public async Task<Pagination<ProjectDTO>> GetProjectDTOs(ProjectSearchDTO search)
         {
-            var projects = await _projectRepository.GetAll();
-            var res = projects.AsQueryable();
+            var projects = await _projectRepository.GetAllProject();
             var projectDTOs = projects.Select(project => ProcessProjectAsync(project).Result).ToList();
 
             var projectDTOList = projectDTOs.AsQueryable();

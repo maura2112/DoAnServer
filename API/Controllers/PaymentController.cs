@@ -52,7 +52,7 @@ namespace API.Controllers
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
                 var userId = _currentUserService.UserId;
-                PaymentData paymentData = new PaymentData(orderCode, total, $"DuThau-{userId}-{total}", items, "https://webapp-doan-2.azurewebsites.net/cancel", "https://webapp-doan-2.azurewebsites.net/api/Payment/Success?userId=" + userId);
+                PaymentData paymentData = new PaymentData(orderCode, total, $"DuThau-{userId}-{total}", items, "http://localhost:5069/cancel", "http://localhost:5069/api/Payment/Success?userId=" + userId);
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment);
             }

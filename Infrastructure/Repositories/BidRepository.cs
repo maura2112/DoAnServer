@@ -24,21 +24,17 @@ namespace Infrastructure.Repositories
         {
             int count = 0;
             var listBidding = await _context.Bids.Where(x => x.ProjectId == projectId).ToListAsync();
-            foreach (var bidding in listBidding)
-            {
-                if (bidding.UserId == userId)
-                {
-                    count++;
-                };
-            }
-            if(count != 0)
+
+            var query = from b in _context.Bids
+                        join u in _context.Users on b.UserId equals u.Id
+                        where b.ProjectId == projectId
+                        select u;
+            var user = await query.FirstOrDefaultAsync(x => x.AmountBid <= 0 || x.Id == userId);
+            if (user != null)
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public async Task<Pagination<Bid>> GetAsyncBid(Expression<Func<Bid, bool>> filter, int pageIndex, int pageSize)

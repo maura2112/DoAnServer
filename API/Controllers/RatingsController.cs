@@ -37,6 +37,10 @@ namespace API.Controllers
             {
                 return NotFound("Bạn không thể đánh giá người này");
             }
+            if(ratingTrasaction.User1IdRated == userId || ratingTrasaction.User2IdRated == userId)
+            {
+                return BadRequest("Bạn không thể đánh giá người này");
+            }
             if(ratingTrasaction.User1IdRated != 0) {
                 ratingTrasaction.User2IdRated = userId;
             }else

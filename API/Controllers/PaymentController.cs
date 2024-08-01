@@ -10,6 +10,11 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using API.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Net.payOS.Errors;
+using Net.payOS.Utils;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Controllers
 {
@@ -47,7 +52,7 @@ namespace API.Controllers
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
                 var userId = _currentUserService.UserId;
-                PaymentData paymentData = new PaymentData(orderCode, total, "Mua thêm số lượng dự thầu", items, "https://app-doan.azurewebsites.net/cancel", "https://app-doan.azurewebsites.net/api/Payment/Success?userId=" + userId);
+                PaymentData paymentData = new PaymentData(orderCode, total, $"DuThau-{userId}-{total}", items, "https://webapp-doan-2.azurewebsites.net/cancel", "https://webapp-doan-2.azurewebsites.net/api/Payment/Success?userId=" + userId);
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment);
             }
@@ -63,17 +68,41 @@ namespace API.Controllers
         {
             try
             {
-                
                 var user = await _userManager.FindByIdAsync(userId.ToString());
                 if (user == null)
                 {
                     return BadRequest("Không tìm thấy tài khoản phù hợp");
                 }
-                PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInfomation(int.Parse(orderCode));
+                var transaction = await _paymentService.GetByOrderId(orderCode);
+                if(transaction != null) {
+                    return BadRequest("Giao dịch thất bại hoặc lỗi hệ thống");
+                }
+                PaymentLinkInformation paymentLinkInformation = await _paymentService.getPaymentLinkInfomation(int.Parse(orderCode));
+                if(paymentLinkInformation == null)
+                {
+                    return BadRequest("Không tìm thấy khoản thanh toán");
+                }
                 var totalBids = _paymentService.ReverseMoneyCheckout(paymentLinkInformation.amount);
                 user.AmountBid = user.AmountBid + totalBids;
                 await _userManager.UpdateAsync(user);
-
+                var first = paymentLinkInformation.transactions.First();
+                var transactionNew = new Domain.Entities.Transaction()
+                {
+                    Id = paymentLinkInformation.id,
+                    OrderCode = paymentLinkInformation.orderCode.ToString(),
+                    Amount = totalBids,
+                    TotalMoney = paymentLinkInformation.amountPaid,
+                    Type = "Dự thầu",
+                    CreateAt = DateTime.Parse(paymentLinkInformation.createdAt),
+                    TransactionDateTime = DateTime.Parse(first.transactionDateTime),
+                    Description = first.description,
+                    counterAccountBankId = first.counterAccountBankId,
+                    CounterAccountName = first.counterAccountName,
+                    CounterAccountNumber = first.counterAccountNumber,
+                    reference = first.reference,
+                    UserId = userId
+                };
+                var result = await _paymentService.AddTransaction(transactionNew);
                 NotificationDto notificationDto = new NotificationDto()
                 {
                     NotificationId = await _notificationRepository.GetNotificationMax() + 1,

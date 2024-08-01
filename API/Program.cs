@@ -12,6 +12,8 @@ using System.Security.Cryptography.Xml;
 using Infrastructure.Services;
 using API.Hubs;
 using Net.payOS;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.Extensions.Configuration;
 
 namespace API
 {
@@ -76,7 +78,7 @@ namespace API
 
             builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("http://localhost:3000")
+                policy.WithOrigins("http://localhost:3000", "https://www.goodjobs.works", "http://www.goodjobs.works", "http://localhost")
                                        .AllowAnyHeader()
                                        .AllowAnyMethod()
                                        .AllowCredentials();

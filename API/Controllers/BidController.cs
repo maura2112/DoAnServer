@@ -283,7 +283,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetBidByProjectLoggedUser(int projectId)
         {
 
-            var result = await _bidService.GetBidByProjectId(projectId);
+            var result = _bidService.GetBidByProjectId(projectId);
             return Ok(new
             {
 

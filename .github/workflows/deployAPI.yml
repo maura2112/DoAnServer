@@ -17,3 +17,4 @@ jobs:
               run: dotnet restore ./API/API.csproj
 
             - name: Build
+              run: dotnet build ./API/API.csproj --configuration Release --no-restore

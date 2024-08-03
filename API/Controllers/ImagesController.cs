@@ -13,8 +13,8 @@ namespace API.Controllers
         [HttpPost]
         [Route("Upload")]
         public async Task<IActionResult> UpLoadAsync(IFormFile request, CancellationToken token) {
-            var fileName =await _mediaService.UploadAsync(request, token);
-            return Ok(fileName);
+            //var fileName =await _mediaService.UploadAsync(request, token);
+            return Ok();
         }
     }
 }

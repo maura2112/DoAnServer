@@ -10,8 +10,6 @@ namespace Application.IServices
 {
     public interface IMediaService
     {
-        Task<string> UploadAsync(IFormFile request, CancellationToken token);
-
         Task<List<MediaFileDTO>> GetByUserId( int uid);
 
         public Task<MediaFileDTO> AddMediaFile(MediaFileDTO mediaFile);

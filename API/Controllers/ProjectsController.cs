@@ -534,9 +534,6 @@ namespace API.Controllers
                     await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
                 }
             }
-
-
-
             return Ok(new ProjectResponse
             {
                 Success = true,

@@ -240,7 +240,7 @@ namespace API.Controllers
             var file = await _mediaFileService.GetById(id);
 
             if(file == null) {
-                return BadRequest("Cập nhật Portfolio không thành công");
+                return BadRequest("Lấy Portfolio không thành công");
             }
             return Ok(file);
         }

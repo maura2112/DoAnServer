@@ -47,38 +47,6 @@ namespace Application.Services
             return mediaDTOs;
         }
 
-        public async Task<string> UploadAsync(IFormFile request, CancellationToken token)
-        {
-            try
-            {
-                await _mediaRepository.UploadAsync(request); // lưu trong File
-                int FolderIdRequest =0;
-                var extension = Path.GetExtension(request.FileName);
-                var folder = "";
-                if (Media.extensionFiles.Contains(extension))
-                {
-                    FolderIdRequest = (int) EnumCommon.File.FilesFolder;
-                }
-                else if (Media.extensionImages.Contains(extension))
-                {
-                    FolderIdRequest = (int)EnumCommon.File.ImageFolder;
-                }
-                var mediaFile = new MediaFile
-                {
-                    FileName = request.FileName,
-                    FolderId = FolderIdRequest,
-                    CreateAt = DateTime.Now,
-                    UpdateAt = DateTime.Now,
-                };
-                  await _mediaRepository.AddAsync(mediaFile);
-                await _context.SaveChangesAsync(token);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            return request.FileName;
-        }
 
         public Task<string> UploadAsync(IFormFile request)
         {

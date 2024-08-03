@@ -78,7 +78,7 @@ namespace API
 
             builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("http://localhost:3000", "https://www.goodjobs.works", "http://www.goodjobs.works", "http://localhost")
+                policy.WithOrigins("http://localhost:3000", "https://www.goodjobs.works", "http://www.goodjobs.works", "http://localhost", "https://gud-job-fe.vercel.app")
                                        .AllowAnyHeader()
                                        .AllowAnyMethod()
                                        .AllowCredentials();

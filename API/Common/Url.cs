@@ -39,6 +39,7 @@
             public const string UpdateAddress = "UpdateAddress";
             public const string InputConfirmEmail = "InputConfirmEmailCode";
             public const string ConfirmEmail = "ConfirmEmail";
+            public const string Portfolios = "Portfolios";
         }
         public static class Product
         {

@@ -431,5 +431,17 @@ namespace API.Controllers
             var address = await _appUserService.UpdateAddress(dto);
             return Ok(address);
         }
+
+        [HttpGet]
+        [Route(Common.Url.User.Portfolios)]
+        public async Task<ActionResult> Portfolios(int userId)
+        {
+            var Portfolios = await _mediaFileService.GetByUserId(userId);
+            if(Portfolios == null)
+            {
+                return NotFound();
+            }
+            return Ok(Portfolios);
+        }
     }
 }

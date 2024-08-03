@@ -3,6 +3,8 @@ using Application.DTOs;
 using Application.IServices;
 using Application.Repositories;
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
@@ -100,7 +102,12 @@ namespace Application.Services
 
         public async Task<MediaFileDTO> UpdateMediaFile(MediaFileDTO mediaFile)
         {
+            var userId = _currentUserService.UserId;
             var media = await _mediaRepository.GetByIdAsync(mediaFile.Id);
+            if(userId != media.UserId)
+            {
+                return null;
+            }
             media.Description = mediaFile.Description;
             media.Title = mediaFile.Title;
             media.FileName = mediaFile.FileName;
@@ -112,6 +119,17 @@ namespace Application.Services
         {
              await _mediaRepository.Delete(id);
             return id;
+        }
+
+        public async Task<MediaFileDTO> GetById(long id)
+        {
+            var media = await _mediaRepository.GetByIdAsync(id);
+            if ( media == null)
+            {
+                return null;
+            }
+           var mediaDTO = _mapper.Map<MediaFileDTO>(media);
+            return mediaDTO;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Application.IServices
 
         public Task<MediaFileDTO> AddMediaFile(MediaFileDTO mediaFile);
 
+        public Task<MediaFileDTO> GetById(long id);
         public Task<MediaFileDTO> UpdateMediaFile(MediaFileDTO mediaFile);
 
         public Task<long> DeleteMediaFile(long id);

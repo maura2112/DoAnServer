@@ -508,6 +508,34 @@ namespace API.Controllers
             }
 
             await _projectService.Delete(projectId);
+            var userId = _currentUserService.UserId;
+
+
+            NotificationDto notificationDto = new NotificationDto()
+            {
+                NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                SendId = userId,
+                SendUserName = "Hệ thống GoodJob",
+                ProjectName = fetchedProject.Title,//k can cx dc
+                RecieveId = fetchedProject.CreatedBy,
+                Description = " đã xóa dự án của bạn vì 1 số lí do. Hãy liên hệ với chúng tôi !",
+                Datetime = DateTime.Now,
+                NotificationType = 1,
+                IsRead = 0,
+                Link = "#"
+            };
+            bool x = await _notificationService.AddNotification(notificationDto);
+            if (x)
+            {
+                var hubConnections = await _context.HubConnections
+                            .Where(con => con.userId == fetchedProject.CreatedBy).ToListAsync();
+                foreach (var hubConnection in hubConnections)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                }
+            }
+
+
 
             return Ok(new ProjectResponse
             {

@@ -95,6 +95,7 @@ namespace API.Controllers
                 }
             }
             user.Name = dto.Name;
+            user.Avatar = dto.Avatar;
             user.Description = dto.Description;
             user.TaxCode = String.IsNullOrEmpty(dto.TaxCode) ? "" : dto.TaxCode;
             var userResult = await _userManager.UpdateAsync(user);
@@ -224,6 +225,23 @@ namespace API.Controllers
         {
             var userId = _currentUserService.UserId;
             var file = await _mediaFileService.UpdateMediaFile(mediaFile);
+            if(file == null)
+            {
+                return BadRequest("Cập nhật không thành công");
+            }
+            return Ok(file);
+        }
+
+        [HttpGet]
+        [Route(Common.Url.User.GetPortfolio)]
+        public async Task<IActionResult> GetPortfolio(long id)
+        {
+            var userId = _currentUserService.UserId;
+            var file = await _mediaFileService.GetById(id);
+
+            if(file == null) {
+                return BadRequest("Cập nhật Portfolio không thành công");
+            }
             return Ok(file);
         }
 

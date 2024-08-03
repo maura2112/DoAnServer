@@ -59,6 +59,13 @@ namespace API.Controllers
         {
             //var userId = _currentUserService.UserId;
             var userDtos = await _appUserService.GetUserDTOAsync(uid);
+            if(userDtos == null)
+            {
+                return NotFound(new
+                {
+                    message ="Người dùng không tồn tại"
+                });
+            }
             return (Ok(userDtos));
         }
         [HttpPost]

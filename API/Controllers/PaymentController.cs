@@ -112,7 +112,7 @@ namespace API.Controllers
                     ProjectName = "",//k can cx dc
                     RecieveId = userId,
                     Description = "Bạn đã nạp thành công " + totalBids + " lần đấu thầu",
-                    Datetime = DateTime.Now,
+                    Datetime = DateTime.UtcNow,
                     NotificationType = 1,
                     IsRead = 0,
                     Link = "#"

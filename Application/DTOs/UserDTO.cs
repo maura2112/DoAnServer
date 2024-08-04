@@ -20,6 +20,10 @@ namespace Application.DTOs
         public string? Description { get; set; }
         public bool? EmailConfirmed { get; set; }
 
+        public int AmountBid { get; set; }
+
+        public int AmoutProject { get; set; }
+
         public int TotalProject { get; set; }
         public int  TotalBid { get; set; }
 

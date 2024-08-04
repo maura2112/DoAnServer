@@ -52,7 +52,7 @@ namespace API.Controllers
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
                 var userId = _currentUserService.UserId;
-                PaymentData paymentData = new PaymentData(orderCode, total, $"DuThau-{userId}-{total}", items, "http://localhost:5069/cancel", "http://localhost:5069/api/Payment/Success?userId=" + userId);
+                PaymentData paymentData = new PaymentData(orderCode, total, $"DuThau-{userId}-{total}", items, "https://webapp-doan-2.azurewebsites.net/api/Payment/Cancel", "https://webapp-doan-2.azurewebsites.net/api/Payment/Success?userId=" + userId);
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment);
             }
@@ -64,7 +64,7 @@ namespace API.Controllers
         }
         [HttpGet]
         [Route(Common.Url.Payment.Success)]
-        public async Task<IActionResult> Sucess([FromQuery] int userId,[FromQuery] string orderCode)
+        public async Task<IActionResult> Sucess([FromQuery] int userId, [FromQuery] string orderCode)
         {
             try
             {
@@ -74,11 +74,12 @@ namespace API.Controllers
                     return BadRequest("Không tìm thấy tài khoản phù hợp");
                 }
                 var transaction = await _paymentService.GetByOrderId(orderCode);
-                if(transaction != null) {
+                if (transaction != null)
+                {
                     return BadRequest("Giao dịch thất bại hoặc lỗi hệ thống");
                 }
                 PaymentLinkInformation paymentLinkInformation = await _paymentService.getPaymentLinkInfomation(int.Parse(orderCode));
-                if(paymentLinkInformation == null)
+                if (paymentLinkInformation == null)
                 {
                     return BadRequest("Không tìm thấy khoản thanh toán");
                 }
@@ -110,7 +111,7 @@ namespace API.Controllers
                     SendUserName = "",
                     ProjectName = "",//k can cx dc
                     RecieveId = userId,
-                    Description = "Bạn đã nạp thành công "+totalBids +" lần đấu thầu",
+                    Description = "Bạn đã nạp thành công " + totalBids + " lần đấu thầu",
                     Datetime = DateTime.Now,
                     NotificationType = 1,
                     IsRead = 0,
@@ -134,5 +135,13 @@ namespace API.Controllers
                 return BadRequest(exception);
             }
         }
+
+        [HttpGet]
+        [Route(Common.Url.Payment.Cancel)]
+        public async Task<IActionResult> Cancel()
+        {
+            return BadRequest("Giao dịch không thành công");
+        }
+
     }
 }

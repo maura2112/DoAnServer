@@ -29,34 +29,43 @@ namespace Application.Services
         {
             int baseAmount = amount * 5000;
 
-            if (amount > 40)
+            if (amount > 30)
             {
-                return (int)(baseAmount * 0.8);
+                return (int)(baseAmount * 0.7); // Giảm 30%
             }
             else if (amount > 20)
             {
-                return (int)(baseAmount * 0.9);
+                return (int)(baseAmount * 0.8); // Giảm 20%
+            }
+            else if (amount > 10)
+            {
+                return (int)(baseAmount * 0.9); // Giảm 10%
             }
             else
             {
-                return baseAmount;
+                return baseAmount; // Không giảm
             }
         }
+
         public int ReverseMoneyCheckout(int totalAmount)
         {
             int amount = totalAmount / 5000;
 
-            if (amount > 40)
+            if (amount > 30)
             {
-                return (int)(totalAmount / (5000 * 0.8));
+                return (int)(totalAmount / (5000 * 0.7)); // Giảm 30%
             }
             else if (amount > 20)
             {
-                return (int)(totalAmount / (5000 * 0.9));
+                return (int)(totalAmount / (5000 * 0.8)); // Giảm 20%
+            }
+            else if (amount > 10)
+            {
+                return (int)(totalAmount / (5000 * 0.9)); // Giảm 10%
             }
             else
             {
-                return amount;
+                return amount; // Không giảm
             }
         }
 

@@ -76,6 +76,8 @@
             public const string Create = "Create";
             public const string Success = "Success";
 
+            public const string Cancel = "Cancel";
+
 
         }
         public static class Rating

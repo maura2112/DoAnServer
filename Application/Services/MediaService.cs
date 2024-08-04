@@ -3,6 +3,8 @@ using Application.DTOs;
 using Application.IServices;
 using Application.Repositories;
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
@@ -25,11 +27,13 @@ namespace Application.Services
         private readonly IMediaFileRepository _mediaRepository;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public MediaService(IMediaFileRepository mediaRepository, ApplicationDbContext context, IMapper mapper)
+        private readonly ICurrentUserService _currentUserService;
+        public MediaService(IMediaFileRepository mediaRepository, ApplicationDbContext context, IMapper mapper, ICurrentUserService currentUserService)
         {
             _mediaRepository = mediaRepository;
             _context = context;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<List<MediaFileDTO>> GetByUserId(int uid)
@@ -43,38 +47,6 @@ namespace Application.Services
             return mediaDTOs;
         }
 
-        public async Task<string> UploadAsync(IFormFile request, CancellationToken token)
-        {
-            try
-            {
-                await _mediaRepository.UploadAsync(request); // lưu trong File
-                int FolderIdRequest =0;
-                var extension = Path.GetExtension(request.FileName);
-                var folder = "";
-                if (Media.extensionFiles.Contains(extension))
-                {
-                    FolderIdRequest = (int) EnumCommon.File.FilesFolder;
-                }
-                else if (Media.extensionImages.Contains(extension))
-                {
-                    FolderIdRequest = (int)EnumCommon.File.ImageFolder;
-                }
-                var mediaFile = new MediaFile
-                {
-                    FileName = request.FileName,
-                    FolderId = FolderIdRequest,
-                    CreateAt = DateTime.Now,
-                    UpdateAt = DateTime.Now,
-                };
-                  await _mediaRepository.AddAsync(mediaFile);
-                await _context.SaveChangesAsync(token);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            return request.FileName;
-        }
 
         public Task<string> UploadAsync(IFormFile request)
         {
@@ -83,10 +55,11 @@ namespace Application.Services
 
         public async Task<MediaFileDTO> AddMediaFile(MediaFileDTO mediaFile)
         {
+            var userId = _currentUserService.UserId;
             var media = new MediaFile()
             {
                 FileName = mediaFile.FileName,
-                UserId = mediaFile.UserId,
+                UserId = userId,
                 CreateAt = DateTime.Now,
                 Description = mediaFile.Description,
                 Title = mediaFile.Title,
@@ -97,7 +70,12 @@ namespace Application.Services
 
         public async Task<MediaFileDTO> UpdateMediaFile(MediaFileDTO mediaFile)
         {
+            var userId = _currentUserService.UserId;
             var media = await _mediaRepository.GetByIdAsync(mediaFile.Id);
+            if(userId != media.UserId)
+            {
+                return null;
+            }
             media.Description = mediaFile.Description;
             media.Title = mediaFile.Title;
             media.FileName = mediaFile.FileName;
@@ -109,6 +87,17 @@ namespace Application.Services
         {
              await _mediaRepository.Delete(id);
             return id;
+        }
+
+        public async Task<MediaFileDTO> GetById(long id)
+        {
+            var media = await _mediaRepository.GetByIdAsync(id);
+            if ( media == null)
+            {
+                return null;
+            }
+           var mediaDTO = _mapper.Map<MediaFileDTO>(media);
+            return mediaDTO;
         }
     }
 }

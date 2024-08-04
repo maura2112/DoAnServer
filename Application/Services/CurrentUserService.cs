@@ -36,6 +36,23 @@ public class CurrentUserService : ICurrentUserService
         }
     }
 
+    public string Name
+    {
+        get
+        {
+            string jwtToken = GetJwtToken();
+            if (jwtToken == null || jwtToken.IsMissing())
+                throw new("Bạn chưa đăng nhập");
+
+            var name = _jwtService.DecodeAccessToken(jwtToken).Claims.First(c => c.Type == "Name").Value;
+            if (name == null)
+            {
+                throw new("You are not logged in yet");
+            }
+            return name;
+        }
+    }
+
     public int UserIdCan0
     {
         get

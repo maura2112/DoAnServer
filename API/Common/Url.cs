@@ -27,6 +27,7 @@
             public const string AddPortfolio = "AddPortfolio";
             public const string UpdatePortfolio = "UpdatePortfolio";
             public const string DeletePortfolio = "DeletePortfolio";
+            public const string GetPortfolio = "GetPortfolio";
             public const string ConvertIntoRecruiter = "ConvertIntoRecruiter"; //it2
             public const string GetUsers = "GetUsers";
             public const string Lock = "Lock";
@@ -39,6 +40,7 @@
             public const string UpdateAddress = "UpdateAddress";
             public const string InputConfirmEmail = "InputConfirmEmailCode";
             public const string ConfirmEmail = "ConfirmEmail";
+            public const string Portfolios = "Portfolios";
         }
         public static class Product
         {

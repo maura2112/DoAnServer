@@ -76,6 +76,9 @@
             public const string Create = "Create";
             public const string Success = "Success";
             public const string Cancel = "Cancel";
+            public const string CreateBuyProject = "CreateBuyProject";
+            public const string SuccessBuyProject = "SuccessBuyProject";
+            public const string CancelBuyProject = "CancelBuyProject";
         }
         public static class Rating
         {

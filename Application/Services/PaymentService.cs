@@ -112,5 +112,52 @@ namespace Application.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public int MoneyBuyProjectCheckout(int amount)
+        {
+            int baseAmount = amount * 20000;
+
+            if (amount > 20)
+            {
+                return (int)(baseAmount * 0.7); // Giảm 30%
+            }
+            else if (amount > 10)
+            {
+                return (int)(baseAmount * 0.8); // Giảm 20%
+            }
+            else if (amount > 5)
+            {
+                return (int)(baseAmount * 0.9); // Giảm 10%
+            }
+            else
+            {
+                return baseAmount; // Không giảm
+            }
+        }
+
+        public int ReverseMoneyBuyProjectCheckout(int totalAmount)
+        {
+            int basePrice = 20000;
+            int amount;
+
+            if (totalAmount > 20 * basePrice * 0.7)
+            {
+                amount = (int)(totalAmount / (basePrice * 0.7)); // Giảm 30%
+            }
+            else if (totalAmount > 10 * basePrice * 0.8)
+            {
+                amount = (int)(totalAmount / (basePrice * 0.8)); // Giảm 20%
+            }
+            else if (totalAmount > 5 * basePrice * 0.9)
+            {
+                amount = (int)(totalAmount / (basePrice * 0.9)); // Giảm 10%
+            }
+            else
+            {
+                amount = totalAmount / basePrice; // Không giảm
+            }
+
+            return amount;
+        }
     }
 }

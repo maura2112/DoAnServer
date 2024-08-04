@@ -13,6 +13,11 @@ namespace Application.IServices
         public int MoneyCheckout(int amount);
         public int ReverseMoneyCheckout(int totalAmount);
 
+
+        public int MoneyBuyProjectCheckout(int amount);
+
+        public int ReverseMoneyBuyProjectCheckout(int totalAmount);
+
         public Task<Domain.Entities.Transaction> GetByOrderId(string orderId);
         Task<PaymentLinkInformation> getPaymentLinkInfomation(int orderId);
         public Task<bool> AddTransaction (Domain.Entities.Transaction transaction);

@@ -3,6 +3,10 @@
 name: Deploy DoAnServer API
 on: 
     workflow_dispatch: 
+
+env:
+  AZURE_WEBAPP_NAME: "webapp-doan-2"
+
 jobs:
     build: 
         runs-on: ubuntu-latest
@@ -18,3 +22,15 @@ jobs:
 
             - name: Build
               run: dotnet build ./API/API.csproj --configuration Release --no-restore
+
+            # publish
+            - name: Publish
+              run: dotnet publish ./API/API.csproj --configuration Release --output ./publish
+
+            # deploy to azure
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@v2
+              with: 
+                app-name: ${{ env.AZURE_WEBAPP_NAME }}
+                publish-profile: ${{ secrets.API_PUBLISH_PROFILE }}
+                package: ./publish

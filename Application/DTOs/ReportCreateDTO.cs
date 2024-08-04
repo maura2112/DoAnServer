@@ -11,7 +11,7 @@ namespace Application.DTOs
         public string? ReportToUrl { get; set; }
         public int? ProjectId { get; set; }
 
-        public int? UserId { get; set; }
+        public int? UserReportedId { get; set; }
         public int? BidId { get; set; }
         public int? CreatedBy { get; set; }
         public string Description { get; set; }

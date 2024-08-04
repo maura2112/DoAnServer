@@ -1,27 +1,37 @@
-﻿using Application.DTOs;
+﻿using API.Hubs;
+using Application.DTOs;
 using Application.IServices;
 using Application.Services;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
     public class RatingsController : ApiControllerBase
     {
         private readonly ICurrentUserService _currentUserService;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly INotificationService _notificationService;
         private readonly IRateTransactionService _transactionService;
         private readonly IRateTransactionRepository _rateTransactionRepository;
         private readonly IRatingService _ratingService;
         private readonly IProjectService _projectService;
-        public RatingsController(ICurrentUserService currentUserService, IRateTransactionService transactionService, IRatingService ratingService, IProjectService projectService, IRateTransactionRepository rateTransactionRepository)
+        private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _chatHubContext;
+        public RatingsController(ICurrentUserService currentUserService, IRateTransactionService transactionService, IRatingService ratingService, IProjectService projectService, IRateTransactionRepository rateTransactionRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext)
         {
             _currentUserService = currentUserService;
             _transactionService = transactionService;
             _ratingService = ratingService;
             _projectService = projectService;
             _rateTransactionRepository = rateTransactionRepository;
+            _context = context;
+            _chatHubContext = chatHubContext;
         }
         [HttpPost]
         [Route(Common.Url.Rating.Rate)]
@@ -47,6 +57,31 @@ namespace API.Controllers
             {
                 ratingTrasaction.User1IdRated = userId;
             }
+
+            NotificationDto notificationDto = new NotificationDto()
+            {
+                NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                SendId = userId,
+                SendUserName = _currentUserService.Name,
+                ProjectName = "",//k can cx dc
+                RecieveId = rating.RateToUserId,
+                Description = "đã đánh giá bạn !",
+                Datetime = DateTime.Now,
+                NotificationType = 1,
+                IsRead = 0,
+                Link = "profile/" + rating.RateToUserId
+            };
+            bool x = await _notificationService.AddNotification(notificationDto);
+            if (x)
+            {
+                var hubConnections = await _context.HubConnections
+                            .Where(con => con.userId == rating.RateToUserId).ToListAsync();
+                foreach (var hubConnection in hubConnections)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                }
+            }
+
             _rateTransactionRepository.Update(ratingTrasaction);
             rating.UserId = userId;
             rating.RateTransactionId = ratingTrasaction.Id;

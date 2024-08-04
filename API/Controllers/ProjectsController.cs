@@ -217,8 +217,37 @@ namespace API.Controllers
         [Route(Common.Url.Project.MakeDoneProject)]
         public async Task<IActionResult> MakeDoneProject([FromBody] int projectId)
         {
+            var userId = _currentUserService.UserId;
             var result = await _projectService.MakeDoneByRec(projectId);
-            return Ok(result);
+            if (result)
+            {
+                var bid =await _context.Bids.FirstOrDefaultAsync(x=>x.AcceptedDate != null && x.ProjectId == projectId);
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                    SendId = userId,
+                    SendUserName = _currentUserService.Name,
+                    ProjectName = "",//k can cx dc
+                    RecieveId = bid.UserId,
+                    Description = "đã chấp nhận hoàn thành dự án !",
+                    Datetime = DateTime.Now,
+                    NotificationType = 1,
+                    IsRead = 0,
+                    Link = "project/" + projectId
+                };
+                bool x = await _notificationService.AddNotification(notificationDto);
+                if (x)
+                {
+                    var hubConnections = await _context.HubConnections
+                                .Where(con => con.userId == bid.UserId).ToListAsync();
+                    foreach (var hubConnection in hubConnections)
+                    {
+                        await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                    }
+                }
+                return Ok(result);
+            }
+            return BadRequest("Không thể hoàn thành dự án");
         }
         //đang dùng cái này
         [HttpPut]
@@ -282,6 +311,31 @@ namespace API.Controllers
                         await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
                     }
                 }
+            }else if(projectDTOs.StatusId == 9)
+            {
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                    SendId = userId,
+                    SendUserName = _currentUserService.Name,
+                    ProjectName = projectDTOs.Title,//k can cx dc
+                    RecieveId = projectDTOs.CreatedBy,
+                    Description = "đã hoàn thành dự án của bạn. Hãy kiểm tra lại để hoàn thành hoặc từ chối !",
+                    Datetime = DateTime.Now,
+                    NotificationType = 1,
+                    IsRead = 0,
+                    Link = "detail/" + projectDTOs.Id
+                };
+                bool x = await _notificationService.AddNotification(notificationDto);
+                if (x)
+                {
+                    var hubConnections = await _context.HubConnections
+                                .Where(con => con.userId == projectDTOs.CreatedBy).ToListAsync();
+                    foreach (var hubConnection in hubConnections)
+                    {
+                        await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                    }
+                }
             }
             return Ok(projectDTOs);
         }
@@ -310,6 +364,30 @@ namespace API.Controllers
             {
                 return BadRequest("Bạn không thể chấp nhận dự thầu này");
             }
+            NotificationDto notificationDto = new NotificationDto()
+            {
+                NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                SendId = userId,
+                SendUserName = _currentUserService.Name,
+                ProjectName = "",//k can cx dc
+                RecieveId = bid.UserId,
+                Description = "đã chấp nhận dự thầu của bạn !",
+                Datetime = DateTime.Now,
+                NotificationType = 1,
+                IsRead = 0,
+                Link = "project/" + bid.ProjectId
+            };
+            bool x = await _notificationService.AddNotification(notificationDto);
+            if (x)
+            {
+                var hubConnections = await _context.HubConnections
+                            .Where(con => con.userId == bid.UserId).ToListAsync();
+                foreach (var hubConnection in hubConnections)
+                {
+                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                }
+            }
+
             bid.AcceptedDate = DateTime.Now;
             bid.UpdatedDate = DateTime.Now;
             _bidRepository.Update(bid);

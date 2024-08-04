@@ -141,6 +141,7 @@ namespace API.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
                 {
+                    new("Name", user.Name),
                     new("Id", user.Id.ToString()),
                     new(ClaimTypes.Email, userDto.Email)
                 };
@@ -155,6 +156,8 @@ namespace API.Controllers
                 UserId = user.Id,
                 Role = roles.First(),
                 Name =  user.Name,
+                BidAmount = user.AmountBid,
+                ProjectAmount = user.AmoutProject,
                 Avatar = user.Avatar,
                 EmailConfirmed = user.EmailConfirmed,
                 AccessToken = accessToken,

@@ -14,6 +14,9 @@ namespace Application.DTOs
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
 
+        public int BidAmount { get; set; }
+        public int ProjectAmount { get; set; }
+
         public bool? EmailConfirmed { get; set; }
 
         public string?  Avatar { get; set; }

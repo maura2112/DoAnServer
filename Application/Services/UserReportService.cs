@@ -5,7 +5,9 @@ using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +25,10 @@ namespace Application.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IProjectService _projectService;
         private readonly IBidService _bidService;
+        private readonly ApplicationDbContext _context;
 
 
-        public UserReportService(IReportRepository repository, IMapper mapper, PaginationService<ReportDTO> paginationService, IReportCategoryRepository categoryRepository, UserManager<AppUser> userManager, IProjectService projectService, IBidService bidService)
+        public UserReportService(IReportRepository repository, IMapper mapper, PaginationService<ReportDTO> paginationService, IReportCategoryRepository categoryRepository, UserManager<AppUser> userManager, IProjectService projectService, IBidService bidService, ApplicationDbContext context)
         {
             _repository = repository;
             _mapper = mapper;
@@ -34,6 +37,7 @@ namespace Application.Services
             _userManager = userManager;
             _projectService = projectService;
             _bidService = bidService;
+            _context = context;
         }
 
         public async Task CreateReport(ReportCreateDTO dto)
@@ -47,7 +51,7 @@ namespace Application.Services
         {
 
             var reports =await _repository.GetAll();
-            var reportDTOs = reports.Select(  async report =>
+            var reportDTOs = reports.Select(  report =>
             {
                 var reportDTO = _mapper.Map<ReportDTO>(report);
                 var cateReport =  _categoryRepository.GetByIdAsync(reportDTO.ReportCategoryId);
@@ -67,27 +71,26 @@ namespace Application.Services
                     reportDTO.ProjectUser = userProject.Result.Name;
                 }else if (report.UserReportedId != null)
                 {
-                    var user = await _userManager.FindByIdAsync(report.UserReportedId.ToString());
-                    reportDTO.UserReportedName =  user.Name; 
-                    reportDTO.UserReportedId = user.Id;
+                    var user =  _userManager.FindByIdAsync(report.UserReportedId.ToString());
+                    reportDTO.UserReportedName =  user.Result.Name; 
+                    reportDTO.UserReportedId = user.Result.Id;
                 }
                 return reportDTO;
             }).ToList();
 
-            var reportList =  (await Task.WhenAll(reportDTOs)).ToList();
             if (searchDTO.typeDes != null)
             {
-                reportList = reportList.Where(x=>x.ReportType == searchDTO.typeDes).ToList();
+                reportDTOs = reportDTOs.Where(x=>x.ReportType == searchDTO.typeDes).ToList();
             }
             if(searchDTO.approved != null)
             {
-                reportList = reportList.Where(x => x.IsApproved == searchDTO.approved).ToList();
+                reportDTOs = reportDTOs.Where(x => x.IsApproved == searchDTO.approved).ToList();
             }
             if (searchDTO.rejected != null)
             {
-                reportList = reportList.Where(x => x.IsRejected == searchDTO.rejected).ToList();
+                reportDTOs = reportDTOs.Where(x => x.IsRejected == searchDTO.rejected).ToList();
             }
-            return await _paginationService.ToPagination(reportList, searchDTO.PageIndex, searchDTO.PageSize);
+            return await _paginationService.ToPagination(reportDTOs, searchDTO.PageIndex, searchDTO.PageSize);
         }
 
         public async Task<bool> ApproveReport(int id)

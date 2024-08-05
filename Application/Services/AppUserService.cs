@@ -177,6 +177,12 @@ namespace Application.Services
                         userDTO.IsRated = true;
                     }
                 }
+                userDTO.AmountBid = user.AmountBid;
+                userDTO.AmoutProject = user.AmoutProject;
+                var roles = await _userManager.GetRolesAsync(user);
+                userDTO.Role = roles.First();
+                userDTO.EmailConfirmed = user.EmailConfirmed;
+                userDTO.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == uid || x.ProjectUserId == uid);
                 var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == uid);
                 decimal avgRate;

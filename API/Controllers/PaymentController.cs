@@ -85,6 +85,7 @@ namespace API.Controllers
                 }
                 var totalBids = _paymentService.ReverseMoneyCheckout(paymentLinkInformation.amount);
                 user.AmountBid = user.AmountBid + totalBids;
+                user.IsPaid = true;
                 await _userManager.UpdateAsync(user);
                 var first = paymentLinkInformation.transactions.First();
                 var transactionNew = new Domain.Entities.Transaction()
@@ -191,6 +192,7 @@ namespace API.Controllers
                 }
                 var totalPrjects = _paymentService.ReverseMoneyCheckout(paymentLinkInformation.amount);
                 user.AmoutProject = user.AmoutProject + totalPrjects;
+                user.IsPaid = true;
                 await _userManager.UpdateAsync(user);
                 var first = paymentLinkInformation.transactions.First();
                 var transactionNew = new Domain.Entities.Transaction()

@@ -40,7 +40,7 @@ namespace Domain.Entities
         public bool IsCompany { get; set; }
 
         public int AmountBid { get; set; }
-
+        public bool IsPaid { get; set; }
         public int AmoutProject { get; set; }
 
         public string? Education { get; set; }

@@ -19,7 +19,8 @@ namespace Application.DTOs
         public bool IsCompany { get; set; }
         public string? Description { get; set; }
         public bool? EmailConfirmed { get; set; }
-
+        public bool? PhoneNumberConfirmed { get; set; }
+        public bool? IsPaid { get; set; }
         public int AmountBid { get; set; }
 
         public int AmoutProject { get; set; }
@@ -35,9 +36,9 @@ namespace Application.DTOs
         public bool? LockoutEnabled { get; set; }
 
         public bool? IsLock { get; set; }
-
+        
+        public string Role { get; set; }
         public string? PhoneNumber { get; set; }
-        public bool? PhoneNumberConfirmed { get; set; }
         public List<MediaFileDTO> mediaFiles { get; set; }
         public List<RatingDTO>? ratings { get; set; }
 

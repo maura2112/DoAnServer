@@ -183,6 +183,7 @@ namespace Application.Services
                 userDTO.Role = roles.First();
                 userDTO.EmailConfirmed = user.EmailConfirmed;
                 userDTO.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+                userDTO.IsPaid = user.IsPaid;
                 var totalCompleteProject = await _context.RateTransactions.CountAsync(x => x.BidUserId == uid || x.ProjectUserId == uid);
                 var totalRate = await _context.Ratings.CountAsync(x => x.RateToUserId == uid);
                 decimal avgRate;

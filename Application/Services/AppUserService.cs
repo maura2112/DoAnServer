@@ -239,10 +239,10 @@ namespace Application.Services
             {
                 UserId = userId,
                 Country = dto.Country,
-                PostalCode = dto.PostalCode,
+                PostalCode = "",
                 City = dto.City,
                 State = dto.State,
-                Street = dto.Street,
+                Street = "",
             };
             await _context.Addresses.AddAsync(address);
             await _context.SaveChangesAsync();

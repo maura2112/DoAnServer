@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.Extensions;
 using Application.IServices;
 using AutoMapper;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Domain.Common;
 using Domain.Entities;
@@ -233,19 +234,33 @@ namespace Application.Services
         public async Task<AddressDTO> UpdateAddress(AddressDTO dto)
         {
             var userId = _currentUserService.UserId;
-            dto.UserId = userId;
-            dto.Country = "Việt Nam";
-            var address = new Address()
+
+            var addressDB = await _context.Addresses.FirstOrDefaultAsync(x=> x.UserId == userId);    
+            if(addressDB == null)
             {
-                UserId = userId,
-                Country = dto.Country,
-                PostalCode = "",
-                City = dto.City,
-                State = dto.State,
-                Street = "",
-            };
-            await _context.Addresses.AddAsync(address);
-            await _context.SaveChangesAsync();
+                dto.UserId = userId;
+                dto.Country = "Việt Nam";
+                var address = new Address()
+                {
+                    UserId = userId,
+                    Country = dto.Country,
+                    PostalCode = "",
+                    City = dto.City,
+                    State = dto.State,
+                    Street = "",
+                };
+                await _context.Addresses.AddAsync(address);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                addressDB.Country = dto.Country;
+                addressDB.City = dto.City;
+                addressDB.State = dto.State;
+                _context.Addresses.Update(addressDB);
+                await _context.SaveChangesAsync();
+            }
+
             return dto;
 
         }

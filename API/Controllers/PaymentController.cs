@@ -15,6 +15,7 @@ using Net.payOS.Utils;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Application.Extensions;
 
 namespace API.Controllers
 {
@@ -254,6 +255,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Common.Url.Payment.Transactions)]
+        [RoleAuthorizeAttribute("Admin")]
         public async Task<IActionResult> Transactions([FromQuery] TransactionSearch search)
         {
             var result = await _paymentService.GetsTransactionsAsync(search);

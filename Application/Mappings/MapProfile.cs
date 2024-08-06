@@ -57,6 +57,9 @@ public class MapProfile : Profile
         CreateMap<UserReport, ReportDTO>().ReverseMap();
         CreateMap<UserReport, ReportCreateDTO>().ReverseMap();
 
+        CreateMap<Transaction, TransactionDTO>().ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email));
+
         CreateMap<Skill, SkillDTO>().ReverseMap();
         CreateMap<Pagination<Skill>, Pagination<SkillDTO>>().ReverseMap();
 

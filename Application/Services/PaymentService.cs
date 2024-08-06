@@ -13,6 +13,9 @@ using Net.payOS;
 using Microsoft.Extensions.Configuration;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Domain.Common;
+using Application.DTOs;
+using AutoMapper;
 
 namespace Application.Services
 {
@@ -20,10 +23,12 @@ namespace Application.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
-        public PaymentService(IConfiguration configuration, ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public PaymentService(IConfiguration configuration, ApplicationDbContext context, IMapper mapper)
         {
             _configuration = configuration;
             _context = context;
+            _mapper = mapper;
         }
         public int MoneyCheckout(int amount)
         {
@@ -158,6 +163,40 @@ namespace Application.Services
             }
 
             return amount;
+        }
+
+        public async Task<Pagination<TransactionDTO>> GetsTransactionsAsync(TransactionSearch search)
+        {
+            var transactions = _context.Transactions.Include(t => t.User).AsQueryable();
+            if(search.FromDate != null) {
+                transactions = transactions.Where(x => x.TransactionDateTime > search.FromDate);
+            }
+            if (search.ToDate != null)
+            {
+                transactions = transactions.Where(x => x.TransactionDateTime < search.ToDate);
+            }
+            if(search.UserName != null)
+            {
+                transactions = transactions.Where(x => x.User.Name.ToLower().Contains(search.UserName.ToLower()));
+            }
+            if (search.Email != null)
+            {
+                transactions = transactions.Where(x => x.User.Email.ToLower().Contains(search.Email.ToLower()));
+            }
+            if (search.Type != null)
+            {
+                transactions = transactions.Where(x => x.Type.Equals(search.Type));
+            }
+            var totalItem = await transactions.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
+            var transactionDTOs = _mapper.Map<List<TransactionDTO>>(totalItem);
+            var result = new Pagination<TransactionDTO>()
+            {
+                PageSize = search.PageSize,
+                PageIndex = search.PageIndex,
+                TotalItemsCount = transactions.Count(),
+                Items = transactionDTOs,
+            };
+            return result;
         }
     }
 }

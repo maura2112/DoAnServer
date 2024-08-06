@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.DTOs;
+using Domain.Common;
 
 namespace Application.IServices
 {
@@ -19,7 +21,9 @@ namespace Application.IServices
         public int ReverseMoneyBuyProjectCheckout(int totalAmount);
 
         public Task<Domain.Entities.Transaction> GetByOrderId(string orderId);
-        Task<PaymentLinkInformation> getPaymentLinkInfomation(int orderId);
+        public Task<PaymentLinkInformation> getPaymentLinkInfomation(int orderId);
         public Task<bool> AddTransaction (Domain.Entities.Transaction transaction);
+
+        public Task<Pagination<TransactionDTO>> GetsTransactionsAsync(TransactionSearch search);
     }
 }

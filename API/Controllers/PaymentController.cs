@@ -190,7 +190,7 @@ namespace API.Controllers
                 {
                     return BadRequest("Không tìm thấy khoản thanh toán");
                 }
-                var totalPrjects = _paymentService.ReverseMoneyCheckout(paymentLinkInformation.amount);
+                var totalPrjects = _paymentService.ReverseMoneyBuyProjectCheckout(paymentLinkInformation.amount);
                 user.AmoutProject = user.AmoutProject + totalPrjects;
                 user.IsPaid = true;
                 await _userManager.UpdateAsync(user);
@@ -250,6 +250,14 @@ namespace API.Controllers
         public async Task<IActionResult> CancelBuyProject()
         {
             return BadRequest("Giao dịch không thành công");
+        }
+
+        [HttpGet]
+        [Route(Common.Url.Payment.Transactions)]
+        public async Task<IActionResult> Transactions([FromQuery] TransactionSearch search)
+        {
+            var result = await _paymentService.GetsTransactionsAsync(search);
+            return Ok(result);
         }
 
 

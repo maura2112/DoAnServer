@@ -79,6 +79,7 @@
             public const string CreateBuyProject = "CreateBuyProject";
             public const string SuccessBuyProject = "SuccessBuyProject";
             public const string CancelBuyProject = "CancelBuyProject";
+            public const string Transactions = "Transactions";
         }
         public static class Rating
         {

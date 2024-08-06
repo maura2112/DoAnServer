@@ -65,6 +65,9 @@ namespace Application.IServices
 
         Task<bool> RejectTesting(int projectId);
 
+        Task<List<ProjectDTO>> ProjectHomePage();
+
+
 
         //Task<int> CreateAsync(Project request);
 

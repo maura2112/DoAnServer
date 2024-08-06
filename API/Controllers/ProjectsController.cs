@@ -636,5 +636,14 @@ namespace API.Controllers
             }
             return Ok("Từ chối hoàn thành dự án thành công");
         }
+
+        [HttpGet]
+        [Route("ProjectHomePage")]
+        public async Task<IActionResult> ProjectHomePage()
+        {
+            var result =await _projectService.ProjectHomePage();
+            return Ok(result);
+        }
+
     }
 }

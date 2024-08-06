@@ -965,54 +965,82 @@ namespace Application.Services
                 return false;
             }
             var userId = _currentUserService.UserId;
-            if (project.CreatedBy != userId) {
+            if (project.CreatedBy != userId)
+            {
                 return false;
             }
-            project.StatusId =(int) ProjectStatus.StatusId.Close;
+            project.StatusId = (int)ProjectStatus.StatusId.Close;
             _context.Projects.Update(project);
             await _context.SaveChangesAsync();
-            var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x=>x.ProjectId == projectId);
+            var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x => x.ProjectId == projectId);
             _context.RateTransactions.Remove(transaction);
             await _context.SaveChangesAsync();
             return true;
         }
 
 
-        //public async Task<List<ProjectDTO>> ProjectHomePage()
-        //{
-        //    var userId = _currentUserService.UserIdCan0;
-        //    if(userId== 0)
-        //    {
-        //        var query = from p in _context.Projects
-        //                    join s in _context.ProjectStatus on p.StatusId equals s.Id
-        //                    join u in _context.Users on p.CreatedBy equals u.Id
-        //                    where p.IsDeleted != true && p.StatusId == 2
-        //                    orderby p.CreatedDate descending
-        //                    select new ProjectDTO
-        //                    {
-        //                        Id = p.Id,
-        //                        CreatedBy = p.CreatedBy,
-        //                        Title = p.Title,
-        //                        MinBudget = p.MinBudget,
-        //                        MaxBudget = p.MaxBudget,
-        //                        Duration = p.Duration,
-        //                        Description = p.Description,
-        //                        StatusName = s.StatusName,
-        //                        StatusId = s.Id,
-        //                        CreatedDateString = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
-        //                        UserName = u.Name,
-        //                    };
-        //        var list = await query.Take(5).ToListAsync();
-        //        return list;
-        //    }else
-        //    {
-        //        var userSkills = _context.Users
-        //                     .Where(u => u.Id == userId)
-        //                     .SelectMany(u => u.UserSkills)
-        //                     .Select(s => s.Id)
-        //                     .ToList();
-        //    }
-        //    return null;
-        //}
+        public async Task<List<ProjectDTO>> ProjectHomePage()
+        {
+            var userId = _currentUserService.UserIdCan0;
+            if (userId == 0)
+            {
+                var query = from p in _context.Projects
+                            join s in _context.ProjectStatus on p.StatusId equals s.Id
+                            join u in _context.Users on p.CreatedBy equals u.Id
+                            where p.IsDeleted != true && p.StatusId == 2
+                            orderby p.CreatedDate descending
+                            select new ProjectDTO
+                            {
+                                Id = p.Id,
+                                CreatedBy = p.CreatedBy,
+                                Title = p.Title,
+                                MinBudget = p.MinBudget,
+                                MaxBudget = p.MaxBudget,
+                                Duration = p.Duration,
+                                Description = p.Description,
+                                StatusName = s.StatusName,
+                                StatusId = s.Id,
+                                CreatedDateString = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
+                                TimeAgo = TimeAgoHelper.CalculateTimeAgo(p.CreatedDate),
+                                UserName = u.Name,
+                            };
+                var list = await query.Take(5).ToListAsync();
+                return list;
+            }
+            else
+            {
+                var userSkills = await _context.UserSkills
+                              .Where(us => us.UserId == userId)
+                              .Select(us => us.SkillId)
+                              .ToListAsync();
+
+                var projects =  _context.ProjectSkills
+                            .Where(ps => userSkills.Contains(ps.SkillId))
+                            .GroupBy(ps => ps.Project) // Nhóm dự án để xử lý từng dự án một cách riêng biệt
+                            .Select(g => new ProjectDTO
+                            {
+                                Id = g.Key.Id,
+                                CreatedBy = g.Key.CreatedBy,
+                                Title = g.Key.Title,
+                                StatusId = g.Key.StatusId,
+                                IsDeleted = g.Key.IsDeleted,
+                                MinBudget = g.Key.MinBudget,
+                                MaxBudget = g.Key.MaxBudget,
+                                Duration = g.Key.Duration,
+                                Description = g.Key.Description,
+                                CreatedDate = g.Key.CreatedDate,
+                                UserName = g.Key.AppUser.Name,
+                                CreatedDateString = DateTimeHelper.ToVietnameseDateString(g.Key.CreatedDate),
+                                TimeAgo = TimeAgoHelper.CalculateTimeAgo(g.Key.CreatedDate)
+                            })
+                            .Distinct()
+                            .AsQueryable();
+
+                var projectDTOs = await projects.Where(x => x.IsDeleted != true && x.StatusId == 2).Take(5).OrderByDescending(x=>x.CreatedDate).ToListAsync();
+                return projectDTOs;
+            }
+        }
+
+
     }
 }

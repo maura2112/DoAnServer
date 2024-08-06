@@ -31,6 +31,7 @@ namespace Application.DTOs
 
         public bool? IsFavorite { get; set; }
         public string? RejectReason { get; set; }
+        public string? UserName { get; set; }
 
         List<ProjectStatus> ListStatus { get; set; }
 

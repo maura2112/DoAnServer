@@ -24,11 +24,13 @@ namespace Application.Services
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public PaymentService(IConfiguration configuration, ApplicationDbContext context, IMapper mapper)
+        private ICurrentUserService _currentUserService;
+        public PaymentService(IConfiguration configuration, ApplicationDbContext context, IMapper mapper, ICurrentUserService currentUserService)
         {
             _configuration = configuration;
             _context = context;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
         public int MoneyCheckout(int amount)
         {
@@ -55,23 +57,29 @@ namespace Application.Services
         public int ReverseMoneyCheckout(int totalAmount)
         {
             int amount = totalAmount / 5000;
+            int result;
 
             if (amount > 30)
             {
-                return (int)(totalAmount / (5000 * 0.7)); // Giảm 30%
+                result = (int)(totalAmount / (5000 * 0.7));
             }
             else if (amount > 20)
             {
-                return (int)(totalAmount / (5000 * 0.8)); // Giảm 20%
+                result = (int)(totalAmount / (5000 * 0.8)); 
             }
             else if (amount > 10)
             {
-                return (int)(totalAmount / (5000 * 0.9)); // Giảm 10%
+                result = (int)(totalAmount / (5000 * 0.9)); 
             }
             else
             {
-                return amount; // Không giảm
+                result = amount; 
             }
+            if (amount > 50)
+            {
+                result += 10;
+            }
+            return result;
         }
 
         public async Task<PaymentLinkInformation> getPaymentLinkInfomation(int orderId)
@@ -162,6 +170,11 @@ namespace Application.Services
                 amount = totalAmount / basePrice; // Không giảm
             }
 
+            if(amount > 50)
+            {
+                amount = amount + 10;
+            }
+
             return amount;
         }
 
@@ -187,6 +200,23 @@ namespace Application.Services
             {
                 transactions = transactions.Where(x => x.Type.Equals(search.Type));
             }
+            var totalItem = await transactions.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
+            var transactionDTOs = _mapper.Map<List<TransactionDTO>>(totalItem);
+            var result = new Pagination<TransactionDTO>()
+            {
+                PageSize = search.PageSize,
+                PageIndex = search.PageIndex,
+                TotalItemsCount = transactions.Count(),
+                Items = transactionDTOs,
+            };
+            return result;
+        }
+
+        public async Task<Pagination<TransactionDTO>> GetsTransactionsByUserIdAsync(SearchDTO search)
+        {
+            var userId = _currentUserService.UserId;
+            var transactions = _context.Transactions.Where(x=>x.UserId== userId).Include(t => t.User).AsQueryable();
+
             var totalItem = await transactions.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
             var transactionDTOs = _mapper.Map<List<TransactionDTO>>(totalItem);
             var result = new Pagination<TransactionDTO>()

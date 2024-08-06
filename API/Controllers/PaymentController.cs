@@ -262,6 +262,14 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route(Common.Url.Payment.UserTransactions)]
+        public async Task<IActionResult> UserTransactions([FromQuery] SearchDTO search)
+        {
+            var result = await _paymentService.GetsTransactionsByUserIdAsync(search);
+            return Ok(result);
+        }
+
 
 
 

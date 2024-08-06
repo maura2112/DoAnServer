@@ -25,5 +25,6 @@ namespace Application.IServices
         public Task<bool> AddTransaction (Domain.Entities.Transaction transaction);
 
         public Task<Pagination<TransactionDTO>> GetsTransactionsAsync(TransactionSearch search);
+        public Task<Pagination<TransactionDTO>> GetsTransactionsByUserIdAsync(SearchDTO search);
     }
 }

@@ -12,8 +12,8 @@ namespace Application.DTOs
     {
         public int? UserId { get; set; }
         public string? Street { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
         public string? PostalCode { get; set; }
         public string? Country { get; set; }
         
@@ -22,10 +22,6 @@ namespace Application.DTOs
     {
         public AddressDTOValidator()
         {
-            RuleFor(address => address.City)
-            .NotEmpty().WithMessage("Vui lòng chọn tên thành phố");           
-            RuleFor(address => address.State)
-            .NotEmpty().WithMessage("Vui lòng chọn tên quận/huyện");
         }
     }
 }

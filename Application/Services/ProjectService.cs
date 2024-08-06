@@ -976,5 +976,43 @@ namespace Application.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+
+        //public async Task<List<ProjectDTO>> ProjectHomePage()
+        //{
+        //    var userId = _currentUserService.UserIdCan0;
+        //    if(userId== 0)
+        //    {
+        //        var query = from p in _context.Projects
+        //                    join s in _context.ProjectStatus on p.StatusId equals s.Id
+        //                    join u in _context.Users on p.CreatedBy equals u.Id
+        //                    where p.IsDeleted != true && p.StatusId == 2
+        //                    orderby p.CreatedDate descending
+        //                    select new ProjectDTO
+        //                    {
+        //                        Id = p.Id,
+        //                        CreatedBy = p.CreatedBy,
+        //                        Title = p.Title,
+        //                        MinBudget = p.MinBudget,
+        //                        MaxBudget = p.MaxBudget,
+        //                        Duration = p.Duration,
+        //                        Description = p.Description,
+        //                        StatusName = s.StatusName,
+        //                        StatusId = s.Id,
+        //                        CreatedDateString = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
+        //                        UserName = u.Name,
+        //                    };
+        //        var list = await query.Take(5).ToListAsync();
+        //        return list;
+        //    }else
+        //    {
+        //        var userSkills = _context.Users
+        //                     .Where(u => u.Id == userId)
+        //                     .SelectMany(u => u.UserSkills)
+        //                     .Select(s => s.Id)
+        //                     .ToList();
+        //    }
+        //    return null;
+        //}
     }
 }

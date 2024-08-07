@@ -1020,6 +1020,7 @@ namespace Application.Services
                             .Select(pro => new ProjectDTO
                             {
                                 Id = pro.Id,
+                                CategoryId = pro.CategoryId,
                                 CreatedBy = pro.CreatedBy,
                                 Title = pro.Title,
                                 StatusId = pro.StatusId,
@@ -1030,12 +1031,14 @@ namespace Application.Services
                                 Description = pro.Description,
                                 CreatedDate = pro.CreatedDate,
                                 UserName = pro.AppUser.Name,
+                                CategoryName = pro.Category.CategoryName,
                                 State = pro.AppUser.Address.State,
                                 City = pro.AppUser.Address.City,
                                 Country = pro.AppUser.Address.Country,
                                 CreatedDateString = DateTimeHelper.ToVietnameseDateString(pro.CreatedDate),
                                 TimeAgo = TimeAgoHelper.CalculateTimeAgo(pro.CreatedDate)
                             })
+                            .OrderByDescending(x=>x.CreatedDate)
                             .Distinct()
                             .AsQueryable();
 
@@ -1046,6 +1049,12 @@ namespace Application.Services
                                 .Where(r => r.RateToUserId == projectDTO.CreatedBy) // Lọc theo userId
                                 .Select(r => (double?)r.Star) // Chuyển đổi thành nullable double
                                 .AverageAsync() ?? 0;
+
+                    projectDTO.Skill = await _context.ProjectSkills
+                                .Where(ps => ps.ProjectId == projectDTO.Id)
+                                .Select(ps => ps.Skill)
+                                .Select(s => s.SkillName) // Giả sử bạn có thuộc tính Name trong bảng Skill
+                                .ToListAsync();
                 }
                 return projectDTOs;
             }

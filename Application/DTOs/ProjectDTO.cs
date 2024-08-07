@@ -29,6 +29,8 @@ namespace Application.DTOs
         public string? StatusName { get; set; }
         public int? RejectTimes { get; set; }
 
+        public string CategoryName { get; set; }
+
         public bool? IsFavorite { get; set; }
         public string? RejectReason { get; set; }
         public string? UserName { get; set; }

@@ -319,6 +319,8 @@ namespace Application.Services
             }
             projectDTO.AppUser2.CreatedDate = user.CreatedDate;
             projectDTO.AppUser2.EmailConfirmed = user.EmailConfirmed;
+            projectDTO.AppUser2.PhoneConfirmed = user.PhoneNumberConfirmed;
+            projectDTO.AppUser2.IsPaid = user.IsPaid;
             projectDTO.AppUser2.AvgRate = (float)avgRate;
             projectDTO.AppUser2.TotalRate = totalRate;
             projectDTO.AppUser2.TotalCompleteProject = totalCompleteProject;

@@ -46,6 +46,8 @@ namespace Application.DTOs
         public string Email { get; set; }
 
         public bool? EmailConfirmed { get; set; }
+        public bool? PhoneConfirmed { get; set; }
+        public bool? IsPaid { get; set; }
 
         public float? AvgRate { get; set; }
         public int? TotalRate { get; set; }

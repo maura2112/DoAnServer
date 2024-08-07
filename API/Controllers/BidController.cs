@@ -140,19 +140,21 @@ namespace API.Controllers
             }
             else
             {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user.AmountBid <= 0)
+                {
+                    return BadRequest(new { message = "Bạn không đủ số lượt dự thầu" });
+                }
                 bool isBidding = await _bidRepository.CheckBidding(userId, DTOs.ProjectId);
                 if (isBidding)
                 {
-                    return BadRequest(new { message = "Bạn không thể tiếp tục dự thầu" });
+                    return BadRequest(new { message = "Bạn đã dự thầu dự án này. Không thể tiếp tục" });
                 }
                 else
                 {
                     try
                     {
-                        var user = await _userManager.FindByIdAsync(userId.ToString());
-                        if (user.AmountBid == 0) {
-                            return BadRequest(new { message = "Bạn không thể tiếp tục dự thầu" });
-                        }
+                      
                         user.AmountBid = user.AmountBid - 1;
                         await _userManager.UpdateAsync(user);
                         var bid = await _bidService.Add(DTOs);

@@ -326,6 +326,8 @@ namespace API.Controllers
                     UserName = userInfo.Email,
                     Email = userInfo.Email,
                     TaxCode = "",
+                    AmountBid = 5,
+                    AmoutProject =5 ,
                     IsCompany = false,
                     PasswordHash = _passwordGeneratorService.HashPassword(userInfo.Id),
                     Name = userInfo.Name,

@@ -33,6 +33,10 @@ namespace Application.DTOs
         public string? RejectReason { get; set; }
         public string? UserName { get; set; }
 
+        public double? AvgStarOfUser { get; set; }
+        public string? State { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
         List<ProjectStatus> ListStatus { get; set; }
 
         public virtual AppUserDTO? AppUser { get; set; } = null!;

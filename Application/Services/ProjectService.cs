@@ -1014,29 +1014,39 @@ namespace Application.Services
                               .Select(us => us.SkillId)
                               .ToListAsync();
 
-                var projects =  _context.ProjectSkills
+                var projects = _context.ProjectSkills
                             .Where(ps => userSkills.Contains(ps.SkillId))
-                            .GroupBy(ps => ps.Project) // Nhóm dự án để xử lý từng dự án một cách riêng biệt
-                            .Select(g => new ProjectDTO
+                            .Select(p => p.Project)
+                            .Select(pro => new ProjectDTO
                             {
-                                Id = g.Key.Id,
-                                CreatedBy = g.Key.CreatedBy,
-                                Title = g.Key.Title,
-                                StatusId = g.Key.StatusId,
-                                IsDeleted = g.Key.IsDeleted,
-                                MinBudget = g.Key.MinBudget,
-                                MaxBudget = g.Key.MaxBudget,
-                                Duration = g.Key.Duration,
-                                Description = g.Key.Description,
-                                CreatedDate = g.Key.CreatedDate,
-                                UserName = g.Key.AppUser.Name,
-                                CreatedDateString = DateTimeHelper.ToVietnameseDateString(g.Key.CreatedDate),
-                                TimeAgo = TimeAgoHelper.CalculateTimeAgo(g.Key.CreatedDate)
+                                Id = pro.Id,
+                                CreatedBy = pro.CreatedBy,
+                                Title = pro.Title,
+                                StatusId = pro.StatusId,
+                                IsDeleted = pro.IsDeleted,
+                                MinBudget = pro.MinBudget,
+                                MaxBudget = pro.MaxBudget,
+                                Duration = pro.Duration,
+                                Description = pro.Description,
+                                CreatedDate = pro.CreatedDate,
+                                UserName = pro.AppUser.Name,
+                                State = pro.AppUser.Address.State,
+                                City = pro.AppUser.Address.City,
+                                Country = pro.AppUser.Address.Country,
+                                CreatedDateString = DateTimeHelper.ToVietnameseDateString(pro.CreatedDate),
+                                TimeAgo = TimeAgoHelper.CalculateTimeAgo(pro.CreatedDate)
                             })
                             .Distinct()
                             .AsQueryable();
 
                 var projectDTOs = await projects.Where(x => x.IsDeleted != true && x.StatusId == 2).Take(5).OrderByDescending(x=>x.CreatedDate).ToListAsync();
+                foreach( var projectDTO in projectDTOs)
+                {
+                    projectDTO.AvgStarOfUser = await _context.Ratings
+                                .Where(r => r.RateToUserId == projectDTO.CreatedBy) // Lọc theo userId
+                                .Select(r => (double?)r.Star) // Chuyển đổi thành nullable double
+                                .AverageAsync() ?? 0;
+                }
                 return projectDTOs;
             }
         }

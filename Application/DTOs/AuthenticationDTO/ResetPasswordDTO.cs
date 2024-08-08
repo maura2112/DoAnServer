@@ -19,7 +19,7 @@ namespace Application.DTOs
         public string SecureToken { get; set; }
     }
 
-    public class InputEmailConfirmDTO
+    public class InputCodeConfirmDTO
     {
         public string Code { get; set; }
     }

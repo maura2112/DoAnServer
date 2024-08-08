@@ -47,6 +47,14 @@ namespace API.Controllers
         {
             try
             {
+                if (amount <= 0)
+                {
+                    return BadRequest("Số lượng phải lớn hơn 0");
+                }
+                else if (amount > 100)
+                {
+                    return BadRequest("Số lượng phải nhỏ hơn 100");
+                }
                 var total = _paymentService.MoneyCheckout(amount);
                 int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
                 ItemData item = new ItemData("Lần dự thầu", amount, total);
@@ -152,6 +160,13 @@ namespace API.Controllers
         {
             try
             {
+                if (amount <= 0)
+                {
+                    return BadRequest("Số lượng phải lớn hơn 0");
+                }else if (amount > 100)
+                {
+                    return BadRequest("Số lượng phải nhỏ hơn 100");
+                }
                 var total = _paymentService.MoneyBuyProjectCheckout(amount);
                 int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
                 ItemData item = new ItemData("Lần đăng bài dự án", amount, total);

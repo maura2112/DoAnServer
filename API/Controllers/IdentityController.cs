@@ -407,7 +407,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.User.Identity.VerifyPhoneCode)]
-        public async Task<IActionResult> VerifyPhoneCode([FromBody] string code)
+        public async Task<IActionResult> VerifyPhoneCode([FromBody] InputCodeConfirmDTO dto)
         {
             try
             {
@@ -421,7 +421,7 @@ namespace API.Controllers
                         message = "Người dùng không tồn tại"
                     });
                 }
-                if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, code.ToString()))
+                if (!_passwordGeneratorService.VerifyHashPassword(user.PasswordResetToken, dto.Code.ToString()))
                 {
                     return Conflict(new
                     {

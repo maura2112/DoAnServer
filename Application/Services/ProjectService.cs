@@ -1048,15 +1048,17 @@ namespace Application.Services
                 foreach( var projectDTO in projectDTOs)
                 {
                     projectDTO.AvgStarOfUser = await _context.Ratings
-                                .Where(r => r.RateToUserId == projectDTO.CreatedBy) // Lọc theo userId
-                                .Select(r => (double?)r.Star) // Chuyển đổi thành nullable double
+                                .Where(r => r.RateToUserId == projectDTO.CreatedBy)
+                                .Select(r => (double?)r.Star) 
                                 .AverageAsync() ?? 0;
 
                     projectDTO.Skill = await _context.ProjectSkills
                                 .Where(ps => ps.ProjectId == projectDTO.Id)
                                 .Select(ps => ps.Skill)
-                                .Select(s => s.SkillName) // Giả sử bạn có thuộc tính Name trong bảng Skill
+                                .Select(s => s.SkillName) 
                                 .ToListAsync();
+                    projectDTO.TotalBids = _context.Bids
+                       .Count(b => b.ProjectId == projectDTO.Id);
                 }
                 return projectDTOs;
             }

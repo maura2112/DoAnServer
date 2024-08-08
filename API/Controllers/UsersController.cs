@@ -367,7 +367,7 @@ namespace API.Controllers
         }
         [HttpPost]
         [Route(Common.Url.User.InputConfirmEmail)]
-        public async Task<ActionResult> InputConfirmEmail([FromBody] InputEmailConfirmDTO dto)
+        public async Task<ActionResult> InputConfirmEmail([FromBody] InputCodeConfirmDTO dto)
         {
             var uid = _currentUserService.UserId;
 

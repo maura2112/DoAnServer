@@ -69,11 +69,8 @@ namespace Infrastructure.Repositories
 
        async Task<int> INotificationRepository.GetNotificationMax()
         {
-            int maxNotificationId = await _context.Notifications
-        .OrderByDescending(x => x.NotificationId) 
-        .Select(x => x.NotificationId)
-        .FirstOrDefaultAsync();
-            return maxNotificationId;
+            var maxNotiId = await _context.Notifications.MaxAsync(x => x.NotificationId);
+            return maxNotiId;
         }
 
         async Task INotificationRepository.MarkToReadAllNotification(int userId)

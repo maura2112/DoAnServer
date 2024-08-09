@@ -52,6 +52,7 @@ namespace Application.Services
                             ProjectName = project.Title,
                             ProjectId = project.Id,
                         };
+
             var resultList = await query.ToListAsync();
             return resultList;
         }

@@ -23,7 +23,7 @@ namespace API.Controllers
         private readonly IProjectService _projectService;
         private readonly ApplicationDbContext _context;
         private readonly IHubContext<ChatHub> _chatHubContext;
-        public RatingsController(ICurrentUserService currentUserService, IRateTransactionService transactionService, IRatingService ratingService, IProjectService projectService, IRateTransactionRepository rateTransactionRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext)
+        public RatingsController(ICurrentUserService currentUserService, IRateTransactionService transactionService, IRatingService ratingService, IProjectService projectService, IRateTransactionRepository rateTransactionRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext, INotificationService notificationService, INotificationRepository notificationRepository)
         {
             _currentUserService = currentUserService;
             _transactionService = transactionService;
@@ -32,6 +32,8 @@ namespace API.Controllers
             _rateTransactionRepository = rateTransactionRepository;
             _context = context;
             _chatHubContext = chatHubContext;
+            _notificationService = notificationService;
+            _notificationRepository = notificationRepository;
         }
         [HttpPost]
         [Route(Common.Url.Rating.Rate)]
@@ -45,7 +47,7 @@ namespace API.Controllers
             var ratingTrasaction = await _transactionService.GetRateTransactionByUsers(rating.RateToUserId, userId);
             if(ratingTrasaction == null)
             {
-                return NotFound("Bạn không thể đánh giá người này");
+                return NotFound("Bạn không thể đánh giá người này-");
             }
             if(ratingTrasaction.User1IdRated == userId || ratingTrasaction.User2IdRated == userId)
             {
@@ -57,10 +59,10 @@ namespace API.Controllers
             {
                 ratingTrasaction.User1IdRated = userId;
             }
-
+            var maxNotiId = await _notificationRepository.GetNotificationMax() + 1;
             NotificationDto notificationDto = new NotificationDto()
             {
-                NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                NotificationId = maxNotiId,
                 SendId = userId,
                 SendUserName = _currentUserService.Name,
                 ProjectName = "",//k can cx dc

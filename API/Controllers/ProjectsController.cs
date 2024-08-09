@@ -315,9 +315,10 @@ namespace API.Controllers
                 }
             }else if(projectDTOs.StatusId == 9)
             {
+                var maxNotiId = await _notificationRepository.GetNotificationMax() + 1;
                 NotificationDto notificationDto = new NotificationDto()
                 {
-                    NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                    NotificationId = maxNotiId,
                     SendId = userId,
                     SendUserName = _currentUserService.Name,
                     ProjectName = projectDTOs.Title,//k can cx dc
@@ -641,11 +642,12 @@ namespace API.Controllers
             }
 
             var result = await _projectService.RejectTesting(projectId);
-            if (!result)
+            if (result)
             {
-                return BadRequest("Từ chối đợi kiệm thất bại");
+                return Ok("Từ chối hoàn thành dự án thành công");
+                
             }
-            return Ok("Từ chối hoàn thành dự án thành công");
+            return BadRequest("Từ chối đợi kiệm thất bại");
         }
 
         [HttpGet]

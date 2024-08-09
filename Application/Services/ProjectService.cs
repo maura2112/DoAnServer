@@ -494,10 +494,10 @@ namespace Application.Services
                 project.RejectReason = update.RejectReason;
                 project.RejectTimes = project.RejectTimes + 1;
             } // reject 
-            else if (update.StatusId == 9)
+            else if (update.StatusId == 9 && project.StatusId == 3)
             {
                 var BidAccepted = await _context.Bids.FirstOrDefaultAsync(x => x.ProjectId == update.ProjectId && x.AcceptedDate != null);
-                if (BidAccepted.UserId == userId && update.BidId == BidAccepted.Id)
+                if (BidAccepted.UserId == userId)
                 {
                     project.UpdatedDate = DateTime.Now;
                     project.StatusId = update.StatusId;
@@ -505,8 +505,12 @@ namespace Application.Services
                     var DTOAbout9 = _mapper.Map<ProjectDTO>(project);
                     var statusAbout9 = await _statusRepository.GetByIdAsync(DTOAbout9.StatusId);
                     DTOAbout9.ProjectStatus = statusAbout9 != null ? _mapper.Map<ProjectStatusDTO>(statusAbout9) : null;
-                    var result = await MakeDone((int)update.BidId);
+                    var result = await MakeDone((int)BidAccepted.ProjectId);
                     return DTOAbout9;
+                }
+                else
+                {
+                    return null;
                 }
             }
             project.UpdatedDate = DateTime.Now;
@@ -521,24 +525,19 @@ namespace Application.Services
         public async Task<bool> MakeDone(int id)
         {
             var userId = _currentUserService.UserId;
-            var bid = await _context.Bids.FirstOrDefaultAsync(x => x.Id == id);
-            if (bid == null || bid.UserId != userId || bid.AcceptedDate != null)
-            {
-                return false;
-            }
-            var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x => x.BidUserId == bid.UserId && x.ProjectId == bid.ProjectId);
+            var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x => x.BidUserId == userId && x.ProjectId == id);
             if (transaction != null)
             {
                 return false;
             }
             var transactionNew = new RateTransaction()
             {
-                ProjectId = bid.ProjectId,
+                ProjectId = id,
                 BidUserId = userId,
                 BidCompletedDate = DateTime.Now,
                 IsDeleted = false,
             };
-            _context.RateTransactions.Add(transactionNew);
+             await _context.RateTransactions.AddAsync(transactionNew);
             await _context.SaveChangesAsync();
             return true;
         }

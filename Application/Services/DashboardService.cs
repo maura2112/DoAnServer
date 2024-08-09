@@ -32,7 +32,7 @@ namespace Application.Services
             {
                 RecruiterDTO result = new RecruiterDTO()
                 {
-                    TotalProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId != 1 && x.IsDeleted == false),
+                    TotalProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.IsDeleted == false),
                     TotalCompletedProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 6 && x.IsDeleted == false),
                     TotalDoingProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 3 && x.IsDeleted == false),
                     TotalPendingProjects = await _context.Projects.CountAsync(x => x.CreatedBy == userId && x.StatusId == 1 && x.IsDeleted == false),

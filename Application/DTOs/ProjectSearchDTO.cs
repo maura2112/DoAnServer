@@ -51,7 +51,7 @@ namespace Application.DTOs
         public ProjectSearchDTOValidator()
         {
             RuleFor(v => v.Keyword)
-    .MaximumLength(50).When(v => v.Keyword != null)
+    .MaximumLength(500).When(v => v.Keyword != null)
     .WithMessage("Từ khóa không được vượt quá 50 kí tự");
         }
     }

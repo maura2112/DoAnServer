@@ -33,7 +33,8 @@ namespace API.Controllers
         private readonly INotificationRepository _notificationRepository;
         private readonly ApplicationDbContext _context;
         private readonly IHubContext<ChatHub> _chatHubContext;
-        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository, IBidRepository bidRepository, INotificationService notificationService, INotificationRepository notificationRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext)
+        private readonly UserManager<AppUser> _userManager;
+        public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService, ISkillService skillService, IProjectRepository projectRepository, IBidRepository bidRepository, INotificationService notificationService, INotificationRepository notificationRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext, UserManager<AppUser> userManager)
         {
             _projectService = projectService;
             _currentUserService = currentUserService;
@@ -44,6 +45,7 @@ namespace API.Controllers
             _notificationRepository = notificationRepository;
             _context = context;
             _chatHubContext = chatHubContext;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -233,7 +235,7 @@ namespace API.Controllers
                     Datetime = DateTime.Now,
                     NotificationType = 1,
                     IsRead = 0,
-                    Link = "project/" + projectId
+                    Link = "detail/" + projectId
                 };
                 bool x = await _notificationService.AddNotification(notificationDto);
                 if (x)
@@ -375,7 +377,7 @@ namespace API.Controllers
                 Datetime = DateTime.Now,
                 NotificationType = 1,
                 IsRead = 0,
-                Link = "project/" + bid.ProjectId
+                Link = "detail/" + bid.ProjectId
             };
             bool x = await _notificationService.AddNotification(notificationDto);
             if (x)
@@ -457,7 +459,12 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-
+            var userId = _currentUserService.UserId;
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user.AmoutProject <= 0)
+            {
+                return BadRequest("Bạn đã hết lượt đăng bài. Hãy mua thêm !");
+            }
             var project = await _projectService.Add(DTOs);
 
             if (project == null)
@@ -589,27 +596,30 @@ namespace API.Controllers
             var userId = _currentUserService.UserId;
 
 
-            NotificationDto notificationDto = new NotificationDto()
+            if (_currentUserService.HasRole("Admin"))
             {
-                NotificationId = await _notificationRepository.GetNotificationMax() + 1,
-                SendId = userId,
-                SendUserName = "Hệ thống GoodJob",
-                ProjectName = fetchedProject.Title,//k can cx dc
-                RecieveId = fetchedProject.CreatedBy,
-                Description = " đã xóa dự án của bạn vì 1 số lí do. Hãy liên hệ với chúng tôi !",
-                Datetime = DateTime.Now,
-                NotificationType = 1,
-                IsRead = 0,
-                Link = "#"
-            };
-            bool x = await _notificationService.AddNotification(notificationDto);
-            if (x)
-            {
-                var hubConnections = await _context.HubConnections
-                            .Where(con => con.userId == fetchedProject.CreatedBy).ToListAsync();
-                foreach (var hubConnection in hubConnections)
+                NotificationDto notificationDto = new NotificationDto()
                 {
-                    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                    NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                    SendId = userId,
+                    SendUserName = "Hệ thống GoodJob",
+                    ProjectName = fetchedProject.Title,//k can cx dc
+                    RecieveId = fetchedProject.CreatedBy,
+                    Description = " đã xóa dự án của bạn vì 1 số lí do. Hãy liên hệ với chúng tôi !",
+                    Datetime = DateTime.Now,
+                    NotificationType = 1,
+                    IsRead = 0,
+                    Link = "#"
+                };
+                bool x = await _notificationService.AddNotification(notificationDto);
+                if (x)
+                {
+                    var hubConnections = await _context.HubConnections
+                                .Where(con => con.userId == fetchedProject.CreatedBy).ToListAsync();
+                    foreach (var hubConnection in hubConnections)
+                    {
+                        await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                    }
                 }
             }
             return Ok(new ProjectResponse

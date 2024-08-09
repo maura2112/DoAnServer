@@ -49,6 +49,7 @@ namespace Application.Services
         private readonly IBidRepository _bidRepository;
 
 
+
         public ProjectService(IMapper mapper, IProjectRepository projectRepository, IUrlRepository urlRepository, IAppUserRepository appUserRepository, ICategoryRepository categoryRepository, IProjectSkillRepository projectSkillRepository, ICurrentUserService currentUserService, IAddressRepository addressRepository, IStatusRepository statusRepository, PaginationService<ProjectDTO> paginationService, ApplicationDbContext context, INotificationRepository notificationRepository, IBidRepository bidRepository)
         {
             _mapper = mapper;
@@ -984,6 +985,7 @@ namespace Application.Services
         public async Task<List<ProjectDTO>> ProjectHomePage()
         {
             var userId = _currentUserService.UserIdCan0;
+            var projectDTOs = new List<ProjectDTO>();
             if (userId == 0)
             {
                 var query = from p in _context.Projects
@@ -999,15 +1001,20 @@ namespace Application.Services
                                 MinBudget = p.MinBudget,
                                 MaxBudget = p.MaxBudget,
                                 Duration = p.Duration,
+                                CreatedDate = p.CreatedDate,
                                 Description = p.Description,
                                 StatusName = s.StatusName,
                                 StatusId = s.Id,
+                                CategoryId = p.CategoryId,
+                                CategoryName = p.Category.CategoryName,
+                                State = p.AppUser.Address.State,
+                                City = p.AppUser.Address.City,
+                                Country = p.AppUser.Address.Country,
                                 CreatedDateString = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
                                 TimeAgo = TimeAgoHelper.CalculateTimeAgo(p.CreatedDate),
                                 UserName = u.Name,
                             };
-                var list = await query.Take(5).ToListAsync();
-                return list;
+                projectDTOs = await query.Take(5).ToListAsync();
             }
             else
             {
@@ -1044,24 +1051,25 @@ namespace Application.Services
                             .Distinct()
                             .AsQueryable();
 
-                var projectDTOs = await projects.Where(x => x.IsDeleted != true && x.StatusId == 2).Take(5).OrderByDescending(x=>x.CreatedDate).ToListAsync();
-                foreach( var projectDTO in projectDTOs)
-                {
-                    projectDTO.AvgStarOfUser = await _context.Ratings
-                                .Where(r => r.RateToUserId == projectDTO.CreatedBy)
-                                .Select(r => (double?)r.Star) 
-                                .AverageAsync() ?? 0;
+                 projectDTOs = await projects.Where(x => x.IsDeleted != true && x.StatusId == 2 && x.CreatedBy != userId).Take(5).OrderByDescending(x=>x.CreatedDate).ToListAsync();
 
-                    projectDTO.Skill = await _context.ProjectSkills
-                                .Where(ps => ps.ProjectId == projectDTO.Id)
-                                .Select(ps => ps.Skill)
-                                .Select(s => s.SkillName) 
-                                .ToListAsync();
-                    projectDTO.TotalBids = _context.Bids
-                       .Count(b => b.ProjectId == projectDTO.Id);
-                }
-                return projectDTOs;
             }
+            foreach (var projectDTO in projectDTOs)
+            {
+                projectDTO.AvgStarOfUser = await _context.Ratings
+                            .Where(r => r.RateToUserId == projectDTO.CreatedBy)
+                            .Select(r => (double?)r.Star)
+                            .AverageAsync() ?? 0;
+
+                projectDTO.Skill = await _context.ProjectSkills
+                            .Where(ps => ps.ProjectId == projectDTO.Id)
+                            .Select(ps => ps.Skill)
+                            .Select(s => s.SkillName)
+                            .ToListAsync();
+                projectDTO.TotalBids = _context.Bids
+                   .Count(b => b.ProjectId == projectDTO.Id);
+            }
+            return projectDTOs;
         }
 
 

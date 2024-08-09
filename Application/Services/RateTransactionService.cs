@@ -32,6 +32,8 @@ namespace Application.Services
             filter = filter.And(item => item.BidCompletedDate != null);
             filter = filter.And(item => item.BidUserId == userId2 || item.BidUserId == userId1);
             filter = filter.And(item => item.User1IdRated == 0 || item.User2IdRated == 0);
+            filter = filter.And(item => item.User1IdRated != userCurrenId && item.User2IdRated != userCurrenId);
+
             var RateTransaction = await _repositoty.GetByFilter(filter);
             return RateTransaction;
         }

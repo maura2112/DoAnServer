@@ -6,7 +6,12 @@ using System.Collections.Generic;
     public partial class Conversation
     {
 
-        public int ConversationId { get; set; }
+        public Conversation()
+        {
+            Messages = new List<Message>();
+        }
+
+    public int ConversationId { get; set; }
         public int? User1 { get; set; }
         public int? User2 { get; set; }
 

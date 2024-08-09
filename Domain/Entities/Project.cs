@@ -10,6 +10,15 @@ namespace Domain.Entities
 {
     public class Project : BaseEntity
     {
+        public Project()
+        {
+            Bids = new List<Bid>();
+            Bookmarks = new List<Bookmark>();
+            UserProjects = new List<UserProject>();
+            ProjectSkills = new List<ProjectSkill>();
+            UserReports = new List<UserReport>();
+            FavoriteProjects = new List<FavoriteProject>();
+        }
         public string Title { get; set; }
         public int CategoryId { get; set; }
         public int MinBudget { get; set; }

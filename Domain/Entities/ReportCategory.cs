@@ -9,6 +9,10 @@ namespace Domain.Entities
 {
     public class ReportCategory : BaseEntity
     {
+        public ReportCategory()
+        {
+            UserReports = new List<UserReport>();
+        }
         public string Name { get; set; }
         public string Description { get; set; }
 

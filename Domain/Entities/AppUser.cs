@@ -10,7 +10,22 @@ namespace Domain.Entities
 {
     public class AppUser : IdentityUser<int>    
     {
-        
+        public AppUser()
+        {
+            Bids = new List<Bid>();
+            Bookmarks = new List<Bookmark>();
+            UserProjects = new List<UserProject>();
+            UserSkills = new List<UserSkill>();
+            MediaFiles = new List<MediaFile>();
+            UserReports = new List<UserReport>();
+            Blogs = new List<Blog>();
+            RecieveNavigations = new List<Notification>();
+            SendNavigations = new List<Notification>();
+            User1Navigations = new List<Conversation>();
+            FavoriteProjects = new List<FavoriteProject>();
+            User2Navigations = new List<Conversation>();
+            Senders = new List<Message>();
+        }
         public string Name { get; set; }
 
         public DateTime CreatedDate { get; set; }

@@ -9,6 +9,10 @@ namespace Domain.Entities
 {
     public class MediaFolder : BaseEntity
     {
+        public MediaFolder()
+        {
+            MediaFiles = new List<MediaFile>();
+        }
         public string Name { get; set; }
         public virtual ICollection<MediaFile> MediaFiles { get; set; }
     }

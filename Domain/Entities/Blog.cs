@@ -10,6 +10,10 @@ namespace Domain.Entities
 {
     public class Blog : BaseEntity
     {
+        public Blog()
+        {
+            RelatedBlogs = new List<RelatedBlog>();
+        }
         public int CreatedBy {get;set;}
         public string Title { get;set;}
         public string ShortDescription { get;set;}

@@ -10,6 +10,11 @@ namespace Domain.Entities
 {
     public class Skill : BaseEntity
     {
+        public Skill()
+        {
+            ProjectSkills = new List<ProjectSkill>();
+            UserSkills = new List<UserSkill>();
+        }
         public string SkillName { get; set; }
 
         public int CategoryId { get; set; }

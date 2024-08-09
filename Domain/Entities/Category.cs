@@ -10,6 +10,11 @@ namespace Domain.Entities
     public class Category  : BaseEntity
 
     {
+        public Category()
+        {
+            Projects = new List<Project>();
+            Skills = new List<Skill>();
+        }
         public int Id { get; set; }
         public string CategoryName { get; set; }
         public string Image { get; set; }

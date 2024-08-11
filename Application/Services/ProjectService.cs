@@ -26,6 +26,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Twilio.Rest.Api.V2010.Account;
 using static Application.Common.ProjectStatus;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using ProjectStatus = Application.Common.ProjectStatus;
@@ -557,23 +558,24 @@ namespace Application.Services
                 if (transaction != null)
                 {
                     transaction.ProjectAcceptedDate = DateTime.Now;
+                    transaction.ProjectId = project.Id;
                     _context.RateTransactions.Update(transaction);
                     await _context.SaveChangesAsync();
-                    return false;
-                }
-                transaction = new RateTransaction()
+                }else
                 {
-                    ProjectId = projectId,
-                    IsDeleted = false,
-                    ProjectUserId = project.CreatedBy,
-                    BidUserId = bid.UserId,
-                    //Rated = false,
-                    BidCompletedDate = DateTime.Now,
-                    ProjectAcceptedDate = DateTime.Now,
-                };
-                await _context.RateTransactions.AddAsync(transaction);
-                await _context.SaveChangesAsync();
-
+                    transaction = new RateTransaction()
+                    {
+                        ProjectId = projectId,
+                        IsDeleted = false,
+                        ProjectUserId = project.CreatedBy,
+                        BidUserId = bid.UserId,
+                        //Rated = false,
+                        BidCompletedDate = DateTime.Now,
+                        ProjectAcceptedDate = DateTime.Now,
+                    };
+                    await _context.RateTransactions.AddAsync(transaction);
+                    await _context.SaveChangesAsync();
+                }
                 project.StatusId = 6;
                 project.UpdatedDate = DateTime.UtcNow;
                 _context.Projects.Update(project);
@@ -602,6 +604,7 @@ namespace Application.Services
                         {
                             Project = g.Key,
                             Title = g.Key.Title,
+                            Duration = g.Key.Duration,
                             Description = g.Key.Description,
                             SkillNames = g.Select(x => x.s != null ? x.s.SkillName : (string?)null).Where(skillName => skillName != null).ToList(),
                             Skills = string.Join(", ", g.Select(x => x.s != null ? x.s.SkillName : null).Where(skillName => skillName != null)),
@@ -617,6 +620,10 @@ namespace Application.Services
             if (dto.CategoryId != null)
             {
                 queryFilter = queryFilter.Where(x => x.Project.CategoryId == dto.CategoryId);
+            }
+            if (dto.Duration !=  null)
+            {
+                queryFilter = queryFilter.Where(x =>  dto.Duration >= x.Duration);
             }
             if (dto.Skills != null && dto.Skills.Any())
             {
@@ -757,7 +764,7 @@ namespace Application.Services
                         join p in _context.Projects on b.ProjectId equals p.Id
                         join s in _context.ProjectStatus on p.StatusId equals s.Id
                         join u in _context.Users on p.CreatedBy equals u.Id
-                        where b.UserId == search.userId
+                        where b.UserId == search.userId && p.IsDeleted != true
                         select new ProjectBidDTO
                         {
                             ProjectName = p.Title,
@@ -1070,6 +1077,14 @@ namespace Application.Services
             }
             return projectDTOs;
         }
+
+
+        //public async Task<Pagination<ProjectDTO>> GetUserRating()
+        //{
+        //    var userId = _currentUserService.UserId;
+        //    var userRatings = from r in _context.RateTransactions
+        //                      join u1 in _context.Users on r.U
+        //}
 
 
     }

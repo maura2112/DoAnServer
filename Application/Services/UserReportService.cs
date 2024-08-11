@@ -62,21 +62,30 @@ namespace Application.Services
 
                 if(report.BidId != null) {
                     var Bid = _bidService.GetBidById((long)report.BidId);
-                    var userBid = _userManager.FindByIdAsync(Bid.Result.UserId.ToString());
-                    reportDTO.BidUser = userBid.Result.Name;
+                    if(Bid.Result != null)
+                    {
+                        var userBid = _userManager.FindByIdAsync(Bid.Result.UserId.ToString());
+                        reportDTO.BidUser = userBid.Result.Name;
+                    }
                 }else if(report.ProjectId != null) {
                     var project = _projectService.GetDetailProjectForId((int)report.ProjectId);
-                    reportDTO.ProjectName = project.Result.Title;
-                    var userProject = _userManager.FindByIdAsync(project.Result.CreatedBy.ToString());
-                    reportDTO.ProjectUser = userProject.Result.Name;
+                    if(project.Result != null)
+                    {
+                        reportDTO.ProjectName = project.Result.Title;
+                        var userProject = _userManager.FindByIdAsync(project.Result.CreatedBy.ToString());
+                        reportDTO.ProjectUser = userProject.Result.Name;
+                    }
                 }else if (report.UserReportedId != null)
                 {
                     var user =  _userManager.FindByIdAsync(report.UserReportedId.ToString());
-                    reportDTO.UserReportedName =  user.Result.Name; 
-                    reportDTO.UserReportedId = user.Result.Id;
+                    if(user.Result != null)
+                    {
+                        reportDTO.UserReportedName = user.Result.Name;
+                        reportDTO.UserReportedId = user.Result.Id;
+                    }
                 }
                 return reportDTO;
-            }).ToList();
+            }).Where(x=>x.UserReportedName != null || x.ProjectName != null || x.BidUser != null ).ToList();
 
             if (searchDTO.typeDes != null)
             {

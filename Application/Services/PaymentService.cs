@@ -196,6 +196,12 @@ namespace Application.Services
             {
                 transactions = transactions.Where(x => x.User.Email.ToLower().Contains(search.Email.ToLower()));
             }
+
+            if (search.counterAccountName != null)
+            {
+                transactions = transactions.Where(x => x.CounterAccountName.ToLower().Contains(search.counterAccountName.ToLower()));
+            }
+
             if (search.Type != null)
             {
                 transactions = transactions.Where(x => x.Type.Equals(search.Type));

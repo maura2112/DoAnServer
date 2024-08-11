@@ -427,6 +427,7 @@ namespace API.Controllers
             {
                 filter = filter.And(item => item.StatusId == projects.StatusId);
             }
+            filter = filter.And(item => item.IsDeleted != true);
             return Ok(await _projectService.GetByUserId(filter, projects.PageIndex, projects.PageSize));
         }
 

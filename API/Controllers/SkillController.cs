@@ -46,13 +46,16 @@ namespace API.Controllers
             {
                 filter = item => item.CategoryId == skills.CategoryId;
             }
-            return Ok(await _skillService.GetWithFilter(filter, 1, int.MaxValue));
+            var skillFilters = await _skillService.GetWithFilter(filter, 1, int.MaxValue);
+            skillFilters.Items.OrderBy(x => x.SkillName);
+            return Ok(skillFilters);
         }
         [HttpGet]
         [Route(Common.Url.Skill.All)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _skillService.GetAll());
+            var skills = await _skillService.GetAll();
+            return Ok(skills.OrderBy(x=>x.SkillName));
         }
 
         [HttpGet]
@@ -67,7 +70,7 @@ namespace API.Controllers
             {
                 skills = await _skillRepository.GetsByNameAsync(skillname);
             }
-            return Ok(skills);
+            return Ok(skills.OrderBy(x=>x.SkillName));
         }
 
         [HttpGet]

@@ -115,7 +115,7 @@ namespace API.Controllers
         public async Task<IActionResult> SendMessage(ChatDto chatDto)
         {
             Message message = _mapper.Map<Message>(chatDto);
-            message.SendDate = DateTime.Now;
+            message.SendDate = DateTime.UtcNow;
             message.IsRead = 0;
 
             await _context.AddAsync(message);

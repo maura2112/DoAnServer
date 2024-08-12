@@ -172,7 +172,7 @@ namespace API.Controllers
                             ProjectName = bid.Project.Title,//k can cx dc
                             RecieveId = bid.Project.CreatedBy,
                             Description = "đã đấu thầu dự án của bạn .",
-                            Datetime = DateTime.Now,
+                            Datetime = DateTime.UtcNow,
                             NotificationType = 1,
                             IsRead = 0,
                             Link = "/detail/"+bid.ProjectId

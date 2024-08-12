@@ -9,6 +9,7 @@ using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
@@ -18,6 +19,7 @@ using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
@@ -461,6 +463,8 @@ namespace Application.Services
                 projectDTO.AppUser.Address = _mapper.Map<AddressDTO>(address);
             }
             //status
+
+
             var status = await _statusRepository.GetByIdAsync(projectDTO.StatusId);
             projectDTO.ProjectStatus = status != null ? _mapper.Map<ProjectStatusDTO>(status) : null;
             //Skill
@@ -500,7 +504,7 @@ namespace Application.Services
                 var BidAccepted = await _context.Bids.FirstOrDefaultAsync(x => x.ProjectId == update.ProjectId && x.AcceptedDate != null);
                 if (BidAccepted.UserId == userId)
                 {
-                    project.UpdatedDate = DateTime.Now;
+                    project.UpdatedDate = DateTime.UtcNow;
                     project.StatusId = update.StatusId;
                     _projectRepository.Update(project);
                     var DTOAbout9 = _mapper.Map<ProjectDTO>(project);
@@ -514,7 +518,7 @@ namespace Application.Services
                     return null;
                 }
             }
-            project.UpdatedDate = DateTime.Now;
+            project.UpdatedDate = DateTime.UtcNow;
             project.StatusId = update.StatusId;
             _projectRepository.Update(project);
             var DTO = _mapper.Map<ProjectDTO>(project);
@@ -535,7 +539,7 @@ namespace Application.Services
             {
                 ProjectId = id,
                 BidUserId = userId,
-                BidCompletedDate = DateTime.Now,
+                BidCompletedDate = DateTime.UtcNow,
                 IsDeleted = false,
             };
              await _context.RateTransactions.AddAsync(transactionNew);
@@ -557,7 +561,7 @@ namespace Application.Services
                 var transaction = await _context.RateTransactions.FirstOrDefaultAsync(x => x.ProjectId == projectId);
                 if (transaction != null)
                 {
-                    transaction.ProjectAcceptedDate = DateTime.Now;
+                    transaction.ProjectAcceptedDate = DateTime.UtcNow;
                     transaction.ProjectId = project.Id;
                     _context.RateTransactions.Update(transaction);
                     await _context.SaveChangesAsync();
@@ -570,8 +574,8 @@ namespace Application.Services
                         ProjectUserId = project.CreatedBy,
                         BidUserId = bid.UserId,
                         //Rated = false,
-                        BidCompletedDate = DateTime.Now,
-                        ProjectAcceptedDate = DateTime.Now,
+                        BidCompletedDate = DateTime.UtcNow,
+                        ProjectAcceptedDate = DateTime.UtcNow,
                     };
                     await _context.RateTransactions.AddAsync(transaction);
                     await _context.SaveChangesAsync();
@@ -695,7 +699,7 @@ namespace Application.Services
             project.MinBudget = request.MinBudget;
             project.MaxBudget = request.MaxBudget;
             project.Duration = request.Duration;
-            project.UpdatedDate = DateTime.Now; // update the updated date
+            project.UpdatedDate = DateTime.UtcNow; // update the updated date
             //project.CreatedBy = request.CreatedBy;
             project.Description = request.Description;
             //mediafile
@@ -807,7 +811,7 @@ namespace Application.Services
             {
                 AppUserId = (int)create.UserId,
                 ProjectId = create.ProjectId,
-                SavedDate = DateTime.Now,
+                SavedDate = DateTime.UtcNow,
             };
             await _context.FavoriteProjects.AddAsync(fa);
             await _context.SaveChangesAsync();
@@ -1079,12 +1083,41 @@ namespace Application.Services
         }
 
 
-        //public async Task<Pagination<ProjectDTO>> GetUserRating()
-        //{
-        //    var userId = _currentUserService.UserId;
-        //    var userRatings = from r in _context.RateTransactions
-        //                      join u1 in _context.Users on r.U
-        //}
+        public async Task<Pagination<UserRateDTO>> GetUserRating(SearchDTO search)
+        {
+            var userId = _currentUserService.UserId;
+            var userName = _currentUserService.Name;
+            var query = from r in _context.RateTransactions
+                              join u1 in _context.Users on r.ProjectUserId equals u1.Id
+                              join u2 in _context.Users on r.BidUserId equals u2.Id
+                              join p in _context.Projects on r.ProjectId equals p.Id
+                              join b in _context.Bids.Where(bid => bid.AcceptedDate != null) on p.Id equals b.ProjectId
+                              where (u1.Id == userId || u2.Id == userId) && (r.User1IdRated != userId && r.User2IdRated != userId) && r.ProjectAcceptedDate != null
+                              orderby r.ProjectAcceptedDate descending
+                              select new UserRateDTO
+                              {
+                                  ProjectId = (int)r.ProjectId,
+                                  ProjectName = p.Title,
+                                  ProjectCreatedId =(int) p.CreatedBy,
+                                  Avatar = (userId == u1.Id) ? u2.Avatar : u1.Avatar,
+                                  UserRatedId = (userId == u1.Id) ? u2.Id : u1.Id,
+                                  UserRatedName = (userId == u1.Id) ? u2.Name : u1.Name,
+                                  Budget = b.Budget,
+                                  DoneDate = DateTimeHelper.ToVietnameseDateString(r.ProjectAcceptedDate),
+                                  Duration = b.Duration,
+                              };
+
+            var totalItem = await query.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
+            var result = new Pagination<UserRateDTO>()
+            {
+                PageSize = search.PageSize,
+                PageIndex = search.PageIndex,
+                TotalItemsCount = query.Count(),
+                Items = totalItem,
+            };
+            return result;
+
+        }
 
 
     }

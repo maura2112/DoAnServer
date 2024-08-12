@@ -31,7 +31,7 @@ namespace Application.Services
         public async Task<Blog> CreateBlog(BlogCreateDTO dto)
         {
             var blog = _mapper.Map<Blog>(dto);
-            blog.CreatedDate = DateTime.Now;
+            blog.CreatedDate = DateTime.UtcNow;
             await _context.Blogs.AddAsync(blog);
             await _context.SaveChangesAsync();
             return blog;
@@ -57,8 +57,8 @@ namespace Application.Services
                              IsHot = b.IsHot,
                              IsPublished = b.IsPublished,
                              BlogImage = b.BlogImage,
-                             CreateDate = b.CreatedDate,
-                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
+                             CreateDate = b.CreatedDate.ToLocalTime(),
+                             CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate.ToLocalTime()),
                          });
 
             if (search.AuthorName != null)
@@ -111,8 +111,8 @@ namespace Application.Services
                                      CategoryName = c.CategoryName,
                                      Author = u.Name,
                                      BlogImage = b.BlogImage,
-                                     CreateDate = b.CreatedDate,
-                                     CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate),
+                                     CreateDate = b.CreatedDate.ToLocalTime(),
+                                     CreateTime = DateTimeHelper.ToVietnameseDateString(b.CreatedDate.ToLocalTime()),
                                  }).FirstOrDefaultAsync();
             blogDTO.relateds = await RelatedBlogs(blogDTO.BlogId);
             return blogDTO;
@@ -128,7 +128,7 @@ namespace Application.Services
                             Image = b2.BlogImage,
                             BlogId = b2.Id,
                             BlogName = b2.Title,
-                            DateString = DateTimeHelper.ToVietnameseDateString(b2.CreatedDate),
+                            DateString = DateTimeHelper.ToVietnameseDateString(b.CreatedDate.ToLocalTime()),
                         };
 
             var result = await query.ToListAsync();
@@ -238,7 +238,7 @@ namespace Application.Services
                                         BlogId = x.Id,
                                         BlogName = x.Title,
                                         DateString = DateTimeHelper.ToVietnameseDateString(x.CreatedDate),
-                                       CreateDate =x.CreatedDate
+                                       CreateDate =x.CreatedDate.ToLocalTime()
                                    })
                                    .ToListAsync();
             var nextCursor = blogs.Any() ? blogs.Last().CreateDate.ToString() : null;

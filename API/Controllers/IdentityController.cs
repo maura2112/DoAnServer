@@ -122,7 +122,7 @@ namespace API.Controllers
                 });
             }
 
-            if (user.LockoutEnd > DateTime.Now)
+            if (user.LockoutEnd > DateTime.UtcNow)
             {
                 return BadRequest(new
                 {

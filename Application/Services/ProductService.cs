@@ -37,8 +37,8 @@ namespace Application.Services
         public async Task<int> Add(ProductDTO request)
         {
             var product = _mapper.Map<Product>(request);
-            product.DateCreated = DateTime.Now;
-            product.DateUpdated = DateTime.Now;
+            product.DateCreated = DateTime.UtcNow;
+            product.DateUpdated = DateTime.UtcNow;
             await _productRepository.AddAsync(product);
             var urlRecord = product.CreateUrlRecordAsync("san-pham" , product.Title);
             await _urlRepository.AddAsync(urlRecord);

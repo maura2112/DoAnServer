@@ -14,7 +14,8 @@ public class MapProfile : Profile
         CreateMap<Product, ProductDTO>().ReverseMap();
         CreateMap<Pagination<Product>, Pagination<ProductDTO>>().ReverseMap();
 
-        CreateMap<Project, ProjectDTO>().ReverseMap();
+        CreateMap<Project, ProjectDTO>().ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate != null ? src.CreatedDate.ToLocalTime() : DateTime.MinValue))
+    .ReverseMap(); ;
         CreateMap<Pagination<Project>, Pagination<ProjectDTO>>().ReverseMap();
         //add project
         CreateMap<Project, AddProjectDTO>().ReverseMap();
@@ -23,11 +24,13 @@ public class MapProfile : Profile
         CreateMap<Project, UpdateProjectDTO>().ReverseMap();
         CreateMap<ProjectDTO, UpdateProjectDTO>().ReverseMap();
         //Notification
-        CreateMap<Notification, NotificationDto>().ReverseMap();
+        CreateMap<Notification, NotificationDto>()
+    .ForMember(dest => dest.Datetime, opt => opt.MapFrom(src => src.Datetime.HasValue ? src.Datetime.Value.ToLocalTime() : DateTime.MinValue))
+    .ReverseMap();
         CreateMap<Message, ChatDto>().ReverseMap();
         CreateMap<Pagination<Message>, Pagination<ChatDto>>().ReverseMap();
 
-        CreateMap<Bid, BidDTO>().ReverseMap();
+        CreateMap<Bid, BidDTO>().ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate != null ? src.CreatedDate.ToLocalTime() : DateTime.MinValue)).ReverseMap();
         CreateMap<Pagination<Bid>, Pagination<BidDTO>>().ReverseMap();
         //add bidding
         CreateMap<Bid, BiddingDTO>().ReverseMap();
@@ -40,8 +43,8 @@ public class MapProfile : Profile
         CreateMap<Category, UpdateCategoryDTO>().ReverseMap();
         CreateMap<Pagination<Category>, Pagination<CategoryDTO>>().ReverseMap();
 
-        CreateMap<AppUser, AppUserDTO>().ReverseMap();
-        CreateMap<AppUser, AppUserDTO2>().ReverseMap();
+        CreateMap<AppUser, AppUserDTO>().ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate != null ? src.CreatedDate.ToLocalTime() : DateTime.MinValue)).ReverseMap();
+        CreateMap<AppUser, AppUserDTO2>().ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate != null ? src.CreatedDate.ToLocalTime() : DateTime.MinValue)).ReverseMap();
 
         CreateMap<Rating, RatingDTO>().ReverseMap();
 

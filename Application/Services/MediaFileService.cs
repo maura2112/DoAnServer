@@ -23,7 +23,7 @@ namespace Application.Services
             {
                 FileName = mediaFile.FileName,
                 UserId = mediaFile.UserId,
-                CreateAt = DateTime.Now,
+                CreateAt = DateTime.UtcNow,
                 Description = mediaFile.Description,
                 Title = mediaFile.Title,
             };

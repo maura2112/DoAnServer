@@ -43,7 +43,7 @@ namespace Application.Services
         public async Task CreateReport(ReportCreateDTO dto)
         {
             var userReport = _mapper.Map<UserReport>(dto);
-            userReport.CreatedDate = DateTime.Now;
+            userReport.CreatedDate = DateTime.UtcNow;
             await _repository.AddAsync(userReport);
         }
 

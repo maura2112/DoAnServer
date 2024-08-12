@@ -232,7 +232,7 @@ namespace API.Controllers
                     ProjectName = "",//k can cx dc
                     RecieveId = bid.UserId,
                     Description = "đã chấp nhận hoàn thành dự án !",
-                    Datetime = DateTime.Now,
+                    Datetime = DateTime.UtcNow,
                     NotificationType = 1,
                     IsRead = 0,
                     Link = "/detail/" + projectId
@@ -271,7 +271,7 @@ namespace API.Controllers
                     ProjectName = projectDTOs.Title,//k can cx dc
                     RecieveId = projectDTOs.CreatedBy,
                     Description = "đã từ chối dự án của bạn",
-                    Datetime = DateTime.Now,
+                    Datetime = DateTime.UtcNow,
                     NotificationType = 1,
                     IsRead = 0,
                     Link = "/detail/" + projectDTOs.Id
@@ -298,7 +298,7 @@ namespace API.Controllers
                     ProjectName = projectDTOs.Title,//k can cx dc
                     RecieveId = projectDTOs.CreatedBy,
                     Description = "đã duyệt dự án của bạn",
-                    Datetime = DateTime.Now,
+                    Datetime = DateTime.UtcNow,
                     NotificationType = 1,
                     IsRead = 0,
                     Link = "/detail/" + projectDTOs.Id
@@ -324,7 +324,7 @@ namespace API.Controllers
                     ProjectName = projectDTOs.Title,//k can cx dc
                     RecieveId = projectDTOs.CreatedBy,
                     Description = "đã hoàn thành dự án của bạn. Hãy kiểm tra lại để hoàn thành hoặc từ chối !",
-                    Datetime = DateTime.Now,
+                    Datetime = DateTime.UtcNow,
                     NotificationType = 1,
                     IsRead = 0,
                     Link = "/detail/" + projectDTOs.Id
@@ -375,7 +375,7 @@ namespace API.Controllers
                 ProjectName = "",//k can cx dc
                 RecieveId = bid.UserId,
                 Description = "đã chấp nhận dự thầu của bạn !",
-                Datetime = DateTime.Now,
+                Datetime = DateTime.UtcNow,
                 NotificationType = 1,
                 IsRead = 0,
                 Link = "/detail/" + bid.ProjectId
@@ -391,8 +391,8 @@ namespace API.Controllers
                 }
             }
 
-            bid.AcceptedDate = DateTime.Now;
-            bid.UpdatedDate = DateTime.Now;
+            bid.AcceptedDate = DateTime.UtcNow;
+            bid.UpdatedDate = DateTime.UtcNow;
             _bidRepository.Update(bid);
             project.StatusId =(int) Application.Common.ProjectStatus.StatusId.Close; //
             _projectRepository.Update(project);
@@ -609,7 +609,7 @@ namespace API.Controllers
                     ProjectName = fetchedProject.Title,//k can cx dc
                     RecieveId = fetchedProject.CreatedBy,
                     Description = " đã xóa dự án của bạn vì 1 số lí do. Hãy liên hệ với chúng tôi !",
-                    Datetime = DateTime.Now,
+                    Datetime = DateTime.UtcNow,
                     NotificationType = 1,
                     IsRead = 0,
                     Link = "#"
@@ -645,6 +645,33 @@ namespace API.Controllers
             var result = await _projectService.RejectTesting(projectId);
             if (result)
             {
+                var bid = await _context.Bids.FirstOrDefaultAsync(x=>x.AcceptedDate != null && x.ProjectId == projectId);
+                if (bid != null)
+                {
+                    NotificationDto notificationDto = new NotificationDto()
+                    {
+                        NotificationId = await _notificationRepository.GetNotificationMax() + 1,
+                        SendId = _currentUserService.UserId,
+                        SendUserName = _currentUserService.Name,
+                        ProjectName = "",//k can cx dc
+                        RecieveId = bid.UserId,
+                        Description = "đã từ chối dự án của bạn. Hãy kiểm tra lại",
+                        Datetime = DateTime.UtcNow,
+                        NotificationType = 1,
+                        IsRead = 0,
+                        Link = "/detail/" + bid.ProjectId
+                    };
+                    bool x = await _notificationService.AddNotification(notificationDto);
+                    if (x)
+                    {
+                        var hubConnections = await _context.HubConnections
+                                    .Where(con => con.userId == bid.UserId).ToListAsync();
+                        foreach (var hubConnection in hubConnections)
+                        {
+                            await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
+                        }
+                    }
+                }
                 return Ok("Từ chối hoàn thành dự án thành công");
                 
             }
@@ -659,5 +686,12 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("GetUserRate")]
+        public async Task<IActionResult> GetUserRate([FromQuery]SearchDTO search)
+        {
+            var result = await _projectService.GetUserRating(search);
+            return Ok(result);
+        }
     }
 }

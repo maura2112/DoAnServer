@@ -23,7 +23,7 @@ namespace API.Controllers
         [Route(Common.Url.Export.ExportStatistic)]
         public async Task<IActionResult> GenerateExcel(bool isChat)
         {
-            var currentDate = DateTime.Now;
+            var currentDate = DateTime.UtcNow;
             var fileName = $"Báo cáo thống kê ({DateTimeHelper.ToVietnameseOnlyDateString(currentDate)}).xlsx";
             var fileStream = await _exportService.GenerateExcelFileStream(fileName, isChat);
 

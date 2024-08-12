@@ -54,7 +54,7 @@ namespace Application.Services
             {
                 skill.CreatedBy = request.CreatedBy;
             }
-            skill.CreatedDate = DateTime.Now;
+            skill.CreatedDate = DateTime.UtcNow;
             //media file
             await _skillRepository.AddAsync(skill);
             return skill.Id;
@@ -70,7 +70,7 @@ namespace Application.Services
             skill.CategoryId = request.CategoryId;
             skill.SkillName = request.SkillName;
             skill.IsDeleted = request.IsDeleted;
-            skill.UpdatedDate = DateTime.Now;
+            skill.UpdatedDate = DateTime.UtcNow;
             //media file
             _skillRepository.Update(skill);
             return skill.Id;

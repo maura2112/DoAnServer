@@ -190,7 +190,7 @@ namespace Application.Services
             project.StatusId = 2;
             _projectRepository.Update(project);
 
-            bid.AcceptedDate = DateTime.Now;
+            bid.AcceptedDate = DateTime.UtcNow;
             _bidRepository.Update(bid);
             var bidDTO = _mapper.Map<BidDTO>(bid);
             

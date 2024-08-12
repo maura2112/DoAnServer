@@ -67,6 +67,8 @@ namespace Application.IServices
 
         Task<List<ProjectDTO>> ProjectHomePage();
 
+        Task<Pagination<UserRateDTO>> GetUserRating(SearchDTO search);
+
 
 
         //Task<int> CreateAsync(Project request);

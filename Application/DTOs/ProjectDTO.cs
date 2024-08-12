@@ -101,6 +101,26 @@ namespace Application.DTOs
 
     }
 
+    public class UserRateDTO
+    {
+        public string ProjectName { get; set; }
+
+        public int ProjectCreatedId { get; set; }
+
+        public int ProjectId { get; set; }
+
+        public int UserRatedId { get; set; }
+        public string UserRatedName { get; set; }
+
+        public string? Avatar { get; set; } 
+
+        public string DoneDate { get; set; }
+
+        public int Duration { get; set; }
+
+        public int Budget { get; set; }
+    }
+
     public class ProjectDTOValidator : AbstractValidator<ProjectDTO>
     {
         public ProjectDTOValidator()

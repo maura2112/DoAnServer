@@ -68,7 +68,7 @@ namespace API.Controllers
                 ProjectName = "",//k can cx dc
                 RecieveId = rating.RateToUserId,
                 Description = "đã đánh giá bạn !",
-                Datetime = DateTime.Now,
+                Datetime = DateTime.UtcNow,
                 NotificationType = 1,
                 IsRead = 0,
                 Link = "profile/" + rating.RateToUserId

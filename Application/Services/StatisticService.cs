@@ -69,7 +69,7 @@ namespace Application.Services
             var listBlockedFreelancer = 0;
             foreach (var item in listBlockedUserIdFreelancer)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.UtcNow);
                 if (user != null)
                 {
                     listBlockedFreelancer++;
@@ -79,7 +79,7 @@ namespace Application.Services
             var listBlockedRecruiter = 0;
             foreach (var item in listBlockedUserIdRecruiter)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.UtcNow);
                 if (user != null)
                 {
                     listBlockedRecruiter++;
@@ -116,7 +116,7 @@ namespace Application.Services
 
         public async Task<List<NewUser>> GetNewUserData()
         {
-            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
 
             var newUserCounts = await _context.Users
                 .Join(_context.UserRoles,
@@ -306,7 +306,7 @@ namespace Application.Services
             var listBlockedFreelancer = 0;
             foreach (var item in listBlockedUserIdFreelancer)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.UtcNow);
                 if (user != null)
                 {
                     listBlockedFreelancer++;
@@ -316,7 +316,7 @@ namespace Application.Services
             var listBlockedRecruiter = 0;
             foreach (var item in listBlockedUserIdRecruiter)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.Now);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId && x.LockoutEnd > DateTime.UtcNow);
                 if (user != null)
                 {
                     listBlockedRecruiter++;

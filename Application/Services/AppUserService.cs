@@ -107,7 +107,7 @@ namespace Application.Services
         public async Task<UserDTO> ProcessUserDto(AppUser user)
         {
             var userDTO = _mapper.Map<UserDTO>(user);
-            if (userDTO.LockoutEnd > DateTime.Now && userDTO.LockoutEnabled != true)
+            if (userDTO.LockoutEnd > DateTime.UtcNow && userDTO.LockoutEnabled != true)
             {
                 userDTO.IsLock = true;
             }

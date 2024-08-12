@@ -82,7 +82,7 @@ namespace Application.Services
                 worksheet.Cells[1, 1].Style.Font.Size = 15; // Chỉnh kích thước chữ
                 worksheet.Cells[1, 1].Style.Font.Bold = true; // Tô đậm chữ
 
-                worksheet.Cells[2, 1].Value = $"Ngày tạo: {DateTime.Now}";
+                worksheet.Cells[2, 1].Value = $"Ngày tạo: {DateTime.UtcNow}";
                 worksheet.Cells[2, 1, 2, 20].Merge = true; // Merge các ô từ A2 đến cột cuối cùng của hàng 2
                 worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Căn giữa
                 worksheet.Cells[2, 1].Style.Font.Size = 13; // Chỉnh kích thước chữ
@@ -224,7 +224,7 @@ namespace Application.Services
                 worksheet2.Cells[1, 1].Style.Font.Size = 15;
                 worksheet2.Cells[1, 1].Style.Font.Bold = true;
 
-                worksheet2.Cells[2, 1].Value = $"Ngày tạo: {DateTime.Now}";
+                worksheet2.Cells[2, 1].Value = $"Ngày tạo: {DateTime.UtcNow}";
                 worksheet2.Cells[2, 1, 2, 20].Merge = true;
                 worksheet2.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet2.Cells[2, 1].Style.Font.Size = 13;

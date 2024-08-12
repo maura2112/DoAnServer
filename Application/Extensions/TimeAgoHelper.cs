@@ -10,7 +10,7 @@ namespace Application.Extensions
     {
         public static string CalculateTimeAgo(DateTime createdDate)
         {
-            var timeSpan = DateTime.Now - createdDate;
+            var timeSpan = DateTime.UtcNow - createdDate;
 
             if (timeSpan.TotalSeconds < 60)
                 return $"{timeSpan.Seconds} giây trước";

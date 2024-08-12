@@ -60,7 +60,7 @@ namespace Application.Services
             {
                 FileName = mediaFile.FileName,
                 UserId = userId,
-                CreateAt = DateTime.Now,
+                CreateAt = DateTime.UtcNow,
                 Description = mediaFile.Description,
                 Title = mediaFile.Title,
             };

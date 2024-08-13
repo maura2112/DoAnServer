@@ -27,7 +27,9 @@ public class MapProfile : Profile
         CreateMap<Notification, NotificationDto>()
     .ForMember(dest => dest.Datetime, opt => opt.MapFrom(src => src.Datetime.HasValue ? src.Datetime.Value.ToLocalTime() : DateTime.MinValue))
     .ReverseMap();
-        CreateMap<Message, ChatDto>().ReverseMap();
+        CreateMap<Message, ChatDto>()
+            .ForMember(dest => dest.SendDate, opt => opt.MapFrom(src => src.SendDate.HasValue ? src.SendDate.Value.ToLocalTime() : DateTime.MinValue))
+            .ReverseMap();
         CreateMap<Pagination<Message>, Pagination<ChatDto>>().ReverseMap();
 
         CreateMap<Bid, BidDTO>().ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate != null ? src.CreatedDate.ToLocalTime() : DateTime.MinValue)).ReverseMap();

@@ -169,11 +169,11 @@ namespace Application.DTOs
             RuleFor(v => v.MinBudget)
                 .NotEmpty().WithMessage("Ngân sách tối thiểu không được để trống")
                 .GreaterThan(0).WithMessage("Ngân sách tối thiểu phải lớn hơn 0")
-                .LessThan(1000000000).WithMessage("Ngân sách tối thiểu phải nhỏ hơn 1B");
+                .LessThan(v => v.MaxBudget).WithMessage("Ngân sách tối thiểu phải nhỏ hơn ngân sách tối đa");
             RuleFor(v => v.MaxBudget)
                 .NotEmpty().WithMessage("Ngân sách tối đa không được để trống")
                 .GreaterThan(0).WithMessage("Ngân sách tối đa phải lớn hơn 0")
-                .LessThan(2000000000).WithMessage("Ngân sách phải nhỏ hơn 2B")
+                .LessThan(50000000).WithMessage("Ngân sách phải nhỏ hơn 50 triệu")
                 .GreaterThan(v => v.MinBudget).WithMessage("Ngân sách tối đa phải lớn hơn ngân sách tối thiểu");
             RuleFor(v => v.Duration)
                 .NotEmpty().WithMessage("Thời lượng không được để trống")

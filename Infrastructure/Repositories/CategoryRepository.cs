@@ -62,6 +62,7 @@ namespace Infrastructure.Repositories
         {
             var items = await _dbSet
                 .Where(x=>x.IsDeleted == false)
+                .OrderBy(item => item.Id == 4 ? 1 : 0).ThenBy(item => item.Id)
                 .AsNoTracking()
                 .ToListAsync();
             return items;

@@ -151,13 +151,6 @@ namespace API.Controllers
                     await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("HaveMessage", 1);
                 }
             }
-
-
-
-
-
-
-
             return Ok();
         }
 

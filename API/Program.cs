@@ -95,7 +95,7 @@ namespace API
             
             app.UseSwagger();
             app.UseSwaggerUI();
-            app.UseMiddleware<RouteMiddleware>();
+            //app.UseMiddleware<RouteMiddleware>();
             app.UseHttpsRedirection();
             app.MapHub<ChatHub>("/chat");
 

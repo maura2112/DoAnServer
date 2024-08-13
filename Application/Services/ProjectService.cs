@@ -563,6 +563,7 @@ namespace Application.Services
                 {
                     transaction.ProjectAcceptedDate = DateTime.UtcNow;
                     transaction.ProjectId = project.Id;
+                    transaction.ProjectUserId = project.CreatedBy;
                     _context.RateTransactions.Update(transaction);
                     await _context.SaveChangesAsync();
                 }else

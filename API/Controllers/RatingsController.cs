@@ -71,7 +71,7 @@ namespace API.Controllers
                 Datetime = DateTime.UtcNow,
                 NotificationType = 1,
                 IsRead = 0,
-                Link = "profile/" + rating.RateToUserId
+                Link = "/profile"
             };
             bool x = await _notificationService.AddNotification(notificationDto);
             if (x)

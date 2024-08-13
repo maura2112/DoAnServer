@@ -25,6 +25,7 @@ namespace Application.DTOs
         public List<string>? SkillOfProject { get; set; }
 
         public int RateToUserId { get; set; }
+        public int Budget { get; set; }
     }
 
     public class RatingDTOValidator : AbstractValidator<RatingDTO>

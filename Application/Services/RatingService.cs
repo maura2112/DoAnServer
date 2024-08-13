@@ -41,6 +41,8 @@ namespace Application.Services
                         from transaction in transactionGroup.DefaultIfEmpty()
                         join p in _context.Projects on transaction.ProjectId equals p.Id into projectGroup
                         from project in projectGroup.DefaultIfEmpty()
+                        join b in _context.Bids.Where(x=>x.AcceptedDate != null) on project.Id equals b.ProjectId into bidGroup
+                        from bid in bidGroup.DefaultIfEmpty()
                         where r.RateToUserId == uid
                         select new RatingDTO
                         {
@@ -51,6 +53,8 @@ namespace Application.Services
                             UserRate = user.Name,
                             ProjectName = project.Title,
                             ProjectId = project.Id,
+                            SkillOfProject = project.ProjectSkills.Select(s => s.Skill.SkillName).ToList(),
+                            Budget = bid.Budget
                         };
 
             var resultList = await query.ToListAsync();

@@ -189,7 +189,7 @@ namespace API.Controllers
                 {
                     x.ConversationId,
                     x.MessageText,
-                    x.SendDate,
+                    SendDate = x.SendDate.Value.ToLocalTime(),
                     x.IsRead,
                     x.SenderId,
                     x.MessageType,

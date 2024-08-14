@@ -33,6 +33,13 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [Route("TestCICD")]
+        public async Task<IActionResult> TestCICD()
+        {
+            return Ok("LeVanDuc");
+        }
+
+        [HttpGet]
         [Route(Common.Url.Blog.Gets)]
         public async Task<IActionResult> Gets([FromQuery] BlogFilter filter)
         {

@@ -36,7 +36,7 @@ namespace API.Controllers
         [Route("TestCICD")]
         public async Task<IActionResult> TestCICD()
         {
-            return Ok("LeVanDuc");
+            return Ok("LeVanDuc hihi");
         }
 
         [HttpGet]

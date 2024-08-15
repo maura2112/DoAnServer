@@ -23,13 +23,17 @@ namespace Application.Services
             _mapper = mapper;
             _currentUserService = currentUserService;
         }
-        public async Task<RateTransaction> GetRateTransactionByUsers(int userId1, int userId2)
+        public async Task<RateTransaction> GetRateTransactionByUsers(int userId1, int userId2, int? projectId)
         {
             var userCurrenId = _currentUserService.UserId;
             var filter = PredicateBuilder.True<Domain.Entities.RateTransaction> ();
             filter = filter.And(item => item.ProjectUserId == userId1 || item.ProjectUserId == userId2);
             filter = filter.And(item => item.ProjectAcceptedDate != null);
             filter = filter.And(item => item.BidCompletedDate != null);
+            if(projectId != null)
+            {
+                filter = filter.And(item => item.ProjectId == projectId);
+            }
             filter = filter.And(item => item.BidUserId == userId2 || item.BidUserId == userId1);
             filter = filter.And(item => item.User1IdRated == 0 || item.User2IdRated == 0);
             filter = filter.And(item => item.User1IdRated != userCurrenId && item.User2IdRated != userCurrenId);

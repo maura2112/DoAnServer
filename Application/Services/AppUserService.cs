@@ -172,7 +172,7 @@ namespace Application.Services
                 var userId = _currentUserService.UserId;
                 if (userId != user.Id)
                 {
-                    var transaction = await _transactionService.GetRateTransactionByUsers(userId, user.Id);
+                    var transaction = await _transactionService.GetRateTransactionByUsers(userId, user.Id, null);
                     if (transaction != null)
                     {
                         userDTO.IsRated = true;

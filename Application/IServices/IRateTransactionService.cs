@@ -9,6 +9,6 @@ namespace Application.IServices
 {
     public interface  IRateTransactionService
     {
-        public Task<RateTransaction> GetRateTransactionByUsers(int userId1, int userId2);
+        public Task<RateTransaction> GetRateTransactionByUsers(int userId1, int userId2, int? projectId);
     }
 }

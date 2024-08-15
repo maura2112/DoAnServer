@@ -44,7 +44,7 @@ namespace API.Controllers
             {
                 return BadRequest("Bạn không thể đánh giá chính mình");
             }
-            var ratingTrasaction = await _transactionService.GetRateTransactionByUsers(rating.RateToUserId, userId);
+            var ratingTrasaction = await _transactionService.GetRateTransactionByUsers(rating.RateToUserId, userId, rating.ProjectId );
             if(ratingTrasaction == null)
             {
                 return NotFound("Bạn không thể đánh giá người này-");

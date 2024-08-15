@@ -32,7 +32,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("TestCICD")]
         public async Task<IActionResult> TestCICD()
         {

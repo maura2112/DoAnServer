@@ -852,8 +852,8 @@ namespace Application.Services
                             Status = s.StatusName,
                             StatusColor = s.StatusColor,
                             StatusId = s.Id,
-                            CreatedProject = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
-                            SavedTime = DateTimeHelper.ToVietnameseDateString(f.SavedDate),
+                            CreatedProject = DateTimeHelper.ToVietnameseDateString(p.CreatedDate.ToLocalTime()),
+                            SavedTime = DateTimeHelper.ToVietnameseDateString(f.SavedDate.ToLocalTime()),
                         };
             if (search.StatusId != null)
             {
@@ -1021,8 +1021,8 @@ namespace Application.Services
                                 State = p.AppUser.Address.State,
                                 City = p.AppUser.Address.City,
                                 Country = p.AppUser.Address.Country,
-                                CreatedDateString = DateTimeHelper.ToVietnameseDateString(p.CreatedDate),
-                                TimeAgo = TimeAgoHelper.CalculateTimeAgo(p.CreatedDate),
+                                CreatedDateString = DateTimeHelper.ToVietnameseDateString(p.CreatedDate.ToLocalTime()),
+                                TimeAgo = TimeAgoHelper.CalculateTimeAgo(p.CreatedDate.ToLocalTime()),
                                 UserName = u.Name,
                             };
                 projectDTOs = await query.Take(5).ToListAsync();
@@ -1104,7 +1104,7 @@ namespace Application.Services
                                   UserRatedId = (userId == u1.Id) ? u2.Id : u1.Id,
                                   UserRatedName = (userId == u1.Id) ? u2.Name : u1.Name,
                                   Budget = b.Budget,
-                                  DoneDate = DateTimeHelper.ToVietnameseDateString(r.ProjectAcceptedDate),
+                                  DoneDate = DateTimeHelper.ToVietnameseDateString(r.ProjectAcceptedDate.Value.ToLocalTime()),
                                   Duration = b.Duration,
                               };
 

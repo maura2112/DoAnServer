@@ -42,23 +42,23 @@ jobs:
         echo TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} >> $GITHUB_ENV
         echo TWILIO_FROM_NO=${{ secrets.TWILIO_FROM_NO }} >> $GITHUB_ENV
         echo TWILIO_FROM_WHATSAPP_NO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} >> $GITHUB_ENV
-        
+
     - name: Update appsettings.json with secrets
       run: |
         jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.AccountSid = env.TWILIO_ACCOUNT_SID' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.AuthToken = env.TWILIO_AUTH_TOKEN' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.fromNo = env.TWILIO_FROM_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
 
     - name: Re-Publish with updated appsettings.json
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"

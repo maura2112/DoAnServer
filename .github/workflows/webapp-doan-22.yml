@@ -33,12 +33,14 @@ jobs:
 
         echo "The value of PAYOS_CLIENT_ID in appsettings.json is: $PAYOS_CLIENT_ID"
         
-        echo PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} > $GITHUB_ENV
-        echo PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} > $GITHUB_ENV
-        echo TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} > $GITHUB_ENV
-        echo TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} > $GITHUB_ENV
-        echo TWILIO_FROM_NO=${{ secrets.TWILIO_FROM_NO }} > $GITHUB_ENV
-        echo TWILIO_FROM_WHATSAPP_NO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} > $GITHUB_ENV
+        echo PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} >> $GITHUB_ENV
+        echo PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} >> $GITHUB_ENV
+        echo TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} >> $GITHUB_ENV
+        echo TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} >> $GITHUB_ENV
+        echo TWILIO_FROM_NO=${{ secrets.TWILIO_FROM_NO }} >> $GITHUB_ENV
+        echo TWILIO_FROM_WHATSAPP_NO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} >> $GITHUB_ENV
+
+        cat GITHUB_ENV
 
     - name: Update appsettings.json with secrets
       run: |

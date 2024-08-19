@@ -33,10 +33,10 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [Route("TestCICD")]
+        [Route("TestCICD-LEVan")]
         public async Task<IActionResult> TestCICD()
         {
-            return Ok("LeVanDuc hihi");
+            return Ok("TestCICD-LEVan");
         }
 
         [HttpGet]

@@ -71,20 +71,20 @@ jobs:
 
     - name: Update appsettings.json with secrets
       run: |
-        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
-        jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
-        jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
-        jq '.Twilio.AccountSid = env.TWILIO_ACCOUNT_SID' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
-        jq '.Twilio.AuthToken = env.TWILIO_AUTH_TOKEN' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
-        jq '.Twilio.fromNo = env.TWILIO_FROM_NO' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
-        jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
-        mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
+        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
+        jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
+        jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
+        jq '.Twilio.AccountSid = env.TWILIO_ACCOUNT_SID' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
+        jq '.Twilio.AuthToken = env.TWILIO_AUTH_TOKEN' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
+        jq '.Twilio.fromNo = env.TWILIO_FROM_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
+        jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
+        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
 
 
     - name: Deploy updated appsettings.json to Azure WebApp

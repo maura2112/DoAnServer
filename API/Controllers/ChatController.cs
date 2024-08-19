@@ -49,11 +49,12 @@ namespace API.Controllers
                     list = list.Where(b => b.SendDate < lastmessage.Value);
                 }
                 var listMess = await list.OrderByDescending(x => x.SendDate).Take(limit).ToListAsync();
+                var listMessDTO = _mapper.Map<List<ChatDto>>(listMess);
                 var nextCursor = listMess.Any() ? listMess.Last().SendDate.ToString() : null;
-                var result = new LaziLoadDTO<Message>()
+                var result = new LaziLoadDTO<ChatDto>()
                 {
                     nextCursor = nextCursor,
-                    Items = listMess,
+                    Items = listMessDTO,
                 };
                 return Ok(result);
             }

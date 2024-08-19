@@ -1,13 +1,16 @@
-﻿using Application.DTOs;
+﻿using API.Hubs;
+using Application.DTOs;
 using Application.IServices;
 using Application.Services;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
@@ -31,7 +34,10 @@ namespace API.Controllers
         private readonly ITokenService _tokenService;
         private readonly IEmailSender _emailSender;
         private readonly IAppUserRepository _appUserRepository;
-        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager, ITokenService tokenService, IEmailSender emailSender, IAppUserRepository appUserRepository)
+        private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _chatHubContext;
+        private readonly IBidService _bidService;
+        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager, ITokenService tokenService, IEmailSender emailSender, IAppUserRepository appUserRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext, IBidService bidService)
         {
             _appUserService = appUserService;
             _currentUserService = currentUserService;
@@ -43,6 +49,9 @@ namespace API.Controllers
             _tokenService = tokenService;
             _emailSender = emailSender;
             _appUserRepository = appUserRepository;
+            _context = context;
+            _chatHubContext = chatHubContext;
+            _bidService = bidService;
         }
         [HttpGet]
         [Route(Common.Url.User.Profile)]
@@ -59,11 +68,11 @@ namespace API.Controllers
         {
             //var userId = _currentUserService.UserId;
             var userDtos = await _appUserService.GetUserDTOAsync(uid);
-            if(userDtos == null)
+            if (userDtos == null)
             {
                 return NotFound(new
                 {
-                    message ="Người dùng không tồn tại"
+                    message = "Người dùng không tồn tại"
                 });
             }
             return (Ok(userDtos));
@@ -84,10 +93,11 @@ namespace API.Controllers
                 return BadRequest("Bạn hãy đăng nhập");
             }
 
-            if(user.PhoneNumber  == null )
+            if (user.PhoneNumber == null)
             {
                 user.PhoneNumber = dto.PhoneNumber;
-            }else
+            }
+            else
             {
                 if (!user.PhoneNumberConfirmed)
                 {
@@ -225,7 +235,7 @@ namespace API.Controllers
         {
             var userId = _currentUserService.UserId;
             var file = await _mediaFileService.UpdateMediaFile(mediaFile);
-            if(file == null)
+            if (file == null)
             {
                 return BadRequest("Cập nhật không thành công");
             }
@@ -239,7 +249,8 @@ namespace API.Controllers
             var userId = _currentUserService.UserId;
             var file = await _mediaFileService.GetById(id);
 
-            if(file == null) {
+            if (file == null)
+            {
                 return BadRequest("Lấy Portfolio không thành công");
             }
             return Ok(file);
@@ -299,7 +310,15 @@ namespace API.Controllers
                     var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
                     var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
                     var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
+                    var deletedCheck = await _bidService.DeletedBidUserId(user.Id); /// deleted bid 
+                    var hubConnections = await _context.HubConnections
+                        .Where(con => con.userId == user.Id).ToListAsync();
+                    foreach (var hubConnection in hubConnections)
+                    {
+                        await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", new NotificationDto() { Description = "Logout", NotificationType = 666 });
+                    }
                 }
+
                 return Ok("Khóa thành công " + userLock.Count + " người dùng");
             }
         }
@@ -327,6 +346,8 @@ namespace API.Controllers
 
                     var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, null);
                 }
+
+                
                 return Ok("Mở khóa thành công " + userUnlock.Count + " người dùng");
             }
         }
@@ -462,7 +483,7 @@ namespace API.Controllers
         public async Task<ActionResult> Portfolios(int userId)
         {
             var Portfolios = await _mediaFileService.GetByUserId(userId);
-            if(Portfolios == null)
+            if (Portfolios == null)
             {
                 return NotFound();
             }

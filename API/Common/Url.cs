@@ -81,6 +81,7 @@
             public const string CancelBuyProject = "CancelBuyProject";
             public const string Transactions = "Transactions";
             public const string UserTransactions = "UserTransactions";
+            public const string Tracking = "Tracking";
         }
         public static class Rating
         {

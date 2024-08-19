@@ -24,6 +24,8 @@ namespace Domain.Entities
         public DateTime? UpdatedDate { get; set; }
         public DateTime? AcceptedDate { get; set; }
         public int? TotalOfStage { get; set; }
+
+        public bool? IsDeleted { get; set; }
         public virtual ICollection<BidStage>? BidStages { get; set; }
 
         public virtual Project? Project { get; set; } = null!;

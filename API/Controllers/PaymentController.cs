@@ -286,6 +286,16 @@ namespace API.Controllers
         }
 
 
+        [HttpGet]
+        [Route(Common.Url.Payment.Tracking)]
+        [RoleAuthorizeAttribute("Admin")]
+        public async Task<IActionResult> Tracking([FromQuery] DateTime time)
+        {
+            var result = await _paymentService.Trackings(time.Month, time.Year);
+            return Ok(result);
+        }
+
+
 
 
     }

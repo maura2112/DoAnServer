@@ -6,6 +6,7 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using EFCore.BulkExtensions;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -200,6 +201,25 @@ namespace Application.Services
         public Task<BidDTO> Delete(int id)
         {
             throw new NotImplementedException();
+        }
+
+
+        public async Task<bool> DeletedBidUserId(int uid)
+        {
+            var query = from b in _context.Bids
+                           join p in _context.Projects on b.ProjectId equals p.Id
+                           where p.StatusId == 2 && b.UserId == uid && b.IsDeleted != true
+                           select b;
+            var list = await query.AsNoTracking().ToListAsync();
+            if (list.Any())
+            {
+                foreach (var item in list)
+                {
+                    item.IsDeleted = true;
+                }
+                await _context.BulkUpdateAsync(list);
+            }
+            return true;
         }
 
 

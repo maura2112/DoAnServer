@@ -26,5 +26,6 @@ namespace Application.IServices
 
         public Task<Pagination<TransactionDTO>> GetsTransactionsAsync(TransactionSearch search);
         public Task<Pagination<TransactionDTO>> GetsTransactionsByUserIdAsync(SearchDTO search);
+        public Task<List<TransactionTracking>> Trackings(int month, int year);
     }
 }

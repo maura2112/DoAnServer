@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Common;
 using Application.DTOs;
 using AutoMapper;
+using Microsoft.AspNetCore.Components.Forms;
+using DocumentFormat.OpenXml.InkML;
 
 namespace Application.Services
 {
@@ -65,15 +67,15 @@ namespace Application.Services
             }
             else if (amount > 20)
             {
-                result = (int)(totalAmount / (5000 * 0.8)); 
+                result = (int)(totalAmount / (5000 * 0.8));
             }
             else if (amount > 10)
             {
-                result = (int)(totalAmount / (5000 * 0.9)); 
+                result = (int)(totalAmount / (5000 * 0.9));
             }
             else
             {
-                result = amount; 
+                result = amount;
             }
             if (amount > 50)
             {
@@ -115,7 +117,7 @@ namespace Application.Services
 
         public async Task<Domain.Entities.Transaction> GetByOrderId(string orderId)
         {
-            var trans = await _context.Transactions.FirstOrDefaultAsync(x=>x.OrderCode.Equals(orderId));
+            var trans = await _context.Transactions.FirstOrDefaultAsync(x => x.OrderCode.Equals(orderId));
             return trans;
         }
 
@@ -170,7 +172,7 @@ namespace Application.Services
                 amount = totalAmount / basePrice; // Không giảm
             }
 
-            if(amount > 50)
+            if (amount > 50)
             {
                 amount = amount + 10;
             }
@@ -181,14 +183,15 @@ namespace Application.Services
         public async Task<Pagination<TransactionDTO>> GetsTransactionsAsync(TransactionSearch search)
         {
             var transactions = _context.Transactions.Include(t => t.User).AsQueryable();
-            if(search.FromDate != null) {
+            if (search.FromDate != null)
+            {
                 transactions = transactions.Where(x => x.TransactionDateTime > search.FromDate);
             }
             if (search.ToDate != null)
             {
                 transactions = transactions.Where(x => x.TransactionDateTime < search.ToDate);
             }
-            if(search.UserName != null)
+            if (search.UserName != null)
             {
                 transactions = transactions.Where(x => x.User.Name.ToLower().Contains(search.UserName.ToLower()));
             }
@@ -221,7 +224,7 @@ namespace Application.Services
         public async Task<Pagination<TransactionDTO>> GetsTransactionsByUserIdAsync(SearchDTO search)
         {
             var userId = _currentUserService.UserId;
-            var transactions = _context.Transactions.Where(x=>x.UserId== userId).Include(t => t.User).AsQueryable();
+            var transactions = _context.Transactions.Where(x => x.UserId == userId).Include(t => t.User).AsQueryable();
 
             var totalItem = await transactions.Skip((search.PageIndex - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
             var transactionDTOs = _mapper.Map<List<TransactionDTO>>(totalItem);
@@ -233,6 +236,31 @@ namespace Application.Services
                 Items = transactionDTOs,
             };
             return result;
+        }
+
+        public async Task<List<TransactionTracking>> Trackings(int month, int year)
+        {
+
+            var transactionGroups = await _context.Transactions
+    .Where(t => t.TransactionDateTime.Year == year && t.TransactionDateTime.Month == month)
+    .GroupBy(t => new
+    {
+        StartDate = t.TransactionDateTime
+            .AddDays(-(t.TransactionDateTime.Day - 1) % 3)
+            .Date
+    })
+    .Select(g => new TransactionTracking
+    {
+        StartDate = g.Key.StartDate < new DateTime(year, month, 1) ?
+                    new DateTime(year, month, 1) : g.Key.StartDate,
+        EndDate = g.Key.StartDate < new DateTime(year, month, 1) ?
+                  new DateTime(year, month, 3) : g.Key.StartDate.AddDays(2),
+        TotalMoney = g.Sum(t => t.TotalMoney)
+    })
+    .OrderBy(g => g.StartDate)
+    .ToListAsync();
+
+            return transactionGroups;
         }
     }
 }

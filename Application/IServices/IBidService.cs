@@ -21,6 +21,8 @@ namespace Application.IServices
         Task<BidDTO> Update(UpdateBidDTO request);
         Task<BidDTO> Delete(int id);
 
+        Task<bool> DeletedBidUserId(int uid);
+
         Task<BidDTO> AcceptBidding(long id);
         Task<BidDTO> GetBidById(long id);
 

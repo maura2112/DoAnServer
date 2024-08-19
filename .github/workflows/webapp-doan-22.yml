@@ -11,7 +11,6 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: API
-  PAYOS_CLIENT_ID: ${{ secrets.PAYOS_CLIENT_ID }}
 
 jobs:
   build:
@@ -26,7 +25,7 @@ jobs:
 
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-      
+
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
 
@@ -34,9 +33,6 @@ jobs:
       run: |
         echo "Setting environment variables"
         echo PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} >> $GITHUB_ENV
-
-        echo "The value of PAYOS_CLIENT_ID in appsettings.json is: $PAYOS_CLIENT_ID"
-        
         echo PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} >> $GITHUB_ENV
         echo PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} >> $GITHUB_ENV
         echo TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} >> $GITHUB_ENV
@@ -62,7 +58,11 @@ jobs:
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
-        cat appsettings.json
+
+        jq -r '.Environment.PAYOS_CLIENT_ID' API\appsettings.json
+        jq -r '.Environment.PAYOS_CHECKSUM_KEY' API\appsettings.json
+        jq -r '.Environment.TWILIO_FROM_NO' API\appsettings.json
+        jq -r '.Environment.TWILIO_ACCOUNT_SID' API\appsettings.json
 
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"

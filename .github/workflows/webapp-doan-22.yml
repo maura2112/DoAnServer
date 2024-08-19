@@ -42,32 +42,32 @@ jobs:
 
     - name: Update appsettings.json with secrets directly
       run: |
-        $json = @"
-    {
-      "Environment": {
-        "PAYOS_CLIENT_ID": "${{ secrets.PAYOS_CLIENT_ID }}",
-        "PAYOS_API_KEY": "${{ secrets.PAYOS_API_KEY }}",
-        "PAYOS_CHECKSUM_KEY": "${{ secrets.PAYOS_CHECKSUM_KEY }}"
-      },
-      "Twilio": {
-        "AccountSid": "${{ secrets.TWILIO_ACCOUNT_SID }}",
-        "AuthToken": "${{ secrets.TWILIO_AUTH_TOKEN }}",
-        "fromNo": "${{ secrets.TWILIO_FROM_NO }}",
-        "fromWhatsAppNo": "${{ secrets.TWILIO_FROM_WHATSAPP_NO }}"
-      }
-    }
-    "@
-        echo $json | jq '.Environment + .Twilio' | Set-Content API/appsettings.json
+        $appSettingsPath = "API/appsettings.json"
+        $json = Get-Content $appSettingsPath | ConvertFrom-Json
 
+        # Update Environment variables
+        $json.Environment.PAYOS_CLIENT_ID = "${{ secrets.PAYOS_CLIENT_ID }}"
+        $json.Environment.PAYOS_API_KEY = "${{ secrets.PAYOS_API_KEY }}"
+        $json.Environment.PAYOS_CHECKSUM_KEY = "${{ secrets.PAYOS_CHECKSUM_KEY }}"
 
-        echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
-        jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
-        jq -r '.Environment.PAYOS_API_KEY' API/appsettings.json
-        jq -r '.Environment.PAYOS_CHECKSUM_KEY' API/appsettings.json
-        jq -r '.Twilio.AccountSid' API/appsettings.json
-        jq -r '.Twilio.AuthToken' API/appsettings.json
-        jq -r '.Twilio.fromNo' API/appsettings.json
-        jq -r '.Twilio.fromWhatsAppNo' API/appsettings.json
+        # Update Twilio settings
+        $json.Twilio.AccountSid = "${{ secrets.TWILIO_ACCOUNT_SID }}"
+        $json.Twilio.AuthToken = "${{ secrets.TWILIO_AUTH_TOKEN }}"
+        $json.Twilio.fromNo = "${{ secrets.TWILIO_FROM_NO }}"
+        $json.Twilio.fromWhatsAppNo = "${{ secrets.TWILIO_FROM_WHATSAPP_NO }}"
+
+        # Save the updated JSON back to the file
+        $json | ConvertTo-Json -Depth 32 | Set-Content $appSettingsPath
+
+        # Output some of the updated values for verification
+        $json.Environment.PAYOS_CLIENT_ID
+        $json.Environment.PAYOS_API_KEY
+        $json.Environment.PAYOS_CHECKSUM_KEY
+        $json.Twilio.AccountSid
+        $json.Twilio.AuthToken
+        $json.Twilio.fromNo
+        $json.Twilio.fromWhatsAppNo
+
 
 
     - name: Build

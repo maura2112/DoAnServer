@@ -18,7 +18,6 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    environment: ASPNETCORE_ENVIRONMENT
     steps:
     - uses: actions/checkout@v4
 
@@ -43,13 +42,13 @@ jobs:
 
     - name: Update appsettings.json with secrets
       run: |
-        jq ".Environment.PAYOS_CLIENT_ID = \"$env:PAYOS_CLIENT_ID\" 
-            | .Environment.PAYOS_API_KEY = \"$env:PAYOS_API_KEY\" 
-            | .Environment.PAYOS_CHECKSUM_KEY = \"$env:PAYOS_CHECKSUM_KEY\" 
-            | .Twilio.AccountSid = \"$env:TWILIO_ACCOUNT_SID\" 
-            | .Twilio.AuthToken = \"$env:TWILIO_AUTH_TOKEN\" 
-            | .Twilio.fromNo = \"$env:TWILIO_FROM_NO\" 
-            | .Twilio.fromWhatsAppNo = \"$env:TWILIO_FROM_WHATSAPP_NO\"" API/appsettings.json | Set-Content API/appsettings.json
+        jq ".Environment.PAYOS_CLIENT_ID = \"${{ secrets.PAYOS_CLIENT_ID }}\" 
+            | .Environment.PAYOS_API_KEY = \"${{ secrets.PAYOS_API_KEY }}\" 
+            | .Environment.PAYOS_CHECKSUM_KEY = \"${{ secrets.PAYOS_CHECKSUM_KEY }}\" 
+            | .Twilio.AccountSid = \"${{ secrets.TWILIO_ACCOUNT_SID }}\" 
+            | .Twilio.AuthToken = \"${{ secrets.TWILIO_AUTH_TOKEN }}\" 
+            | .Twilio.fromNo = \"${{ secrets.TWILIO_FROM_NO }}\" 
+            | .Twilio.fromWhatsAppNo = \"${{ secrets.TWILIO_FROM_WHATSAPP_NO }}\"" API/appsettings.json | Set-Content API/appsettings.json
 
         echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
         jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json

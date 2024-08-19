@@ -26,6 +26,9 @@ jobs:
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
 
+    - name: Build
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+
     - name: Set environment variables
       run: |
         echo "Setting environment variables"
@@ -60,10 +63,7 @@ jobs:
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         cat appsettings.json
 
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-
-    - name: Publish Initial
+    - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
 
     - name: Publish Artifacts

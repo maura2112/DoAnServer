@@ -85,8 +85,8 @@ jobs:
         Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
 
     - name: Re-Publish with updated appsettings.json
-      working-directory: API
-      run: dotnet publish --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      run: dotnet publish "API/API.csproj" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+
 
     - name: Deploy updated appsettings.json to Azure WebApp
       uses: azure/webapps-deploy@v2

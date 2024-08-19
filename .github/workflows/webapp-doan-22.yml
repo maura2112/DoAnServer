@@ -1,9 +1,8 @@
 name: Build and deploy .NET Core application to Web App webapp-doan-2
-
 on:
   push:
     branches:
-    - master
+      - master
 
 env:
   AZURE_WEBAPP_NAME: webapp-doan-2
@@ -16,80 +15,54 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+      - uses: actions/checkout@v4
 
-    - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
 
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+      - name: Restore
+        run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
 
-    - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+      - name: Build
+        run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
 
-    - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      - name: Test
+        run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
 
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - name: Publish
+        run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: webapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   deploy:
     runs-on: windows-latest
     needs: build
     steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v3
-      with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: webapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
-    - name: Deploy to Azure WebApp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.webapp_doan_2_1F24 }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.WEBAPP_DOAN_2_1F24 }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
-    - name: Set environment variables
-      run: |
-        echo "Setting environment variables"
-        echo PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} >> $GITHUB_ENV
-        echo PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} >> $GITHUB_ENV
-        echo PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} >> $GITHUB_ENV
-        echo TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} >> $GITHUB_ENV
-        echo TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} >> $GITHUB_ENV
-        echo TWILIO_FROM_NO=${{ secrets.TWILIO_FROM_NO }} >> $GITHUB_ENV
-        echo TWILIO_FROM_WHATSAPP_NO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} >> $GITHUB_ENV
-
-    - name: Update appsettings.json with secrets
-      run: |
-        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-        jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-        jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-        jq '.Twilio.AccountSid = env.TWILIO_ACCOUNT_SID' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-        jq '.Twilio.AuthToken = env.TWILIO_AUTH_TOKEN' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-        jq '.Twilio.fromNo = env.TWILIO_FROM_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-        jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        mv -f API\publish/appsettings.temp.json API\publish/appsettings.json
-
-
-    - name: Deploy updated appsettings.json to Azure WebApp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.webapp_doan_2_1F24 }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - name: Set environment variables for application
+        run: |
+          echo PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} >> $GITHUB_ENV
+          echo PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} >> $GITHUB_ENV
+          echo PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} >> $GITHUB_ENV
+          echo ACCOUNTSID=${{ secrets.ACCOUNTSID }} >> $GITHUB_ENV
+          echo AUTHTOKEN=${{ secrets.AUTHTOKEN }} >> $GITHUB_ENV
+          echo FROMNO=${{ secrets.FROMNO }} >> $GITHUB_ENV
+          echo FROMWHATSAPPNO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} >> $GITHUB_ENV

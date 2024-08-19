@@ -71,7 +71,7 @@ jobs:
 
     - name: Update appsettings.json with secrets
       run: |
-        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' appsettings.json > appsettings.temp.json
+        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API/appsettings.json > API/appsettings.temp.json
         mv appsettings.temp.json appsettings.json
         jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' appsettings.json > appsettings.temp.json
         mv appsettings.temp.json appsettings.json

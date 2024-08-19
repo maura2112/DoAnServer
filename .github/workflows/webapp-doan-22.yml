@@ -29,9 +29,6 @@ jobs:
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
 
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-
     - name: Set environment variables
       run: |
         echo "Setting environment variables"
@@ -55,11 +52,13 @@ jobs:
 
         echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
         jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
-
         jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
         jq -r '.Environment.PAYOS_CHECKSUM_KEY' API/appsettings.json
         jq -r '.Environment.TWILIO_FROM_NO' API/appsettings.json
         jq -r '.Environment.TWILIO_ACCOUNT_SID' API/appsettings.json
+
+    - name: Build
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
 
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"

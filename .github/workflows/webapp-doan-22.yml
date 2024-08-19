@@ -40,22 +40,25 @@ jobs:
         echo TWILIO_FROM_NO=${{ secrets.TWILIO_FROM_NO }} >> $GITHUB_ENV
         echo TWILIO_FROM_WHATSAPP_NO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} >> $GITHUB_ENV
 
-    - name: Update appsettings.json with secrets
+    - name: Update appsettings.json with secrets directly
       run: |
-        jq ".Environment.PAYOS_CLIENT_ID = \"${{ secrets.PAYOS_CLIENT_ID }}\" 
-            | .Environment.PAYOS_API_KEY = \"${{ secrets.PAYOS_API_KEY }}\" 
-            | .Environment.PAYOS_CHECKSUM_KEY = \"${{ secrets.PAYOS_CHECKSUM_KEY }}\" 
-            | .Twilio.AccountSid = \"${{ secrets.TWILIO_ACCOUNT_SID }}\" 
-            | .Twilio.AuthToken = \"${{ secrets.TWILIO_AUTH_TOKEN }}\" 
-            | .Twilio.fromNo = \"${{ secrets.TWILIO_FROM_NO }}\" 
-            | .Twilio.fromWhatsAppNo = \"${{ secrets.TWILIO_FROM_WHATSAPP_NO }}\"" API/appsettings.json | Set-Content API/appsettings.json
+        jq '.Environment.PAYOS_CLIENT_ID = "${{ secrets.PAYOS_CLIENT_ID }}" 
+            | .Environment.PAYOS_API_KEY = "${{ secrets.PAYOS_API_KEY }}" 
+            | .Environment.PAYOS_CHECKSUM_KEY = "${{ secrets.PAYOS_CHECKSUM_KEY }}" 
+            | .Twilio.AccountSid = "${{ secrets.TWILIO_ACCOUNT_SID }}" 
+            | .Twilio.AuthToken = "${{ secrets.TWILIO_AUTH_TOKEN }}" 
+            | .Twilio.fromNo = "${{ secrets.TWILIO_FROM_NO }}" 
+            | .Twilio.fromWhatsAppNo = "${{ secrets.TWILIO_FROM_WHATSAPP_NO }}"' API/appsettings.json | Set-Content API/appsettings.json
 
         echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
         jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
-        jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
+        jq -r '.Environment.PAYOS_API_KEY' API/appsettings.json
         jq -r '.Environment.PAYOS_CHECKSUM_KEY' API/appsettings.json
-        jq -r '.Environment.TWILIO_FROM_NO' API/appsettings.json
-        jq -r '.Environment.TWILIO_ACCOUNT_SID' API/appsettings.json
+        jq -r '.Twilio.AccountSid' API/appsettings.json
+        jq -r '.Twilio.AuthToken' API/appsettings.json
+        jq -r '.Twilio.fromNo' API/appsettings.json
+        jq -r '.Twilio.fromWhatsAppNo' API/appsettings.json
+
 
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore

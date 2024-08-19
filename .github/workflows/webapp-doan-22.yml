@@ -1,3 +1,17 @@
+name: Build and deploy .NET Core application to Web App webapp-doan-2
+
+on:
+  push:
+    branches:
+    - master
+
+env:
+  AZURE_WEBAPP_NAME: webapp-doan-2
+  AZURE_WEBAPP_PACKAGE_PATH: API\publish
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 8.0.x
+  WORKING_DIRECTORY: API
+
 jobs:
   build:
     runs-on: windows-latest
@@ -37,6 +51,13 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
+    - name: Deploy to Azure WebApp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.webapp_doan_2_1F24 }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
     - name: Set environment variables
       run: |
         echo "Setting environment variables"
@@ -64,6 +85,7 @@ jobs:
         mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
         jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json > ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json
         mv ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.temp.json ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.json
+
 
     - name: Deploy updated appsettings.json to Azure WebApp
       uses: azure/webapps-deploy@v2

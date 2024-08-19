@@ -58,8 +58,6 @@ jobs:
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
-
-        cat API\publish\appsettings.temp.json
         cat appsettings.json
 
     - name: Build

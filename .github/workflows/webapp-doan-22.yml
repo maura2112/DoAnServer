@@ -29,7 +29,7 @@ jobs:
     - name: Set environment variables
       run: |
         echo "Setting environment variables"
-        echo PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} > $GITHUB_ENV
+        echo PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} >> $GITHUB_ENV
 
         echo "The value of PAYOS_CLIENT_ID in appsettings.json is: $PAYOS_CLIENT_ID"
         
@@ -39,8 +39,6 @@ jobs:
         echo TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} >> $GITHUB_ENV
         echo TWILIO_FROM_NO=${{ secrets.TWILIO_FROM_NO }} >> $GITHUB_ENV
         echo TWILIO_FROM_WHATSAPP_NO=${{ secrets.TWILIO_FROM_WHATSAPP_NO }} >> $GITHUB_ENV
-
-        cat GITHUB_ENV
 
     - name: Update appsettings.json with secrets
       run: |
@@ -60,6 +58,9 @@ jobs:
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
+
+        cat API\publish\appsettings.temp.json
+        cat appsettings.json
 
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore

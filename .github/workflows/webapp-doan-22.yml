@@ -7,7 +7,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: webapp-doan-2
-  AZURE_WEBAPP_PACKAGE_PATH: API\publish
+  AZURE_WEBAPP_PACKAGE_PATH: API/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: API
@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
@@ -42,27 +42,16 @@ jobs:
 
     - name: Update appsettings.json with secrets
       run: |
-        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
-        jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
-        jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.AccountSid = env.TWILIO_ACCOUNT_SID' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.AuthToken = env.TWILIO_AUTH_TOKEN' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.fromNo = env.TWILIO_FROM_NO' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API/appsettings.json > API/appsettings.temp.json
-        Copy-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
+        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID 
+        | .Environment.PAYOS_API_KEY = env.PAYOS_API_KEY 
+        | .Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY 
+        | .Twilio.AccountSid = env.TWILIO_ACCOUNT_SID 
+        | .Twilio.AuthToken = env.TWILIO_AUTH_TOKEN 
+        | .Twilio.fromNo = env.TWILIO_FROM_NO 
+        | .Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' ${{ env.WORKING_DIRECTORY }}/appsettings.json > ${{ env.WORKING_DIRECTORY }}/appsettings.temp.json
+        
+        Move-Item -Path "${{ env.WORKING_DIRECTORY }}/appsettings.temp.json" -Destination "${{ env.WORKING_DIRECTORY }}/appsettings.json" -Force
 
-        jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
-        jq -r '.Environment.PAYOS_CHECKSUM_KEY' API/appsettings.json
-        jq -r '.Environment.TWILIO_FROM_NO' API/appsettings.json
-        jq -r '.Environment.TWILIO_ACCOUNT_SID' API/appsettings.json
 
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"

@@ -42,22 +42,14 @@ jobs:
 
     - name: Update appsettings.json with secrets
       run: |
-        jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
-        jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
-        jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.AccountSid = env.TWILIO_ACCOUNT_SID' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.AuthToken = env.TWILIO_AUTH_TOKEN' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.fromNo = env.TWILIO_FROM_NO' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
-        jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API/appsettings.json > API/appsettings.temp.json
-        Move-Item -Path API/appsettings.temp.json -Destination API/appsettings.json -Force
+        jq ".Environment.PAYOS_CLIENT_ID = \"$env:PAYOS_CLIENT_ID\"" API/appsettings.json | Set-Content API/appsettings.temp.json
+        jq ".Environment.PAYOS_API_KEY = \"$env:PAYOS_API_KEY\"" API/appsettings.temp.json | Set-Content API/appsettings.temp.json
+        jq ".Environment.PAYOS_CHECKSUM_KEY = \"$env:PAYOS_CHECKSUM_KEY\"" API/appsettings.temp.json | Set-Content API/appsettings.temp.json
+        jq ".Twilio.AccountSid = \"$env:TWILIO_ACCOUNT_SID\"" API/appsettings.temp.json | Set-Content API/appsettings.temp.json
+        jq ".Twilio.AuthToken = \"$env:TWILIO_AUTH_TOKEN\"" API/appsettings.temp.json | Set-Content API/appsettings.temp.json
+        jq ".Twilio.fromNo = \"$env:TWILIO_FROM_NO\"" API/appsettings.temp.json | Set-Content API/appsettings.temp.json
+        jq ".Twilio.fromWhatsAppNo = \"$env:TWILIO_FROM_WHATSAPP_NO\"" API/appsettings.temp.json | Set-Content API/appsettings.temp.json
+        Move-Item -Path "API/appsettings.temp.json" -Destination "API/appsettings.json" -Force
 
         jq -r '.Environment.PAYOS_CLIENT_ID' API/appsettings.json
         jq -r '.Environment.PAYOS_CHECKSUM_KEY' API/appsettings.json

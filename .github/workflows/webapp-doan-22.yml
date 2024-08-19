@@ -47,6 +47,8 @@ jobs:
       run: |
         jq '.Environment.PAYOS_CLIENT_ID = env.PAYOS_CLIENT_ID' API\publish/appsettings.json > API\publish/appsettings.temp.json
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
+        echo "The value of PAYOS_CLIENT_ID in appsettings.json is:"
+        jq -r '.Environment.PAYOS_CLIENT_ID' API\publish/appsettings.json
         jq '.Environment.PAYOS_API_KEY = env.PAYOS_API_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json
         Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
         jq '.Environment.PAYOS_CHECKSUM_KEY = env.PAYOS_CHECKSUM_KEY' API\publish/appsettings.json > API\publish/appsettings.temp.json

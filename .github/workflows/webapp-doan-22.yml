@@ -82,10 +82,7 @@ jobs:
         jq '.Twilio.fromNo = env.TWILIO_FROM_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
         Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
         jq '.Twilio.fromWhatsAppNo = env.TWILIO_FROM_WHATSAPP_NO' API\publish/appsettings.json > API\publish/appsettings.temp.json
-        Move-Item -Path API\publish/appsettings.temp.json -Destination API\publish/appsettings.json -Force
-
-    - name: Re-Publish with updated appsettings.json
-      run: dotnet publish ./API/API.csproj --configuration Release --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+        Copy-Item -Path API\publish\appsettings.temp.json -Destination API\publish\appsettings.json -Force
 
 
     - name: Deploy updated appsettings.json to Azure WebApp

@@ -1,5 +1,8 @@
 name: Build and deploy .NET Core application to Web App webapp-doan-2
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -30,7 +33,7 @@ jobs:
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
 
     - name: Set environment variables
-      run: |
+      run: 
         echo "Setting environment variables"
         echo PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} >> $GITHUB_ENV
         echo PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} >> $GITHUB_ENV

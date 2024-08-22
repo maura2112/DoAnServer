@@ -3,10 +3,15 @@ using Application.DTOs;
 using Application.Extensions;
 using Application.IServices;
 using Application.Services;
+using AutoMapper;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using MimeKit;
+using System.Threading;
 
 namespace API.Controllers
 {
@@ -14,11 +19,18 @@ namespace API.Controllers
     {
         private readonly IExportService _exportService;
         private readonly IChatGPTService _chatGPTService;
+        private ApplicationDbContext _context = new ApplicationDbContext();
+        private readonly IMapper _mapper;
+        private readonly IHubContext<ChatHub> _chatHubContext;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ExportController(IExportService exportService, IChatGPTService chatGPTService)
+        public ExportController(IExportService exportService, IChatGPTService chatGPTService, IMapper mapper, IHubContext<ChatHub> chatHubContext, ICurrentUserService currentUserService)
         {
             _exportService = exportService;
             _chatGPTService = chatGPTService;
+            _mapper = mapper;
+            _chatHubContext = chatHubContext;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -41,13 +53,43 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Common.Url.Export.AskingChatGPT)]
-        public async Task<IActionResult> AskChat(string question)
+        public async Task<IActionResult> AskChat(ChatDto chatDto)
         {
-            var chat = await _chatGPTService.GetChatGPTAnswer(question);
-            return Ok(new
+            Message message = _mapper.Map<Message>(chatDto);
+            message.SendDate = DateTime.UtcNow;
+            message.IsRead = 0;
+            await _context.AddAsync(message);
+            await _context.SaveChangesAsync();
+
+            var answer = await _chatGPTService.GetChatGPTAnswer(chatDto.MessageText);
+
+            ChatDto newResponseMessage = new ChatDto
             {
-                message = chat
-            });
+                ConversationId = chatDto.ConversationId,
+                MessageText = answer,
+                SenderId = 72,
+                SendDate = DateTime.UtcNow,
+                IsRead = 0,
+                MessageType = 1
+            };
+
+            Message messageN = _mapper.Map<Message>(newResponseMessage);
+
+            await _context.AddAsync(messageN);
+            await _context.SaveChangesAsync();
+
+                var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == chatDto.SenderId).ToListAsync();
+
+                foreach (var hubConnection in hubConnectionsd)
+                {
+                await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", messageN);
+                }
+            foreach (var hubConnection in hubConnectionsd)
+            {
+                await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("HaveMessage", 1);
+            }
+
+            return Ok();
         }
 
         [HttpPost]

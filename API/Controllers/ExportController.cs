@@ -13,10 +13,12 @@ namespace API.Controllers
     public class ExportController : ApiControllerBase
     {
         private readonly IExportService _exportService;
+        private readonly IChatGPTService _chatGPTService;
 
-        public ExportController(IExportService exportService)
+        public ExportController(IExportService exportService, IChatGPTService chatGPTService)
         {
             _exportService = exportService;
+            _chatGPTService = chatGPTService;
         }
 
         [HttpGet]
@@ -37,15 +39,23 @@ namespace API.Controllers
         }
 
 
-        //[HttpPost]
-        //[Route(Common.Url.Export.AskingChatGPT)]
-        //public async Task<IActionResult> AskChat(string question)
-        //{
-        //    var chat = await _exportService.GetChatGPTAnswer(question);
-        //    return Ok(new
-        //    {
-        //        message = chat
-        //    });
-        //}
+        [HttpPost]
+        [Route(Common.Url.Export.AskingChatGPT)]
+        public async Task<IActionResult> AskChat(string question)
+        {
+            var chat = await _chatGPTService.GetChatGPTAnswer(question);
+            return Ok(new
+            {
+                message = chat
+            });
+        }
+
+        [HttpPost]
+        [Route(Common.Url.Export.SensitiveWord)]
+        public async Task<IActionResult> SensitiveWord(string question)
+        {
+            var answer = await _exportService.SensitiveWord(question);
+            return Ok(answer);
+        }
     }
 }

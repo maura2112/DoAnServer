@@ -169,6 +169,7 @@
         {
             public const string ExportStatistic = "ExportStatistic";
             public const string AskingChatGPT = "AskingChatGPT";
+            public const string SensitiveWord = "SensitiveWord";
         }
 
         public static class Dashboard

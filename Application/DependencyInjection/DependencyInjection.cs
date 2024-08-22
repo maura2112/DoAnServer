@@ -136,6 +136,9 @@ public static class DependencyInjection
         //Token Service
         services.AddScoped<ITokenService, TokenService>();
 
+        //ChatGPTService
+        services.AddScoped<IChatGPTService, ChatGPTService>();
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;

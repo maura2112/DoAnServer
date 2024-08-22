@@ -453,7 +453,7 @@ namespace Application.Services
 
         }
 
-        public async Task<string> GetChatGPTAnswer3(string questionText)
+        public async Task<string> SensitiveWord(string questionText)
         {
 
             var chatGPTAPIkey = "";
@@ -462,12 +462,14 @@ namespace Application.Services
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {chatGPTAPIkey}");
 
+            string question = "Hãy dựa vào dữ liệu dưới đây, kiểm tra xem có Từ ngữ chửi bới, xúc phạm, Từ ngữ mang tính chất khiêu dâm, tục tĩu, Từ ngữ mang tính phân biệt chủng tộc, giới tính, khu vực, Từ ngữ miệt thị, hạ nhục,Từ ngữ mang tính chất kích động, hoặc đề cập đến tuổi dưới 15 không? nếu có thì trả về câu trả lời là true còn nếu không thì trả lời là false, chỉ true hoặc false, không cần trả lời thêm hay giải thích gì: " + questionText;
+
             var requestBody = new
             {
                 model = "gpt-4-turbo",
                 messages = new[]
                 {
-                    new { role = "user", content = questionText }
+                    new { role = "user", content = question }
                 }
             };
 

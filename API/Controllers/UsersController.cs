@@ -37,7 +37,8 @@ namespace API.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IHubContext<ChatHub> _chatHubContext;
         private readonly IBidService _bidService;
-        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager, ITokenService tokenService, IEmailSender emailSender, IAppUserRepository appUserRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext, IBidService bidService)
+        private readonly IProjectService _projectService;
+        public UsersController(IAppUserService appUserService, ICurrentUserService currentUserService, UserManager<AppUser> userManager, ISkillService skillService, IPasswordGeneratorService passwordGeneratorService, IMediaService mediaFileService, RoleManager<Role> roleManager, ITokenService tokenService, IEmailSender emailSender, IAppUserRepository appUserRepository, ApplicationDbContext context, IHubContext<ChatHub> chatHubContext, IBidService bidService, IProjectService projectService)
         {
             _appUserService = appUserService;
             _currentUserService = currentUserService;
@@ -52,6 +53,7 @@ namespace API.Controllers
             _context = context;
             _chatHubContext = chatHubContext;
             _bidService = bidService;
+            _projectService = projectService;
         }
         [HttpGet]
         [Route(Common.Url.User.Profile)]
@@ -310,7 +312,8 @@ namespace API.Controllers
                     var lockoutEndDate = DateTimeOffset.UtcNow.AddYears(100);
                     var result = await _userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
                     var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
-                    var deletedCheck = await _bidService.DeletedBidUserId(user.Id); /// deleted bid 
+                    var deletedBidCheck = await _bidService.DeletedBidUserId(user.Id); /// deleted bid 
+                    var deletedProjectCheck = await _projectService.DeteleProjectByUserId(user.Id); /// deleted project 
                     var hubConnections = await _context.HubConnections
                         .Where(con => con.userId == user.Id).ToListAsync();
                     foreach (var hubConnection in hubConnections)

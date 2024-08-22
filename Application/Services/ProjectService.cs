@@ -13,6 +13,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using EFCore.BulkExtensions;
 using Infrastructure.Data;
 using Infrastructure.Migrations;
 using Infrastructure.Repositories;
@@ -992,6 +993,22 @@ namespace Application.Services
             return true;
         }
 
+        public async Task<bool> DeteleProjectByUserId(int userId)
+        {
+            var projects = from p in _context.Projects
+                           where p.CreatedBy == userId && p.StatusId == 2
+                           select p;
+            var list = await projects.ToListAsync();
+            if (list.Any())
+            {
+                foreach (var item in list)
+                {
+                    item.IsDeleted = true;
+                }
+                await _context.BulkUpdateAsync(list);
+            }
+            return true;
+        }
 
         public async Task<List<ProjectDTO>> ProjectHomePage()
         {
@@ -1083,7 +1100,6 @@ namespace Application.Services
             return projectDTOs;
         }
 
-
         public async Task<Pagination<UserRateDTO>> GetUserRating(SearchDTO search)
         {
             var userId = _currentUserService.UserId;
@@ -1119,7 +1135,5 @@ namespace Application.Services
             return result;
 
         }
-
-
     }
 }

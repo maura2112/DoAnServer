@@ -62,9 +62,8 @@ namespace Application.IServices
         Task<bool> CreateFavorite(FavoriteCreate create);
 
         Task<bool?> IsFavorite(int userId, int projectId);
-
         Task<bool> RejectTesting(int projectId);
-
+        Task<bool> DeteleProjectByUserId(int userId);
         Task<List<ProjectDTO>> ProjectHomePage();
 
         Task<Pagination<UserRateDTO>> GetUserRating(SearchDTO search);

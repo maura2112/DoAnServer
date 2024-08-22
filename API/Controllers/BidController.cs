@@ -101,6 +101,8 @@ namespace API.Controllers
                 if (bids != null && bids.ProjectId > 0)
                 {
                     filter = item => item.ProjectId == bids.ProjectId;
+                    filter = item => item.IsDeleted != true;
+
                 }
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);
                 string msg = null;
@@ -272,7 +274,7 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
             var bidDTO = await _bidRepository.GetByIdAsync(DTOs.Id);
-            if (bidDTO == null)
+            if (bidDTO == null || bidDTO.IsDeleted == true)
             {
                 return NotFound();
             }

@@ -108,6 +108,7 @@ namespace API.Controllers
             {
                 UserId = user.Id,
                 Name = user.Name,
+                IsOnline = (await _context.HubConnections.FirstOrDefaultAsync(u => u.userId == user.Id) == null) ? false : true,
                 Avatar = user.Avatar
             });
         }
@@ -156,9 +157,10 @@ namespace API.Controllers
         }
 
 
-        [HttpGet("GetUserConnect/{userId}")]
-        public async Task<IActionResult> GetUserConnect(int userId)
+        [HttpGet("GetUserConnect")]
+        public async Task<IActionResult> GetUserConnect()
         {
+            var userId = _currentUserService.UserId;
             var conversations = await _context.Conversations
                 .Include(c => c.Messages)
                 .Include(c => c.User1Navigation)
@@ -171,7 +173,7 @@ namespace API.Controllers
                 .Select(c => new
                 {
                     Conversation = c,
-                    LatestMessage = c.Messages.OrderByDescending(m => m.SendDate).FirstOrDefault()
+                    LatestMessage = c.Messages.OrderByDescending(m => m.SendDate).Take(1).FirstOrDefault()
                 })
                 .Where(x => x.LatestMessage != null)
                 .Select(x => new
@@ -186,7 +188,7 @@ namespace API.Controllers
                     //User = _context.Users.FirstOrDefault(y => y.Id == x.LatestMessage.SenderId )
                     User = x.Conversation.User1 == userId ? x.Conversation.User2Navigation : x.Conversation.User1Navigation
                 })
-                .Select(x => new
+                .Select( x => new
                 {
                     x.ConversationId,
                     x.MessageText,
@@ -198,6 +200,7 @@ namespace API.Controllers
                     UserId = x.User.Id,
                     UserName = x.User.Name,
                     Avatar = x.User.Avatar,
+                    IsOnline =  (_context.HubConnections.FirstOrDefault(u => u.userId == x.User.Id ) == null)? false:true,
                     UserEmail = x.User.Email // Include additional user properties as needed
                 })
                 .OrderByDescending(x => x.SendDate)
@@ -205,7 +208,6 @@ namespace API.Controllers
 
             return Ok(latestMessagesWithUsers);
         }
-
 
         [HttpGet("GetNumberMessage/{userId}")]
         public async Task<IActionResult> GetNumberMessage(int userId)

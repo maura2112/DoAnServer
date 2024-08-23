@@ -100,8 +100,8 @@ namespace API.Controllers
                 Expression<Func<Domain.Entities.Bid, bool>> filter = null;
                 if (bids != null && bids.ProjectId > 0)
                 {
-                    filter = item => item.ProjectId == bids.ProjectId;
-                    filter = item => item.IsDeleted != true;
+                    filter = item => item.ProjectId == bids.ProjectId && item.IsDeleted != true;
+                    
 
                 }
                 var result = await _bidService.GetWithFilter(filter, bids.PageIndex, bids.PageSize);

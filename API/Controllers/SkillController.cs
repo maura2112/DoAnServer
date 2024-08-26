@@ -30,6 +30,10 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
+            var skilldb = await _skillService.GetSkillByNameAsyn(DTOs.SkillName);
+            if (skilldb != null) {
+                return BadRequest("Kỹ năng đã tồn tại");
+            }
             await _skillService.Add(DTOs);
             return NoContent();
         }

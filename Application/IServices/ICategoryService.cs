@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Domain.Common;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace Application.IServices
 
         Task<CategoryDTO> Delete(int id);
         Task<CategoryDTO> RestoreDeleted(int id);
+
+        Task<Category> GetCategoryByNameAsync(string categoryName);
 
         Task<Pagination<CategoryDTO>> GetByStatus(bool? IsDeleted, int pageIndex, int pageSize);
     }

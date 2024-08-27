@@ -31,6 +31,7 @@
             public const string ConvertIntoRecruiter = "ConvertIntoRecruiter"; //it2
             public const string GetUsers = "GetUsers";
             public const string Lock = "Lock";
+            public const string Locked = "Locked";
             public const string Unlock = "Unlock";
 
             public const string Roles = "Roles";

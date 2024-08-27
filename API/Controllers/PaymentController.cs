@@ -137,7 +137,7 @@ namespace API.Controllers
                         await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
                     }
                 }
-                return Ok(user.AmountBid);
+                return Redirect("https://www.goodjobs.works/");
             }
             catch (System.Exception exception)
             {
@@ -251,7 +251,7 @@ namespace API.Controllers
                         await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
                     }
                 }
-                return Ok(user.AmoutProject);
+                return Redirect("https://www.goodjobs.works/");
             }
             catch (System.Exception exception)
             {

@@ -314,6 +314,8 @@ namespace API.Controllers
                     var lockDisabledTask = await _userManager.SetLockoutEnabledAsync(user, false);
                     var deletedBidCheck = await _bidService.DeletedBidUserId(user.Id); /// deleted bid 
                     var deletedProjectCheck = await _projectService.DeteleProjectByUserId(user.Id); /// deleted project 
+                    /// Send Mail
+                    
                     var hubConnections = await _context.HubConnections
                         .Where(con => con.userId == user.Id).ToListAsync();
                     foreach (var hubConnection in hubConnections)
@@ -491,6 +493,14 @@ namespace API.Controllers
                 return NotFound();
             }
             return Ok(Portfolios);
+        }
+
+        [HttpGet]
+        [Route(Common.Url.User.Locked)]
+        public async Task<ActionResult> Locked(int userId)
+        {
+            var userLocked = await _appUserService.GetUsersLocked();
+            return Ok(userLocked);
         }
     }
 }

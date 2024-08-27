@@ -270,5 +270,20 @@ namespace Application.Services
             var user = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber != null && x.PhoneNumber.Equals(phoneNumber) && x.PhoneNumberConfirmed == true);
             return user;
         }
+
+        public async Task<List<UserDTO>> GetUsersLocked()
+        {
+            var userlocked = from c in _context.Users
+                             where c.LockoutEnabled == false && c.LockoutEnd != null
+                             select new UserDTO
+                             {
+                                 Id = c.Id,
+                                 Avatar = c.Avatar,
+                                 Email = c.Email,
+                                 Name = c.Name,
+                             };
+            var userlockedList = await userlocked.ToListAsync();
+            return userlockedList;
+        }
     }
 }

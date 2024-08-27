@@ -227,5 +227,11 @@ namespace Application.Services
             _skillRepository.Update(skill);
             return true;
         }
+
+        public async Task<Skill> GetSkillByNameAsyn(string skillName)
+        {
+            var skill = await _context.Skills.FirstOrDefaultAsync(x=>x.SkillName.ToLower().Contains(skillName.ToLower()));
+            return skill;
+        }
     }
 }

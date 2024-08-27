@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
 using Domain.IRepositories;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -21,11 +22,13 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ICurrentUserService _currentUserService;
-        public CategoryService(IMapper mapper, ICategoryRepository categoryRepository, ICurrentUserService currentUserService)
+        private readonly ApplicationDbContext _context;
+        public CategoryService(IMapper mapper, ICategoryRepository categoryRepository, ICurrentUserService currentUserService, ApplicationDbContext context)
         {
             _mapper = mapper;
             _categoryRepository = categoryRepository;
             _currentUserService = currentUserService;
+            _context = context;
         }
 
         public async Task<Pagination<CategoryDTO>> GetAllPagination(int pageIndex, int pageSize)
@@ -130,6 +133,12 @@ namespace Application.Services
 
             var categoryDTO = _mapper.Map<CategoryDTO>(category);
             return categoryDTO;
+        }
+
+        public async Task<Category> GetCategoryByNameAsync(string categoryName)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(x => x.CategoryName.ToLower().Equals(categoryName.ToLower()));
+            return category;
         }
     }
 }

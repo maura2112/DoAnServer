@@ -29,6 +29,8 @@ namespace Application.IServices
         Task<bool> DeleteAsync(int id);
         Task<int> UpdateAsync(SkillDTO request);
         Task<Pagination<SkillDTO>> Gets(SkillSearchDTO search);
+
+        Task<Skill> GetSkillByNameAsyn(string skillName);
         //Task<List<SkillDTO>> GetByProjectId(int pId);
 
     }

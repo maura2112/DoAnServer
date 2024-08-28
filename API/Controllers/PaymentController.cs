@@ -150,7 +150,7 @@ namespace API.Controllers
         [Route(Common.Url.Payment.Cancel)]
         public async Task<IActionResult> Cancel()
         {
-            return BadRequest("Giao dịch không thành công");
+            return Redirect("https://www.goodjobs.works/");
         }
 
 
@@ -265,7 +265,7 @@ namespace API.Controllers
         [Route(Common.Url.Payment.CancelBuyProject)]
         public async Task<IActionResult> CancelBuyProject()
         {
-            return BadRequest("Giao dịch không thành công");
+            return Redirect("https://www.goodjobs.works/");
         }
 
         [HttpGet]

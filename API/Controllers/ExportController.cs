@@ -57,7 +57,7 @@ namespace API.Controllers
         {
             Message message = _mapper.Map<Message>(chatDto);
             message.SendDate = DateTime.UtcNow;
-            message.IsRead = 0;
+            message.IsRead = 1;
             await _context.AddAsync(message);
             await _context.SaveChangesAsync();
 
@@ -69,7 +69,7 @@ namespace API.Controllers
                 MessageText = answer,
                 SenderId = 72,
                 SendDate = DateTime.UtcNow,
-                IsRead = 0,
+                IsRead = 1,
                 MessageType = 1
             };
 
@@ -78,16 +78,27 @@ namespace API.Controllers
             await _context.AddAsync(messageN);
             await _context.SaveChangesAsync();
 
-                var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == chatDto.SenderId).ToListAsync();
+            var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == chatDto.SenderId).ToListAsync();
 
-                foreach (var hubConnection in hubConnectionsd)
-                {
+            foreach (var hubConnection in hubConnectionsd)
+            {
                 await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", messageN);
-                }
+            }
             foreach (var hubConnection in hubConnectionsd)
             {
                 await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("HaveMessage", 1);
             }
+
+            //var hubConnectionsd = await _context.HubConnections.Where(con => con.userId == newResponseMessage.SenderId).ToListAsync();
+            //foreach (var hubConnection in hubConnectionsd)
+            //{
+            //    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedMessage", messageN);
+            //}
+            //var hubConnections = await _context.HubConnections.Where(con => con.userId == chatDto.SenderId).ToListAsync();
+            //foreach (var hubConnection in hubConnections)
+            //{
+            //    await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("HaveMessage", 1);
+            //}
 
             return Ok();
         }

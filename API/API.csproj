@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="ImageFolder\" />
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
   <ItemGroup>

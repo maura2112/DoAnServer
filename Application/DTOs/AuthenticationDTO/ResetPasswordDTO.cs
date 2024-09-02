@@ -21,6 +21,7 @@ namespace Application.DTOs
 
     public class InputCodeConfirmDTO
     {
+        public string PhoneNumber { get; set; }
         public string Code { get; set; }
     }
     public class ResetPasswordCodeDTO

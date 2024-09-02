@@ -137,7 +137,7 @@ namespace API.Controllers
                         await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
                     }
                 }
-                return Ok(user.AmountBid);
+                return Redirect("https://www.goodjobs.works/");
             }
             catch (System.Exception exception)
             {
@@ -150,7 +150,7 @@ namespace API.Controllers
         [Route(Common.Url.Payment.Cancel)]
         public async Task<IActionResult> Cancel()
         {
-            return BadRequest("Giao dịch không thành công");
+            return Redirect("https://www.goodjobs.works/");
         }
 
 
@@ -251,7 +251,7 @@ namespace API.Controllers
                         await _chatHubContext.Clients.Client(hubConnection.ConnectionId).SendAsync("ReceivedNotification", notificationDto);
                     }
                 }
-                return Ok(user.AmoutProject);
+                return Redirect("https://www.goodjobs.works/");
             }
             catch (System.Exception exception)
             {
@@ -265,7 +265,7 @@ namespace API.Controllers
         [Route(Common.Url.Payment.CancelBuyProject)]
         public async Task<IActionResult> CancelBuyProject()
         {
-            return BadRequest("Giao dịch không thành công");
+            return Redirect("https://www.goodjobs.works/");
         }
 
         [HttpGet]

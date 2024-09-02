@@ -59,7 +59,10 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
             }
-
+            var catedb = await _categoryService.GetCategoryByNameAsync(DTOs.CategoryName);
+            if (catedb != null) {
+                return BadRequest("Danh mục đã tồn tại");
+            }
             var category = await _categoryService.Add(DTOs);
 
             return Ok(new

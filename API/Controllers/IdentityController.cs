@@ -24,6 +24,7 @@ using System;
 using System.Data;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Twilio.Types;
 using static API.Common.Url;
 using static Domain.Exceptions.Constant;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
@@ -386,7 +387,6 @@ namespace API.Controllers
                 var user = await _userManager.FindByIdAsync(userId.ToString());
                 var Code = _passwordGeneratorService.Generate6DigitCode();
                 user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(1);
-                user.PhoneNumber = StringExtensions.NormalizePhoneNumber(phoneNumber);
                 user.PasswordResetToken = _passwordGeneratorService.HashPassword(Code);
                 await _userManager.UpdateAsync(user);
                 bool result = await _smsService.SendSmsAsync(phoneNumber, "GoodJobs - Mã xác thực số điện thoại: "+ Code);
@@ -437,6 +437,7 @@ namespace API.Controllers
                         message = "Mã không hợp lệ !"
                     });
                 }
+                user.PhoneNumber = StringExtensions.NormalizePhoneNumber(dto.PhoneNumber);
                 user.PhoneNumberConfirmed = true;
                 await _userManager.UpdateAsync(user);
                 return Ok(new
